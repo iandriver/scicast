@@ -1,6 +1,6 @@
 # SCICAST
 Single Cell Iterative Clustering and Significance Testing
-<<<<<<< HEAD
+
 =======
 
 usage: cluster.py [-h] -f FILEPATH [-n BASE_NAME] [-g GENE_NUMBER] [-v]
@@ -10,4 +10,3 @@ usage: cluster.py [-h] -f FILEPATH [-n BASE_NAME] [-g GENE_NUMBER] [-v]
                   [--method METHOD]
 
 
->>>>>>> 2c07eb4a5e430ad7eff3f05d0d9a9c03ae846a07
