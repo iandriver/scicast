@@ -2,6 +2,7 @@ import pickle as pickle
 import numpy as np
 import pandas as pd
 import os
+import sys
 from subprocess import call
 import matplotlib
 matplotlib.use('QT5Agg')
@@ -25,8 +26,8 @@ import matplotlib.ticker as ticker
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_file):
     split_on='_'
-    gene_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
-    gene_list = gene_df['GeneID'].tolist()
+    gene_df = pd.read_csv(gene_list_file, delimiter= '\t')
+    gene_list = list(set(gene_df['GeneID'].tolist()))
     group_list = gene_df['GroupID'].tolist()
     try:
         gmatrix_df = org_matrix_by_gene[gene_list]
@@ -43,8 +44,8 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_file):
     return new_cmatrix_df, new_gmatrix_df
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
-    cell_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), cell_list_file), delimiter= '\t')
-    cell_list_new = [cell.strip('\n') for cell in cell_df['Sample ID'].tolist()]
+    cell_df = pd.read_csv(cell_list_file, delimiter= '\t')
+    cell_list_new = [cell.strip('\n') for cell in cell_df['SampleID'].tolist()]
     new_cmatrix_df = org_matrix_by_cell[cell_list_new]
     new_gmatrix_df = new_cmatrix_df.transpose()
     return new_cmatrix_df, new_gmatrix_df
@@ -304,7 +305,7 @@ def find_twobytwo(cc, df_by_cell, full_by_cell_df, path_filename, fraction_to_pl
         cell_names_df.to_csv(os.path.join(path_filename,'sig_'+v+'_cells.txt'), sep = '\t')
 
 
-def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False, annotate=False, verbose=False):
+def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False, verbose=False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
     if gene_list_filter:
@@ -340,6 +341,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_cell.grid(b=True, which='major', color='grey', linestyle='--', linewidth=0.3)
         ax_gene.grid(b=True, which='major', color='grey', linestyle='--', linewidth=0.3)
         if label_map:
+            annotate = False
             X = [x for x in top_cell_trans[:, 0]]
             Y = [y for y in top_cell_trans[:, 1]]
             labels = [label_map[cell][2] for cell in top_by_cell.columns.tolist()]
@@ -356,6 +358,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
 
         else:
             ax_cell.scatter(top_cell_trans[:, 0], top_cell_trans[:, 1], alpha=0.75)
+            annotate = True
         ax_cell.set_xlim([min(top_cell_trans[:, 0])-1, max(top_cell_trans[:, 0]+1)])
         ax_cell.set_ylim([min(top_cell_trans[:, 1])-1, max(top_cell_trans[:, 1]+2)])
         ax_cell.set_title(title+'_cell')
@@ -370,9 +373,10 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
             X = [x for x in top_gene_trans[:, 0]]
             Y = [y for y in top_gene_trans[:, 1]]
             labels = top_by_gene.columns.tolist()
-            colors = [gene_map[gene] for gene in top_by_gene.columns.tolist()]
-            for X_pos, Y_pos, color, l in zip(X, Y, colors, labels):
-                ax_gene.scatter(X_pos, Y_pos, marker='o', c=color, label = l, s=30)
+            markers = [gene_map[gene][1] for cell in top_by_gene.columns.tolist()]
+            colors = [gene_map[gene][0] for gene in top_by_gene.columns.tolist()]
+            for X_pos, Y_pos, m, color, l in zip(X, Y, markers, colors, labels):
+                ax_gene.scatter(X_pos, Y_pos, marker=m, c=color, label = l, s=30)
         else:
             ax_gene.scatter(top_gene_trans[:, 0], top_gene_trans[:, 1], alpha=0.75)
         ax_gene.set_xlim([min(top_gene_trans[:, 0])-1, max(top_gene_trans[:, 0])+1])
@@ -629,25 +633,9 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False
                 print(term_to_search+' not in this matrix')
             pass
 
-def cell_color_map(cell_group_filename, cell_list):
-    colors = ['b', 'g', 'r', 'm', 'c', 'orange', 'darkslateblue']
-    markers = ['o', 'v','D','*','x','h', 's']
-    cell_groups_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), cell_group_filename), delimiter= '\t')
-    label_map = {}
-    cells_w_groups = []
-    for i, col in enumerate(cell_groups_df.columns.tolist()):
-        for cell in cell_groups_df[col]:
-            if str(cell) != 'nan':
-                label_map[cell] = (colors[i],markers[i],col)
-                cells_w_groups.append(cell)
-                final_i = i
-    non_group_cells = [c for c in cell_list if c not in cells_w_groups]
-    for cell in non_group_cells:
-        label_map[cell] = (colors[final_i+1],markers[final_i+1],'No_Group')
-    return label_map
 
 def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
-    cell_groups_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), cell_group_filename), delimiter= '\t')
+    cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
     group_name_list = cell_groups_df.columns.tolist()
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -691,22 +679,53 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
         sig_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_pvalues.txt'), sep = '\t')
         cell_names_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_cells.txt'), sep = '\t')
 
-def gene_list_map(gene_list_file):
-    gene_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
-    if len(gene_df['GeneID']) == len(gene_df['GroupID']):
-        colors = ['r', 'c', 'b', 'm', 'g', 'orange', 'darkslateblue', 'black']
-        gene_seen = []
-        gene_list_1 = []
-        group_list_1 = []
-        for gene, group in zip(gene_df['GeneID'].tolist(), gene_df['GroupID'].tolist()):
-            if gene not in gene_seen:
-                gene_list_1.append(gene)
-                group_list_1.append(colors[int(group)-1])
-                gene_seen.append(gene)
+def cell_color_map(cell_group_filename, cell_list, color_list, markers):
+    cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
+    cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
+    if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
+        group_count = 0
+        group_seen = []
+        label_map = {}
+        cells_seen = []
+        for cell, group in zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()):
+            if cell not in cells_seen:
+                if group not in group_seen:
+                    group_count += 1
+                    group_seen.append(group)
+                label_map[cell] = (color_list[group_count],markers[group_count],group)
+                cells_seen.append(cell)
+        non_group_cells = [c for c in cell_list if c not in cells_seen]
+        if non_group_cells != []:
+            for cell in non_group_cells:
+                label_map[cell] = (color_list[group_count+1],markers[group_count+1],'No_Group')
     else:
-        gene_list_1 = list(set(gene_df['GeneID'].tolist()))
-        group_list_1 = False
-    return gene_list_1, group_list_1
+        label_map = False
+    return cell_list_1, label_map
+
+def gene_list_map(gene_list_file, gene_list, color_list, markers):
+    gene_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
+    gene_list_1 = list(set(gene_df['GeneID'].tolist()))
+    print(gene_list_1)
+    if len(gene_df['GeneID']) == len(gene_df['GroupID']):
+        gene_label_map = {}
+        group_count = 0
+        group_seen = []
+        genes_seen = []
+        gene_list_1 = []
+        for gene, group in zip(gene_df['GeneID'].tolist(), gene_df['GroupID'].tolist()):
+            if gene not in genes_seen:
+                if group not in group_seen:
+                    group_count += 1
+                    group_seen.append(group)
+                gene_label_map[gene] = (color_list[group_count],markers[group_count],group)
+                genes_seen.append(gene)
+        non_group_genes = [g for g in gene_list if g not in genes_seen]
+        if non_group_genes != []:
+            for cell in non_group_genes:
+                gene_label_map[gene] = (color_list[group_count+1],markers[group_count+1],'No_ID')
+    else:
+        gene_label_map = False
+    return gene_list_1, gene_label_map
 
 def main(args):
     verbose = args.verbose
@@ -714,12 +733,6 @@ def main(args):
     if verbose:
         print('Making new folder for results of SCICAST clustering: '+new_file)
     call('mkdir -p '+new_file, shell=True)
-
-
-    if args.make_gene_matrix:
-        gene_list_file = args.make_gene_matrix
-    if args.make_cell_matrix:
-        cell_file = args.make_cell_matrix
 
     by_cell = pd.DataFrame.from_csv(args.filepath, sep='\t')
 
@@ -733,35 +746,54 @@ def main(args):
     df_by_gene1 = pd.DataFrame(by_gene, columns=gene_list, index=cell_list)
     df_by_cell1 = pd.DataFrame(by_cell, columns=cell_list, index=gene_list)
 
+    color_list = ['b', 'g', 'r', 'm', 'c', 'orange', 'darkslateblue']
+    markers = ['o', 'v','D','*','x','h', 's']
 
 
-    if args.make_gene_matrix:
+    if args.gene_list_filename:
+        if os.path.isfile(args.gene_list_filename):
+            gene_list_file = args.gene_list_filename
+        elif os.path.isfile(os.path.join(os.path.dirname(args.filepath),args.gene_list_filename)):
+            gene_list_file = os.path.join(os.path.dirname(args.filepath),args.gene_list_filename)
+        else:
+            sys.exit('Error: Cannot find gene list file. Please place the gene list file in the same directory or provide a full path.')
+
+
+    if args.cell_list_filename:
+        if os.path.isfile(args.cell_list_filename):
+            cell_file = args.cell_list_filename
+        elif os.path.isfile(os.path.join(os.path.dirname(args.filepath),args.cell_list_filename)):
+            cell_file = os.path.join(os.path.dirname(args.filepath),args.cell_list_filename)
+        else:
+            sys.exit('Error: Cannot find cell list file. Please place the gene list file in the same directory or provide a full path.')
+
+    if args.gene_list_filename and args.cell_list_filename:
+        df_by_cell3, df_by_gene3 = make_new_matrix_gene(df_by_gene1, gene_list_file)
+        df_by_cell2, df_by_gene2 = make_new_matrix_cell(df_by_cell3, cell_file)
+        gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene2.columns.values, color_list, markers)
+        cell_list, label_map = cell_color_map(cell_file, df_by_cell2.columns.values, color_list, markers)
+    elif args.gene_list_filename:
         df_by_cell2, df_by_gene2 = make_new_matrix_gene(df_by_gene1, gene_list_file)
-    if args.make_cell_matrix:
+        gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene2.columns.values, color_list, markers)
+    elif args.cell_list_filename:
         df_by_cell2, df_by_gene2 = make_new_matrix_cell(df_by_cell1, cell_file)
+        cell_list, label_map = cell_color_map(cell_file, df_by_cell2.columns.values, color_list, markers)
     else:
         df_by_cell2, df_by_gene2 = df_by_cell1, df_by_gene1
+        label_map = False
+        gene_color_map = False
 
     np_by_cell2 = np.array(df_by_cell2.values, dtype='f')
     gen_list = df_by_cell2.index.tolist()
     np_by_cell, n_gene_list = preprocess_df(np_by_cell2, gen_list, verbose=verbose)
     df_by_gene = pd.DataFrame(np_by_cell.transpose(), index = df_by_cell2.columns.values, columns= n_gene_list)
     df_by_cell = df_by_gene.transpose()
-
     log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell, plot=False)
     if args.test_clust_stability != 0:
         stability_ratio = clust_stability(log2_expdf_gene, iterations = test_clust_stability)
-    group_colors = False
-    if args.cell_group_file:
-        label_map = cell_color_map(args.cell_group_file, log2_expdf_cell.columns.values)
-        gene_list, group_colors = gene_list_map(args.make_gene_matrix)
-        new_by_gene = log2_expdf_gene[gene_list]
-        new_by_cell = new_by_gene.transpose()
-        cell_list = new_by_cell.columns.tolist()
-        if group_colors:
-            gene_color_map = {}
-            for gene, color in zip(gene_list,group_colors):
-                gene_color_map[gene] = color
+
+    if label_map != False:
+        if gene_color_map != False:
             plot_PCA(new_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
             cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(gene_list, new_by_gene, new_file, num_to_plot=len(gene_list), label_map=label_map, gene_map=gene_color_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
@@ -782,8 +814,8 @@ def main(args):
         cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
         make_subclusters(cc, top_pca_by_cell, log2_expdf_cell, new_file, base_name=args.base_name, gene_corr_list=['KRT19'])
         find_twobytwo(cc, top_pca_by_cell, log2_expdf_cell, new_file)
-    if args.group_sig_test and args.group_file:
-        multi_group_sig(log2_expdf_cell, cell_group_filename, new_file)
+    if args.group_sig_test and args.cell_list_filename:
+        multi_group_sig(log2_expdf_cell, args.cell_list_filename, new_file)
 
     #cell_dist, row_dist, row_clusters, link_mat, row_dendr = run_cluster(top_pca_by_gene)
 
@@ -835,11 +867,11 @@ def get_parser():
                         default=False,
                         help="Print more")
     parser.add_argument("-cell_group",
-                        dest="cell_group_file",
+                        dest="cell_list_filename",
                         default=False,
-                        help="Provide path to file with group names as headers and columns with cells in that group.")
+                        help="Provide a filename with two columns: 'SampleID' and 'GroupID'. If GroupID is empty the SampleID list will be used to restrict cells prior to analysis.")
     parser.add_argument("-gene_list",
-                        dest="make_gene_matrix",
+                        dest="gene_list_filename",
                         default=False,
                         help="Path to a file with a two columns with headers 'GeneID' and 'GroupID' (Singular format). GeneID list will be used to create a new matrix file with only those genes included.")
     parser.add_argument("-group_sig_test",
@@ -847,10 +879,6 @@ def get_parser():
                         dest="group_sig_test",
                         default=True,
                         help="True or Flase. When True, if cell groups are provided, perform significance testing between all groups.")
-    parser.add_argument("-cell_list",
-                        dest="make_cell_matrix",
-                        default=False,
-                        help="Path to a file with a column 'SampleID' (Singular format). SampleID list will be used to create a new matrix file with only those cells included.")
     parser.add_argument("-stability",
                         dest="test_clust_stability",
                         default=0,
