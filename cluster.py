@@ -51,7 +51,7 @@ def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
     return new_cmatrix_df, new_gmatrix_df
 
 
-def preprocess_df(np_by_cell, gen_list, number_expressed=3, verbose=False):
+def preprocess_df(np_by_cell, gen_list, number_expressed=3):
     g_todelete = []
     for g1, gene in enumerate(np_by_cell):
         cells_exp = (gene >= 1.0).sum()
@@ -60,7 +60,7 @@ def preprocess_df(np_by_cell, gen_list, number_expressed=3, verbose=False):
     g1_todelete = sorted(g_todelete, reverse = True)
     for pos in g1_todelete:
         if type(gen_list[pos]) != float:
-            if verbose:
+            if args.verbose:
                 print('Gene '+gen_list[pos]+' not expressed in '+str(number_expressed)+' cells.')
             pass
         del gen_list[pos]
@@ -88,7 +88,7 @@ def find_top_common_genes(log2_df_by_cell, num_common=25):
     else:
         return [0]
 
-def log2_oulierfilter(df_by_cell, plot=False, verbose=False):
+def log2_oulierfilter(df_by_cell, plot=False):
     log2_df = np.log2(df_by_cell+1)
     top_log2 = find_top_common_genes(log2_df)
     if all(top_log2) != 0:
@@ -304,7 +304,7 @@ def find_twobytwo(cc, df_by_cell, full_by_cell_df, path_filename, fraction_to_pl
         cell_names_df.to_csv(os.path.join(path_filename,'sig_'+v+'_cells.txt'), sep = '\t')
 
 
-def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False, verbose=False):
+def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
     if gene_list_filter:
@@ -321,8 +321,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len(sig_by_gene.columns.tolist()))
     top_pca_list = Pc_sort_df.index.tolist()
-    print(top_pca_list[0:num_genes])
-    if verbose:
+    if args.verbose:
         print(top_pca_list[0:num_genes], 'top_pca_list')
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
     gene_top = skPCA(n_components=2)
@@ -557,7 +556,7 @@ def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_thresh
     return sig_corrs
 
 #corr_plot finds and plots all correlated genes, log turns on log scale, sort plots the genes in the rank order of the gene searched
-def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False, log=False, sort=True, sig_threshold=0.5, verbose=False):
+def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False, log=False, sort=True, sig_threshold=0.5):
     sig_corrs = run_corr(df_by_gene, title, path_filename, sig_threshold=sig_threshold)
     for term_to_search in terms_to_search:
         corr_tup = [(term_to_search, 1)]
@@ -574,12 +573,12 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False
                     corr_tup.append((index[0],row['corr']))
 
         if neg:
-            if verbose:
+            if args.verbose:
                 print(term_to_search+' not correlated.')
         corr_tup.sort(key=itemgetter(1), reverse=True)
         corr_df = pd.DataFrame(corr_tup, columns=['GeneID', 'Correlation'])
         corr_df.to_csv(os.path.join(path_filename, title+'_Corr_w_'+term_to_search+'_list.txt'), sep = '\t', index=False)
-        if verbose:
+        if args.verbose:
             print('Correlations:')
             for c in corr_tup:
                 print(c)
@@ -629,7 +628,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False
             plt.savefig(os.path.join(path_filename, title+'_corr_with_'+term_to_search+'.pdf'), bbox_inches='tight')
             plt.close('all')
         except KeyError:
-            if verbose:
+            if args.verbose:
                 print(term_to_search+' not in this matrix')
             pass
 
@@ -711,15 +710,12 @@ def gene_list_map(gene_list_file, gene_list, color_list, markers):
         group_seen = ['xyz' for i in range(len(set(gene_df['GroupID'].tolist())))]
         genes_seen = []
         for gene, group in zip(gene_df['GeneID'].tolist(), gene_df['GroupID'].tolist()):
-            print(group)
             if gene not in genes_seen:
                 if str(group) in group_seen:
                     pos = group_seen.index(str(group))
-                    print('y')
                 else:
                     group_seen[group_pos] = str(group)
                     pos = group_pos
-                    print(group,pos, 'x')
                     group_pos += 1
                 gene_label_map[gene] = (color_list[pos],markers[pos],group)
                 genes_seen.append(gene)
@@ -732,9 +728,8 @@ def gene_list_map(gene_list_file, gene_list, color_list, markers):
     return gene_list_1, gene_label_map
 
 def main(args):
-    verbose = args.verbose
     new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_subgroups')
-    if verbose:
+    if args.verbose:
         print('Making new folder for results of SCICAST clustering: '+new_file)
     call('mkdir -p '+new_file, shell=True)
 
@@ -864,7 +859,7 @@ def get_parser():
     parser.add_argument("-v", "--verbose",
                         action="store_true",
                         dest="verbose",
-                        default=False,
+                        default=True,
                         help="Print more")
     parser.add_argument("-cell_group",
                         dest="cell_list_filename",
