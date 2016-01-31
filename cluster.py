@@ -411,7 +411,7 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
         z_choice = int(args.z_direction)
         if z_choice != 0 and z_choice != 1:
             sys.exit('Please enter a valid option (0, 1, or None) for z_direction')
-    cmap = sns.diverging_palette(265, 5, sep=1, as_cmap=True)
+    cmap = sns.diverging_palette(255, 10, s=99, sep=1, as_cmap=True)
     cell_list = df_by_gene.index.tolist()
     cg = sns.clustermap(df_by_gene[gene_list[0:num_to_plot]].transpose(), metric=args.metric, method=args.method, z_score=z_choice, figsize=(30, 30), cmap =cmap)
     col_order = cg.dendrogram_col.reordered_ind
