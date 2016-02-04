@@ -384,7 +384,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_gene.set_xlabel('PC1')
         ax_gene.set_ylabel('PC2')
         for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
-            ax_gene.annotate(label, (x+.5, y+.5))
+            ax_gene.annotate(label, (x+0.1, y+0.1))
         if plot:
             plt.show()
         if title != '':
@@ -480,10 +480,10 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 if gene_corr_list != []:
                     top_genes_search = gene_corr_list+top_pca
-                    corr_plot(top_genes_search[0:3+len(gene_corr_list)], gene_subset, path_filename, title = current_title, label_map=label_map)
+                    corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 else:
                     top_genes_search = top_pca
-                    corr_plot(top_genes_search[0:3], gene_subset, path_filename, title = current_title, label_map=label_map)
+                    corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 if gene_map:
                     cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename, num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map, gene_map = gene_map)
                 else:
@@ -566,27 +566,28 @@ def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_thresh
     if run_new:
         sig_corrs.to_csv(os.path.join(path_filename, title+'_counts_corr_sig_'+method_name+'.txt'), sep = '\t')
     return sig_corrs
-
-#corr_plot finds and plots all correlated genes, log turns on log scale, sort plots the genes in the rank order of the gene searched
-def corr_plot(terms_to_search, df_by_gene, path_filename, title, label_map=False, log=False, sort=True, sig_threshold=0.5):
-    sig_corrs = run_corr(df_by_gene, title, path_filename, sig_threshold=sig_threshold)
+def find_top_corrs(terms_to_search, sig_corrs, num_to_return):
+    all_corrs_list = []
     for term_to_search in terms_to_search:
         corr_tup = [(term_to_search, 1)]
-        neg = True
-        fig, ax = plt.subplots()
-        marker = itertools.cycle(('+', 'o', '*'))
-        linestyles = itertools.cycle(('--', '-.', '-', ':'))
         for index, row in sig_corrs.iterrows():
             if term_to_search in index:
-                neg = False
                 if index[0]==term_to_search:
                     corr_tup.append((index[1],row['corr']))
                 else:
                     corr_tup.append((index[0],row['corr']))
+        all_corrs_list.append(corr_tup)
+    all_corrs_list.sort(key=len, reverse=True)
+    print(all_corrs_list)
+    return all_corrs_list[0:num_to_return]
 
-        if neg:
-            if args.verbose:
-                print(term_to_search+' not correlated.')
+
+#corr_plot finds and plots all correlated genes, log turns on log scale, sort plots the genes in the rank order of the gene searched
+def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, label_map=False, log=False, sort=True, sig_threshold=0.5):
+    sig_corrs = run_corr(df_by_gene, title, path_filename, sig_threshold=sig_threshold)
+    corr_list = find_top_corrs(terms_to_search, sig_corrs, num_to_plot)
+    for corr_tup in corr_list:
+        term_to_search = corr_tup[0][0]
         corr_tup.sort(key=itemgetter(1), reverse=True)
         corr_df = pd.DataFrame(corr_tup, columns=['GeneID', 'Correlation'])
         corr_df.to_csv(os.path.join(path_filename, title+'_Corr_w_'+term_to_search+'_list.txt'), sep = '\t', index=False)
