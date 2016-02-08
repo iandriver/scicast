@@ -470,7 +470,7 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
             if gene_map:
                 top_pca = plot_PCA(gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map, gene_map=gene_map)
             else:
-                top_pca = plot_PCA(gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map)
+                top_pca = plot_PCA(gene_subset, path_filename, num_genes=int(args.gene_number), title=current_title, plot=False, label_map=label_map)
             if len(top_pca)<args.gene_number:
                 plot_num = len(top_pca)
             else:
@@ -479,10 +479,10 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
                 top_pca_by_gene = gene_subset[top_pca]
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 if gene_corr_list != []:
-                    top_genes_search = gene_corr_list+top_pca
+                    top_genes_search = gene_corr_list+top_pca[0:30]
                     corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 else:
-                    top_genes_search = top_pca
+                    top_genes_search = top_pca[0:30]
                     corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 if gene_map:
                     cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename, num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map, gene_map = gene_map)
@@ -578,7 +578,7 @@ def find_top_corrs(terms_to_search, sig_corrs, num_to_return):
                     corr_tup.append((index[0],row['corr']))
         all_corrs_list.append(corr_tup)
     all_corrs_list.sort(key=len, reverse=True)
-    print(all_corrs_list)
+
     return all_corrs_list[0:num_to_return]
 
 
@@ -792,6 +792,7 @@ def main(args):
     elif args.cell_list_filename:
         df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
         cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_list, markers)
+        gene_color_map = False
     else:
         df_by_cell, df_by_gene = df_by_cell1, df_by_gene1
         label_map = False
@@ -813,10 +814,12 @@ def main(args):
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
             make_subclusters(cc, df_by_cell, log2_expdf_cell, gene_corr_list=corr_gene_list ,path_filename=new_file, base_name=args.base_name, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
         else:
-            plot_PCA(df_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map)
-            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(gene_list, df_by_gene, new_file, num_to_plot=len(gene_list), label_map=label_map)
+            top_pca = plot_PCA(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
+            top_pca_by_gene = log2_expdf_gene[top_pca]
+            top_pca_by_cell = top_pca_by_gene.transpose()
+            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
-            make_subclusters(cc, df_by_cell, log2_expdf_cell, gene_corr_list=corr_gene_list, path_filename=new_file, base_name=args.base_name, label_map=label_map, cluster_size=args.depth_of_clustering)
+            make_subclusters(cc, top_pca_by_cell, log2_expdf_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, group_colors=True, label_map=label_map, cluster_size=args.depth_of_clustering)
         if args.all_sig:
             find_twobytwo(cc, df_by_cell, log2_expdf_cell, new_file, cluster_size=args.depth_of_clustering)
     else:
