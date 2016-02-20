@@ -5,7 +5,7 @@ import os
 import sys
 from subprocess import call
 import matplotlib
-matplotlib.use('QT5Agg')
+#matplotlib.use('QT5Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator
 import scipy
@@ -21,14 +21,20 @@ from operator import itemgetter
 import itertools
 from functools import reduce
 import matplotlib.ticker as ticker
-
+import math
 
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_file):
     split_on='_'
     gene_df = pd.read_csv(gene_list_file, delimiter= '\t')
-    gene_list = list(set(gene_df['GeneID'].tolist()))
-    group_list = gene_df['GroupID'].tolist()
+    try:
+        gene_list = list(set(gene_df['GeneID'].tolist()))
+    except KeyError:
+        sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
+    try:
+        group_list = gene_df['GroupID'].tolist()
+    except KeyError:
+        sys.exit("Error: Please provide Gene list file with 'GroupID' as header.")
     try:
         gmatrix_df = org_matrix_by_gene[gene_list]
     except KeyError as error_gene:
@@ -46,7 +52,13 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_file):
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
     cell_df = pd.read_csv(cell_list_file, delimiter= '\t')
     cell_list_new = [cell.strip('\n') for cell in cell_df['SampleID'].tolist()]
-    new_cmatrix_df = org_matrix_by_cell[cell_list_new]
+    cell_list_old = org_matrix_by_cell.columns.tolist()
+    overlap = [c for c in cell_list_new if c in cell_list_old]
+    not_in_matrix = [c for c in cell_list_new if c not in cell_list_old]
+    if not_in_matrix != []:
+        print('These cells were in the cell list provided by not found in the matrix provided:')
+        print(not_in_matrix)
+    new_cmatrix_df = org_matrix_by_cell[overlap]
     new_gmatrix_df = new_cmatrix_df.transpose()
     return new_cmatrix_df, new_gmatrix_df
 
@@ -413,42 +425,48 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
             sys.exit('Please enter a valid option (0, 1, or None) for z_direction')
     cmap = sns.diverging_palette(255, 10, s=99, sep=1, as_cmap=True)
     cell_list = df_by_gene.index.tolist()
-    cg = sns.clustermap(df_by_gene[gene_list[0:num_to_plot]].transpose(), metric=args.metric, method=args.method, z_score=z_choice, figsize=(30, 30), cmap =cmap)
-    col_order = cg.dendrogram_col.reordered_ind
-    row_order = cg.dendrogram_row.reordered_ind
-    cg.ax_heatmap.set_title(title)
-    if label_map:
-        Xlabs = [cell_list[i] for i in col_order]
-        Xcolors = [label_map[cell][0] for cell in Xlabs]
-        for xtick, xcolor in zip(cg.ax_heatmap.get_xticklabels(), Xcolors):
-            xtick.set_color(xcolor)
-            xtick.set_rotation(270)
-    else:
-        for xtick in cg.ax_heatmap.get_xticklabels():
-            xtick.set_rotation(270)
-    if gene_map:
-        Ylabs = [gene_list[i] for i in row_order]
-        Ycolors = [gene_map[gene][0] for gene in Ylabs]
-        for ytick, ycolor in zip(cg.ax_heatmap.get_yticklabels(), list(reversed(Ycolors))):
-            ytick.set_color(ycolor)
-            ytick.set_rotation(0)
-    else:
-        for ytick in cg.ax_heatmap.get_yticklabels():
-            ytick.set_rotation(0)
-    if plot:
-        plt.show()
-    cell_linkage = cg.dendrogram_col.linkage
+    cluster_df = df_by_gene[gene_list[0:num_to_plot]].transpose()
+    cluster_df[abs(cluster_df)<3e-12] = 0.0
+    try:
+        cg = sns.clustermap(cluster_df, metric=args.metric, method=args.method, z_score=z_choice, figsize=(30, 30), cmap =cmap)
+        col_order = cg.dendrogram_col.reordered_ind
+        row_order = cg.dendrogram_row.reordered_ind
+        cg.ax_heatmap.set_title(title)
+        if label_map:
+            Xlabs = [cell_list[i] for i in col_order]
+            Xcolors = [label_map[cell][0] for cell in Xlabs]
+            for xtick, xcolor in zip(cg.ax_heatmap.get_xticklabels(), Xcolors):
+                xtick.set_color(xcolor)
+                xtick.set_rotation(270)
+        else:
+            for xtick in cg.ax_heatmap.get_xticklabels():
+                xtick.set_rotation(270)
+        if gene_map:
+            Ylabs = [gene_list[i] for i in row_order]
+            Ycolors = [gene_map[gene][0] for gene in Ylabs]
+            for ytick, ycolor in zip(cg.ax_heatmap.get_yticklabels(), list(reversed(Ycolors))):
+                ytick.set_color(ycolor)
+                ytick.set_rotation(0)
+        else:
+            for ytick in cg.ax_heatmap.get_yticklabels():
+                ytick.set_rotation(0)
+        if plot:
+            plt.show()
+        cell_linkage = cg.dendrogram_col.linkage
 
-    link_mat = pd.DataFrame(cell_linkage,
-                columns=['row label 1', 'row label 2', 'distance', 'no. of items in clust.'],
-                index=['cluster %d' %(i+1) for i in range(cell_linkage.shape[0])])
-    if title != '':
-        save_name = '_'.join(title.split(' ')[0:2])
-        cg.savefig(os.path.join(path_filename, save_name+'_heatmap.pdf'), bbox_inches='tight')
-    else:
-        cg.savefig(os.path.join(path_filename,'Group0_Heatmap_all_cells.pdf'), bbox_inches='tight')
-    plt.close('all')
-    return cell_linkage, df_by_gene[gene_list[0:num_to_plot]], col_order
+        link_mat = pd.DataFrame(cell_linkage,
+                    columns=['row label 1', 'row label 2', 'distance', 'no. of items in clust.'],
+                    index=['cluster %d' %(i+1) for i in range(cell_linkage.shape[0])])
+        if title != '':
+            save_name = '_'.join(title.split(' ')[0:2])
+            cg.savefig(os.path.join(path_filename, save_name+'_heatmap.pdf'), bbox_inches='tight')
+        else:
+            cg.savefig(os.path.join(path_filename,'Group0_Heatmap_all_cells.pdf'), bbox_inches='tight')
+        plt.close('all')
+        return cell_linkage, df_by_gene[gene_list[0:num_to_plot]], col_order
+    except FloatingPointError:
+        print('linkage distance has too many zeros. Heatmap with '+ str(len(cell_list))+' will not be created.')
+        return False, False, False
 
 def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, base_name, gene_corr_list, label_map=False, gene_map=False, cluster_size=20, group_colors=False):
     parent = cc[0][1]
@@ -566,6 +584,7 @@ def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_thresh
     if run_new:
         sig_corrs.to_csv(os.path.join(path_filename, title+'_counts_corr_sig_'+method_name+'.txt'), sep = '\t')
     return sig_corrs
+
 def find_top_corrs(terms_to_search, sig_corrs, num_to_return):
     all_corrs_list = []
     for term_to_search in terms_to_search:
@@ -583,7 +602,10 @@ def find_top_corrs(terms_to_search, sig_corrs, num_to_return):
 
 
 #corr_plot finds and plots all correlated genes, log turns on log scale, sort plots the genes in the rank order of the gene searched
-def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, label_map=False, log=False, sort=True, sig_threshold=0.5):
+def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, gene_corr_list = [], label_map=False, log=False, sort=True, sig_threshold=0.5):
+    size_cells = len(df_by_gene.index.tolist())
+    if size_cells <100:
+        sig_threshold = -0.137*math.log(size_cells)+1.1322
     sig_corrs = run_corr(df_by_gene, title, path_filename, sig_threshold=sig_threshold)
     corr_list = find_top_corrs(terms_to_search, sig_corrs, num_to_plot)
     for corr_tup in corr_list:
@@ -659,53 +681,59 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
         sig_gene_list = []
         cell_list1 = [c[0] for c in cell_group_ident if c[1] == gp[0]]
         cell_list2 = [c[0] for c in cell_group_ident if c[1] == gp[1]]
-        df_by_cell_1 = full_by_cell_df[cell_list1]
-        df_by_cell_2 = full_by_cell_df[cell_list2]
-        df_by_gene_1 = df_by_cell_1.transpose()
-        df_by_gene_2 = df_by_cell_2.transpose()
-        for g in gene_list:
-            g_pvalue = scipy.stats.f_oneway(df_by_gene_1[g], df_by_gene_2[g])
-            if g_pvalue[0] > 0 and g_pvalue[1] <= 1:
-                g_pvalue_dict[g] = g_pvalue
-                if g not in [s[0] for s in sig_gene_list]:
-                    sig_gene_list.append([g, g_pvalue[1]])
+        cell1_present = [c for c in set(cell_list1) if c in set(full_by_cell_df.columns.tolist())]
+        cell2_present = [c for c in set(cell_list2) if c in set(full_by_cell_df.columns.tolist())]
+        if cell1_present != [] and cell2_present != []:
+            df_by_cell_1 = full_by_cell_df[cell1_present]
+            df_by_cell_2 = full_by_cell_df[cell2_present]
+            df_by_gene_1 = df_by_cell_1.transpose()
+            df_by_gene_2 = df_by_cell_2.transpose()
+            for g in gene_list:
+                g_pvalue = scipy.stats.f_oneway(df_by_gene_1[g], df_by_gene_2[g])
+                if g_pvalue[0] > 0 and g_pvalue[1] <= 1:
+                    g_pvalue_dict[g] = g_pvalue
+                    if g not in [s[0] for s in sig_gene_list]:
+                        sig_gene_list.append([g, g_pvalue[1]])
 
-        sig_gene_list.sort(key=lambda tup: tup[1])
-        pvalues = [p[1] for p in sig_gene_list]
-        gene_index = [ge[0] for ge in sig_gene_list]
-        by_gene_df = full_by_cell_df.transpose()
-        mean_log2_exp_list = []
-        sig_1_2_list = []
-        mean1_list = []
-        mean2_list = []
-        for sig_gene in gene_index:
-            sig_gene_df = by_gene_df[sig_gene]
-            mean_log2_exp_list.append(sig_gene_df.mean())
-            sig_cell_df = sig_gene_df.transpose()
-            mean_cell1 = sig_cell_df[cell_list1].mean()
-            mean1_list.append(mean_cell1)
-            mean_cell2 = sig_cell_df[cell_list2].mean()
-            mean2_list.append(mean_cell2)
-            ratio_1_2 = (mean_cell1+1)/(mean_cell2+1)
-            sig_1_2_list.append(ratio_1_2)
-        sig_df = pd.DataFrame({'pvalues':pvalues,'mean_all':mean_log2_exp_list,'mean_group1':mean1_list, 'mean_group2':mean2_list, 'ratio_1_2':sig_1_2_list}, index=gene_index)
-        cell_names_df = pd.DataFrame({'cells1':pd.Series(cell_list1, index=range(len(cell_list1))), 'cells2':pd.Series(cell_list2, index=range(len(cell_list2)))})
-        sig_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_pvalues.txt'), sep = '\t')
-        cell_names_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_cells.txt'), sep = '\t')
+            sig_gene_list.sort(key=lambda tup: tup[1])
+            pvalues = [p[1] for p in sig_gene_list]
+            gene_index = [ge[0] for ge in sig_gene_list]
+            by_gene_df = full_by_cell_df.transpose()
+            mean_log2_exp_list = []
+            sig_1_2_list = []
+            mean1_list = []
+            mean2_list = []
+            for sig_gene in gene_index:
+                sig_gene_df = by_gene_df[sig_gene]
+                mean_log2_exp_list.append(sig_gene_df.mean())
+                sig_cell_df = sig_gene_df.transpose()
+                mean_cell1 = sig_cell_df[cell1_present].mean()
+                mean1_list.append(mean_cell1)
+                mean_cell2 = sig_cell_df[cell2_present].mean()
+                mean2_list.append(mean_cell2)
+                ratio_1_2 = (mean_cell1+1)/(mean_cell2+1)
+                sig_1_2_list.append(ratio_1_2)
+            sig_df = pd.DataFrame({'pvalues':pvalues,'mean_all':mean_log2_exp_list,'mean_group1':mean1_list, 'mean_group2':mean2_list, 'ratio_1_2':sig_1_2_list}, index=gene_index)
+            cell_names_df = pd.DataFrame({'cells1':pd.Series(cell1_present, index=range(len(cell1_present))), 'cells2':pd.Series(cell2_present, index=range(len(cell2_present)))})
+            sig_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_pvalues.txt'), sep = '\t')
+            cell_names_df.to_csv(os.path.join(path_filename,'sig_'+gp[0]+'_'+gp[1]+'_cells.txt'), sep = '\t')
+        else:
+            if cell1_present == []:
+                print(gp[1], 'not present in cell matrix')
+            else:
+                print(gp[0], 'not present in cell matrix')
 
 def cell_color_map(cell_group_filename, cell_list, color_list, markers):
     cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
+    group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
-        group_count = -1
         group_seen = []
         label_map = {}
         cells_seen = []
         for cell, group in zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()):
             if cell not in cells_seen:
-                if group not in group_seen:
-                    group_count += 1
-                    group_seen.append(group)
+                group_count = group_set.index(group)
                 label_map[cell] = (color_list[group_count],markers[group_count],group)
                 cells_seen.append(cell)
         non_group_cells = [c for c in cell_list if c not in cells_seen]
@@ -900,28 +928,29 @@ def get_parser():
                         dest="test_clust_stability",
                         default=0,
                         help="Provide a number of iterations to test how stable clustering is as the number of top PCA genes changes from 100-1000. Output will be clustering heatmaps for each iteration a summary of changes as gene number varies.")
-    parser.add_argument("--metric",
+    parser.add_argument("-metric",
                         dest="metric",
                         default='euclidean',
                         help="The distance metric to use. The distance function can be: braycurtis, canberra, chebyshev, cityblock, correlation, cosine, dice, euclidean, hamming, jaccard, kulsinski, mahalanobis, matching, minkowski, rogerstanimoto, russellrao, seuclidean, sokalmichener, sokalsneath, sqeuclidean, yule.")
-    parser.add_argument("--method",
+    parser.add_argument("-method",
                         dest="method",
-                        default='average',
-                        help="The linkage method to use. The linkage algorithm can be: single, complete, average, weighted, centroid median or ward.")
-    parser.add_argument("--depth",
+                        default='weighted',
+                        type=str,
+                        help="The linkage method to use. The linkage algorithm can be: single, complete, average, weighted, centroid, median or ward.")
+    parser.add_argument("-depth",
                         dest="depth_of_clustering",
                         type=int,
                         default=20,
                         help="The size in cell number at which sub-clustering analysis will stop clustering, pca and correlation analysis.")
-    parser.add_argument("--genes_corr",
+    parser.add_argument("-genes_corr",
                         dest="genes_corr",
                         default='',
                         help="If you want to look for correation on a specific gene or set of genes enter them as a comma seperated list i.e. 'Gapdh,Actb'.")
-    parser.add_argument("--all_sig",
+    parser.add_argument("-all_sig",
                         dest="all_sig",
                         action="store_true",
-                        help="If you want to look for correation on a specific gene or set of genes enter them as a comma seperated list i.e. 'Gapdh,Actb'.")
-    parser.add_argument("--z",
+                        help="Do significance testing on all hierarchical clustering groups. The minimum number of cells in a group is set by --depth.")
+    parser.add_argument("-z",
                         dest="z_direction",
                         default=0,
                         help="Either 0 (rows) or 1 (columns) or None. Whether or not to calculate z-scores for the rows or the columns. Z scores are: z = (x - mean)/std, so values in each row (column) will get the mean of the row (column) subtracted, then divided by the standard deviation of the row (column). This ensures that each row (column) has mean of 0 and variance of 1.")
