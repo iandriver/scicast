@@ -24,38 +24,61 @@ import matplotlib.ticker as ticker
 import math
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector
-from matplotlib.ticker import NullFormatter
+import matplotlib.patches as patches
 
 
 
-def make_new_matrix_gene(org_matrix_by_gene, gene_list_file):
-    split_on='_'
-    gene_df = pd.read_csv(gene_list_file, delimiter= '\t')
-    try:
-        gene_list = list(set(gene_df['GeneID'].tolist()))
-    except KeyError:
-        sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
-    try:
-        group_list = gene_df['GroupID'].tolist()
-    except KeyError:
-        sys.exit("Error: Please provide Gene list file with 'GroupID' as header.")
-    try:
-        gmatrix_df = org_matrix_by_gene[gene_list]
-    except KeyError as error_gene:
-        cause = error_gene.args[0]
-        absent_gene = cause.split('\'')[1]
-        print(absent_gene+' not in matrix file.')
-        new_list = [x for x in gene_list if x not in [absent_gene]]
-        gmatrix_df = org_matrix_by_gene[new_list]
-    cmatrix_df = gmatrix_df.transpose()
-    cell_list1 = cmatrix_df.columns.values
-    new_cmatrix_df = cmatrix_df[cell_list1]
-    new_gmatrix_df = new_cmatrix_df.transpose()
-    return new_cmatrix_df, new_gmatrix_df
+
+def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
+    if isinstance(gene_list_source,str):
+        gene_df = pd.read_csv(gene_list_source, delimiter= '\t')
+        try:
+            gene_list = list(set(gene_df['GeneID'].tolist()))
+            if exclude_list != "":
+                gene_list = [g for g in gene_list if g not in exclude_list]
+        except KeyError:
+            sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
+        try:
+            group_list = gene_df['GroupID'].tolist()
+        except KeyError:
+            sys.exit("Error: Please provide Gene list file with 'GroupID' as header.")
+        try:
+            gmatrix_df = org_matrix_by_gene[gene_list]
+        except KeyError as error_gene:
+            cause = error_gene.args[0]
+            absent_gene = cause.split('\'')[1]
+            print(absent_gene+' not in matrix file.')
+            new_list = [x for x in gene_list if x not in [absent_gene]]
+            gmatrix_df = org_matrix_by_gene[new_list]
+        cmatrix_df = gmatrix_df.transpose()
+        cell_list1 = cmatrix_df.columns.values
+        new_cmatrix_df = cmatrix_df[cell_list1]
+        new_gmatrix_df = new_cmatrix_df.transpose()
+        return new_cmatrix_df, new_gmatrix_df
+    elif isinstance(gene_list_source,list):
+        if exclude_list == "":
+            gene_list = gene_list_source
+        else:
+            gene_list = [g for g in gene_list_source if g not in exclude_list]
+        try:
+            gmatrix_df = org_matrix_by_gene[gene_list]
+        except KeyError as error_gene:
+            cause = error_gene.args[0]
+            absent_gene = cause.split('\'')[1]
+            print(absent_gene+' not in matrix file.')
+            new_list = [x for x in gene_list if x not in [absent_gene]]
+            gmatrix_df = org_matrix_by_gene[new_list]
+        cmatrix_df = gmatrix_df.transpose()
+        cell_list1 = cmatrix_df.columns.values
+        new_cmatrix_df = cmatrix_df[cell_list1]
+        new_gmatrix_df = new_cmatrix_df.transpose()
+        return new_cmatrix_df, new_gmatrix_df
+    else:
+        sys.exit("Error: gene list must be filepath or a list.")
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
     cell_df = pd.read_csv(cell_list_file, delimiter= '\t')
-    cell_list_new = [cell.strip('\n') for cell in cell_df['SampleID'].tolist()]
+    cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
     cell_list_old = org_matrix_by_cell.columns.tolist()
     overlap = [c for c in cell_list_new if c in cell_list_old]
     not_in_matrix = [c for c in cell_list_new if c not in cell_list_old]
@@ -319,6 +342,31 @@ def find_twobytwo(cc, df_by_cell, full_by_cell_df, path_filename, cluster_size=2
         sig_df.to_csv(os.path.join(path_filename,'sig_'+v+'_pvalues.txt'), sep = '\t')
         cell_names_df.to_csv(os.path.join(path_filename,'sig_'+v+'_cells.txt'), sep = '\t')
 
+def ellip_enclose(points, color, inc=1.2, lw=2, nst=2):
+    """
+    Plot the minimum ellipse around a set of points.
+
+    Based on:
+    https://github.com/joferkington/oost_paper_code/blob/master/error_ellipse.py
+    """
+
+    def eigsorted(cov):
+        vals, vecs = np.linalg.eigh(cov)
+        order = vals.argsort()[::-1]
+        return vals[order], vecs[:,order]
+
+    x = points[:,0]
+    y = points[:,1]
+    cov = np.cov(x, y)
+    vals, vecs = eigsorted(cov)
+    theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+    w, h = 2 * nst * np.sqrt(vals)
+    center = np.mean(points, 0)
+    ell = patches.Ellipse(center, width=inc*w, height=inc*h, angle=theta,
+                          facecolor=color, alpha=0.2, lw=0)
+    edge = patches.Ellipse(center, width=inc*w, height=inc*h, angle=theta,
+                          facecolor='none', edgecolor=color, lw=lw)
+    return ell, edge
 
 def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
@@ -685,6 +733,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
 
 
 def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
+    plot_pvalue = False
     stats = importr('stats')
     cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
     group_name_list = list(set(cell_groups_df['GroupID']))
@@ -694,6 +743,10 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
     cell_group_ident= [c for c in cell_group_ident_0]
     barplot_dict = {}
     by_gene_df = full_by_cell_df.transpose()
+    best_gene_list = []
+    best_gene_groups = []
+    best_vs_list =[]
+    best_pvalue_list = []
     for name in group_name_list:
         barplot_dict[name] = {'genes':[], 'pvalues':[], 'fold_change':[], 'Vs':[]}
     for gp in group_pairs:
@@ -780,42 +833,64 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
             fc = top_fc_df['ratio '+gp[0]+' to '+gp[1]].tolist()
             z = zip(genes,pvalues,fc)
             z_all = [s for s in z]
-            top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in ['Xist', 'Tsix', 'Per3', 'Dbp', 'Ddx3y']]
-            top = [list(t) for t in zip(*top_t)]
-            barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+top[0][0:20]
-            barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:20]
-            barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:20]
-            barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ [gp[1] for x in range(0,20)]
+            top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in ['Xist', 'Tsix', 'Per3', 'Dbp', 'Ddx3y', 'XIST', 'TSIX']]
+            if args.exclude_genes:
+                hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+                exclude_list = hu_cc_gene_df['GeneID'].tolist()
+                top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in exclude_list]
+            else:
+                top_t2 = top_t
+            top = [list(t) for t in zip(*top_t2)]
+            barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+top[0][0:15]
+            barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:15]
+            barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:15]
+            barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,15)]
+            best_gene_list = best_gene_list+top[0][0:15]
+            best_gene_groups = best_gene_groups+[gp[0] for x in range(0,15)]
+            best_vs_list = best_vs_list + [gp[1] for x in range(0,15)]
+            best_pvalue_list = best_pvalue_list + top[1][0:15]
         else:
             if cell1_present == []:
                 print(gp[1], 'not present in cell matrix')
             else:
                 print(gp[0], 'not present in cell matrix')
-    fig, axs = plt.subplots(1, len(group_name_list), figsize=(30,10), sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, len(group_name_list), figsize=(20,12), sharex=False, sharey=False)
     axs = axs.ravel()
     color_map = {}
-    color_list = ["r", "m", "b", "c", "g", "orange", "darkslateblue"]
+    color_list = ["r", "b", "m", "c", "g", "orange", "darkslateblue"]
     for group, color in zip(group_name_list, color_list[0:len(group_name_list)]):
-        color_map[group] = color
+        color_map['significance vs '+group] = color
     for i, name in enumerate(group_name_list):
         to_plot= barplot_dict[name]
         clr = [color_map[v] for v in to_plot['Vs']]
-        g = sns.barplot(x='pvalues', y='genes', data=to_plot, ax = axs[i], palette=clr)
+        g = sns.barplot(x='pvalues', y='genes', hue='Vs', data=to_plot, ax = axs[i], palette=color_map)
         axs[i].set_xscale("log", nonposx='clip')
-        for p in axs[i].patches:
-            height = p.get_height()
-            width = p.get_width()
-            axs[i].text(width,p.get_y(), "{:.2e}".format(width))
+        bar_list = []
+        if plot_pvalue:
+            for p in axs[i].patches:
+                height = p.get_height()
+                width = p.get_width()
+                bar_list.append(width)
+            max_bar = max(bar_list)
+            for p in axs[i].patches:
+                height = p.get_height()
+                width = p.get_width()
+                axs[i].text(max_bar*50,p.get_y()+(height), "{:.2e}".format(width))
         rect = axs[i].patch
         rect.set_facecolor('white')
         #sns.despine(left=True, bottom=True, top=True)
-        axs[i].legend(loc='best', fancybox=True, framealpha=0.5)
         axs[i].invert_xaxis()
         axs[i].xaxis.set_ticks_position('none')
         axs[i].yaxis.tick_right()
         axs[i].set_title(name)
-
-    plt.legend(loc='best')
+        axs[i].legend(loc='upper left', fontsize=9)
+        axs[i].set_xlabel('adjusted p-value')
+        for xmaj in axs[i].xaxis.get_majorticklocs():
+            axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
+        axs[i].xaxis.grid(True, which="major", linestyle='-')
+        plt.subplots_adjust(left=.08, wspace=.3)
+    best_gene_df = pd.DataFrame({'GeneID':best_gene_list, 'GroupID':best_gene_groups, 'Vs':best_vs_list, 'adjusted_pvalue':best_pvalue_list})
+    best_gene_df.to_csv(os.path.join(path_filename,'Best_Gene_list.txt'), sep = '\t')
     plt.savefig(os.path.join(path_filename,'differential_genes_foldchanges.pdf'), bbox_inches='tight')
 
 
@@ -829,7 +904,7 @@ def cell_color_map(cell_group_filename, cell_list, color_list, markers):
         group_seen = []
         label_map = {}
         cells_seen = []
-        for cell, group in zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()):
+        for cell, group in list(set(zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()))):
             if cell not in cells_seen:
                 group_count = group_set.index(group)
                 label_map[cell] = (color_list[group_count],markers[group_count],group)
@@ -842,8 +917,12 @@ def cell_color_map(cell_group_filename, cell_list, color_list, markers):
         label_map = False
     return cell_list_1, label_map
 
-def gene_list_map(gene_list_file, gene_list, color_list, markers):
-    gene_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
+def gene_list_map(gene_list_file, gene_list, color_list, markers, exclude_list = []):
+    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
+
+    if exclude_list != []:
+        gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
+    gene_df = gene_df1.copy()
     gene_list_1 = list(set(gene_df['GeneID'].tolist()))
     if len(gene_df['GeneID']) == len(gene_df['GroupID']):
         gene_label_map = {}
@@ -874,23 +953,6 @@ def main(args):
         print('Making new folder for results of SCICAST clustering: '+new_file)
     call('mkdir -p '+new_file, shell=True)
 
-    by_cell = pd.DataFrame.from_csv(args.filepath, sep='\t')
-
-    by_gene = by_cell.transpose()
-    #create list of genes
-    gene_list_inital = by_cell.index.tolist()
-    #create cell list
-    cell_list = [x for x in list(by_cell.columns.values)]
-
-
-    df_by_gene1 = pd.DataFrame(by_gene, columns=gene_list_inital, index=cell_list)
-    df_by_cell1 = pd.DataFrame(by_cell, columns=cell_list, index=gene_list_inital)
-    log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
-    cell_color_list = ['m', 'b', 'r', 'b', 'g', 'orange', 'darkslateblue']
-    gene_color_list = ['r', 'b', 'm', 'c', 'g', 'orange', 'darkslateblue']
-    markers = ['o', 'v','D','*','x','h', 's']
-
-
     if args.gene_list_filename:
         if os.path.isfile(args.gene_list_filename):
             gene_list_file = args.gene_list_filename
@@ -908,23 +970,73 @@ def main(args):
         else:
             sys.exit('Error: Cannot find cell list file. Please place the gene list file in the same directory or provide a full path.')
 
+    by_cell = pd.DataFrame.from_csv(args.filepath, sep='\t')
+
+    by_gene = by_cell.transpose()
+    #create list of genes
+    gene_list_inital = by_cell.index.tolist()
+    #create cell list
+    cell_list = [x for x in list(by_cell.columns.values)]
+
+
+    df_by_gene1 = pd.DataFrame(by_gene, columns=gene_list_inital, index=cell_list)
+    if args.exclude_genes:
+        hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+        exclude_list = hu_cc_gene_df['GeneID'].tolist()
+        df_by_gene1.drop(exclude_list, axis=1, inplace=True)
+    df_by_cell1 = df_by_gene1.transpose()
+    if args.limit_cells and args.cell_list_filename:
+        df_by_cell2, df_by_gene2 = make_new_matrix_cell(df_by_cell1, cell_file)
+        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell2, plot=False)
+    else:
+        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
+
+
+    cell_color_list = ['r', 'b', 'm', 'c', 'g', 'orange', 'darkslateblue']
+    gene_color_list = ['r', 'm', 'b', 'c', 'g', 'orange', 'darkslateblue']
+    markers = ['o', 'v','D','*','x','h', 's']
+
+
+
     if args.gene_list_filename and args.cell_list_filename:
-        df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
-        df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-        gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
-        cell_list, label_map_pca = cell_color_map(cell_file, df_by_cell.columns.values, gene_color_list, markers)
-        cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
+        if args.exclude_genes:
+            hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+            exclude_list = hu_cc_gene_df['GeneID'].tolist()
+            df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file, exclude_list=exclude_list)
+            df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers, exclude_list=exclude_list)
+            cell_list, label_map_pca = cell_color_map(cell_file, df_by_cell.columns.values, gene_color_list, markers)
+            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
+        else:
+            df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
+            df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
+            cell_list, label_map_pca = cell_color_map(cell_file, df_by_cell.columns.values, gene_color_list, markers)
+            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
     elif args.gene_list_filename:
-        df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
-        gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
+        if args.exclude_genes:
+            hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+            exclude_list = hu_cc_gene_df['GeneID'].tolist()
+            df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file,exclude_list=exclude_list)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers,exclude_list=exclude_list)
+        else:
+            df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
     elif args.cell_list_filename:
         df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
         cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
         gene_color_map = False
     else:
-        df_by_cell, df_by_gene = df_by_cell1, df_by_gene1
-        label_map = False
-        gene_color_map = False
+        if args.exclude_genes:
+            hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+            exclude_list = hu_cc_gene_df['GeneID'].tolist()
+            df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, log2_expdf_gene.columns.tolist(), exclude_list=exclude_list)
+        else:
+            df_by_cell, df_by_gene = df_by_cell1, df_by_gene1
+            label_map = False
+            gene_color_map = False
+
+
 
 
 
@@ -1088,6 +1200,15 @@ def get_parser():
                         action="store_false",
                         default=True,
                         help="Don't run heatmaps and pca. Default is on.")
+    parser.add_argument("-exclude_genes",
+                        dest="exclude_genes",
+                        default=False,
+                        help="Filepath to list of genes to be excluded from analysis (at all levels of analysis). Header must be 'GeneID'.")
+    parser.add_argument("-limit_cells",
+                        dest="limit_cells",
+                        action="store_true",
+                        default=False,
+                        help="With cell group file, will exclude all other cells from analysis (at all levels of analysis). Header must be 'SampleID'.")
     return parser
 
 
