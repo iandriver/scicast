@@ -800,7 +800,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
                     xtick.set_color(xcolor)
                     xtick.set_rotation(90)
             else:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical')
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=4)
             ax.set_ylim([0, df_by_gene[to_plot].values.max()])
             ax.xaxis.set_major_formatter(ticker.NullFormatter())
             ax.tick_params(axis='x', which ='minor', labelsize=10)
