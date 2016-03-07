@@ -11,8 +11,8 @@ from matplotlib.ticker import LinearLocator
 import scipy
 import json
 from sklearn.decomposition import PCA as skPCA
-from scipy.spatial.distance import pdist, squareform
-from scipy.cluster.hierarchy import fcluster, linkage, dendrogram, set_link_color_palette, to_tree, inconsistent
+from scipy.spatial import distance
+from scipy.cluster import hierarchy
 import seaborn as sns
 from matplotlib.colors import rgb2hex, colorConverter
 from pprint import pprint
@@ -31,7 +31,7 @@ import matplotlib.patches as patches
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
     if isinstance(gene_list_source,str):
-        gene_df = pd.read_csv(gene_list_source, delimiter= '\t')
+        gene_df = pd.read_csv(gene_list_source)
         try:
             gene_list = list(set(gene_df['GeneID'].tolist()))
             if exclude_list != "":
@@ -77,7 +77,7 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
         sys.exit("Error: gene list must be filepath or a list.")
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
-    cell_df = pd.read_csv(cell_list_file, delimiter= '\t')
+    cell_df = pd.read_csv(cell_list_file)
     cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
     cell_list_old = org_matrix_by_cell.columns.tolist()
     overlap = [c for c in cell_list_new if c in cell_list_old]
@@ -160,22 +160,91 @@ def log2_oulierfilter(df_by_cell, plot=False):
     else:
         print("no common genes found")
         return log2_df, log2_df.transpose()
+class _makeDendrogram(object):
+    def __init__(self, data, metric, method, axis):
+        self.axis = axis
+        if self.axis == 1:
+            data = data.T
+
+        if isinstance(data, pd.DataFrame):
+            array = data.values
+        else:
+            array = np.asarray(data)
+            data = pd.DataFrame(array)
+
+        self.array = array
+        self.data = data
+
+        self.shape = self.data.shape
+        self.metric = metric
+        self.method = method
+
+        self.linkage = self.calculated_linkage
+        print(self.linkage)
+        self.dendrogram = self.calculate_dendrogram()
+        return self.linkage, self.dendrogram
+
+    def _calculate_linkage_scipy(self):
+        if np.product(self.shape) >= 10000:
+            UserWarning('This will be slow... (gentle suggestion: '
+                        '"pip install fastcluster")')
+
+        pairwise_dists = distance.pdist(self.array, metric=self.metric)
+        linkage = hierarchy.linkage(pairwise_dists, method=self.method)
+        del pairwise_dists
+        return linkage
+
+    def _calculate_linkage_fastcluster(self):
+        import fastcluster
+        # Fastcluster has a memory-saving vectorized version, but only
+        # with certain linkage methods, and mostly with euclidean metric
+        vector_methods = ('single', 'centroid', 'median', 'ward')
+        euclidean_methods = ('centroid', 'median', 'ward')
+        euclidean = self.metric == 'euclidean' and self.method in \
+            euclidean_methods
+        if euclidean or self.method == 'single':
+            return fastcluster.linkage_vector(self.array,
+                                              method=self.method,
+                                              metric=self.metric)
+        else:
+            pairwise_dists = distance.pdist(self.array, metric=self.metric)
+            linkage = fastcluster.linkage(pairwise_dists, method=self.method)
+            del pairwise_dists
+            return linkage
 
 
+    def calculated_linkage(self):
+        try:
+            return self._calculate_linkage_fastcluster()
+        except ImportError:
+            return self._calculate_linkage_scipy()
 
-def run_cluster(by_gene_matrix, path_filename):
+    def calculate_dendrogram(self):
+        """Calculates a dendrogram based on the linkage matrix
+        Made a separate function, not a property because don't want to
+        recalculate the dendrogram every time it is accessed.
+        Returns
+        -------
+        dendrogram : dict
+            Dendrogram dictionary as returned by scipy.cluster.hierarchy
+            .dendrogram. The important key-value pairing is
+            "reordered_ind" which indicates the re-ordering of the matrix
+        """
+        return hierarchy.dendrogram(self.linkage, no_plot=True, color_threshold=-np.inf)
+
+    def reordered_ind(self):
+        """Indices of the matrix, reordered by the dendrogram"""
+        return self.dendrogram['leaves']
+
+def run_cluster(by_gene_matrix, metric='seuclidean', method='ward'):
     cell_list = [x for x in list(by_gene_matrix.index.values)]
-    cell_dist = pdist(np.array(by_gene_matrix), metric='euclidean')
-    row_dist = pd.DataFrame(squareform(cell_dist), columns=cell_list, index=cell_list)
-    row_clusters = linkage(cell_dist, metric=metric, method='average')
-    link_mat = pd.DataFrame(row_clusters,
+    row_linkage, row_dendrogram = _makeDendrogram(by_gene_matrix, metric, method, axis=0)
+    col_linkage, col_dendrogram = _makeDendrogram(by_gene_matrix, metric, method, axis=1)
+    link_mat = pd.DataFrame(row_linkage,
                  columns=['row label 1', 'row label 2', 'distance', 'no. of items in clust.'],
-                 index=['cluster %d' %(i+1) for i in range(row_clusters.shape[0])])
-    row_dendr = dendrogram(row_clusters, labels=cell_list, leaf_rotation=90, leaf_font_size=8)
+                 index=['cluster %d' %(i+1) for i in range(row_linkage.shape[0])])
 
-    plt.savefig(os.path.join(path_filename,'dendrogram_gene.png'))
-    plt.clf()
-    return cell_dist, row_dist, row_clusters, link_mat, row_dendr
+    return row_linkage, col_linkage, row_dendrogram, col_dendrogram
 
 def augmented_dendrogram(*args, **kwargs):
     plt.clf()
@@ -264,7 +333,7 @@ def label_tree(n, id2name):
 
 #Makes labeled json tree for visulaization in d3
 def make_tree_json(row_clusters, df_by_gene, path_filename):
-    T= to_tree(row_clusters)
+    T= hierarchy.to_tree(row_clusters)
 
     # Create dictionary for labeling nodes by their IDs
     labels = list(df_by_gene.index)
@@ -480,13 +549,31 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
     cluster_df = df_by_gene[gene_list[0:num_to_plot]].transpose()
     cluster_df[abs(cluster_df)<3e-12] = 0.0
     try:
-        cg = sns.clustermap(cluster_df, metric=args.metric, method=args.method, z_score=z_choice, figsize=(30, 30), cmap =cmap)
-        col_order = cg.dendrogram_col.reordered_ind
-        row_order = cg.dendrogram_row.reordered_ind
-        cg.ax_heatmap.set_title(title)
-        if label_map:
+        cg1 = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, figsize=(30, 35), cmap =cmap)
+        col_order = cg1.dendrogram_col.reordered_ind
+        row_order = cg1.dendrogram_row.reordered_ind
+        if label_map and gene_map:
             Xlabs = [cell_list[i] for i in col_order]
             Xcolors = [label_map[cell][0] for cell in Xlabs]
+            col_colors = pd.DataFrame({'Annotation 1': Xcolors},index=Xlabs)
+
+            Ylabs = [gene_list[i] for i in row_order]
+            Ycolors = [gene_map[gene][0] for gene in Ylabs]
+            row_colors = pd.DataFrame({'Annotation 2': Ycolors},index=Ylabs)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(30, 35), cmap =cmap)
+        elif label_map:
+            Xlabs = [cell_list[i] for i in col_order]
+            Xcolors = [label_map[cell][0] for cell in Xlabs]
+            col_colors = pd.DataFrame({'Annotation 1': Xcolors},index=Xlabs)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(30, 35), cmap =cmap)
+        elif gene_map:
+            Ylabs = [gene_list[i] for i in row_order]
+            Ycolors = [gene_map[gene][0] for gene in Ylabs]
+            row_colors = pd.DataFrame({'Annotation 2': Ycolors},index=Ylabs)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, figsize=(30, 35), cmap =cmap)
+
+        cg.ax_heatmap.set_title(title)
+        if label_map:
             for xtick, xcolor in zip(cg.ax_heatmap.get_xticklabels(), Xcolors):
                 xtick.set_color(xcolor)
                 xtick.set_rotation(270)
@@ -494,8 +581,7 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
             for xtick in cg.ax_heatmap.get_xticklabels():
                 xtick.set_rotation(270)
         if gene_map:
-            Ylabs = [gene_list[i] for i in row_order]
-            Ycolors = [gene_map[gene][0] for gene in Ylabs]
+
             for ytick, ycolor in zip(cg.ax_heatmap.get_yticklabels(), list(reversed(Ycolors))):
                 ytick.set_color(ycolor)
                 ytick.set_rotation(0)
@@ -550,10 +636,10 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 if args.no_corr:
                     if gene_corr_list != []:
-                        top_genes_search = top_pca[0:30]
+                        top_genes_search = top_pca[0:50]
                         corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, gene_corr_list= gene_corr_list, title = current_title, label_map=label_map)
                     else:
-                        top_genes_search = top_pca[0:30]
+                        top_genes_search = top_pca[0:50]
                         corr_plot(top_genes_search, gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 if gene_map:
                     cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename, num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map, gene_map = gene_map)
@@ -660,6 +746,7 @@ def find_top_corrs(terms_to_search, sig_corrs, num_to_return, gene_corr_list = [
                     else:
                         corr_tup.append((index[0],row['corr']))
             all_corrs_list1 = [corr_tup]+all_corrs_list
+            all_corrs_list = all_corrs_list1
         return all_corrs_list1[0:num_to_return+len(gene_corr_list)+1]
     else:
         return all_corrs_list[0:num_to_return]
@@ -683,11 +770,12 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
                 print(c)
         to_plot = [x[0] for x in corr_tup]
         sns.set_palette(sns.cubehelix_palette(len(to_plot), start=1, rot=-.9, reverse=True))
+        sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 1})
         try:
             sorted_df = df_by_gene.sort_values(by=[term_to_search])
             log2_df = np.log2(df_by_gene[to_plot])
             sorted_log2_df=np.log2(sorted_df[to_plot])
-            ylabel='FPKM (log2)'
+            ylabel='Counts (log2)'
             if sort and log:
                 ax = sorted_log2_df.plot()
                 xlabels = sorted_log2_df[to_plot].index.values
@@ -706,13 +794,13 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
             ax.set_title('Correlates with '+term_to_search, loc='right')
             ax.xaxis.set_minor_locator(LinearLocator(numticks=len(xlabels)))
             if label_map:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=6)
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=4)
                 Xcolors = [label_map[cell][0] for cell in xlabels]
                 for xtick, xcolor in zip(ax.get_xticklabels(which='minor'), Xcolors):
                     xtick.set_color(xcolor)
                     xtick.set_rotation(90)
             else:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=6)
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical')
             ax.set_ylim([0, df_by_gene[to_plot].values.max()])
             ax.xaxis.set_major_formatter(ticker.NullFormatter())
             ax.tick_params(axis='x', which ='minor', labelsize=10)
@@ -735,7 +823,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
 def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
     plot_pvalue = False
     stats = importr('stats')
-    cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
+    cell_groups_df = pd.read_csv(cell_group_filename)
     group_name_list = list(set(cell_groups_df['GroupID']))
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -857,7 +945,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
     fig, axs = plt.subplots(1, len(group_name_list), figsize=(20,12), sharex=False, sharey=False)
     axs = axs.ravel()
     color_map = {}
-    color_list = ["r", "b", "m", "c", "g", "orange", "darkslateblue"]
+    color_list = ["m", "r", "b", "c", "g", "orange", "darkslateblue"]
     for group, color in zip(group_name_list, color_list[0:len(group_name_list)]):
         color_map['significance vs '+group] = color
     for i, name in enumerate(group_name_list):
@@ -897,7 +985,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
 
 
 def cell_color_map(cell_group_filename, cell_list, color_list, markers):
-    cell_groups_df = pd.read_csv(cell_group_filename, delimiter= '\t')
+    cell_groups_df = pd.read_csv(cell_group_filename)
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
@@ -918,7 +1006,7 @@ def cell_color_map(cell_group_filename, cell_list, color_list, markers):
     return cell_list_1, label_map
 
 def gene_list_map(gene_list_file, gene_list, color_list, markers, exclude_list = []):
-    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), delimiter= '\t')
+    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file))
 
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
