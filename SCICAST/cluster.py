@@ -473,24 +473,32 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_cell.grid(b=True, which='major', color='grey', linestyle='--', linewidth=0.3)
         ax_gene.grid(b=True, which='major', color='grey', linestyle='--', linewidth=0.3)
         if label_map:
-            annotate = True
+            annotate = args.annotate_cell_pca
             X = [x for x in top_cell_trans[:, 0]]
             Y = [y for y in top_cell_trans[:, 1]]
             labels = [label_map[cell][2] for cell in top_by_cell.columns.tolist()]
             markers = [label_map[cell][1] for cell in top_by_cell.columns.tolist()]
             colors = [label_map[cell][0] for cell in top_by_cell.columns.tolist()]
             label_done = []
+            xy_by_color_dict = {}
+            for c in set(colors):
+                xy_by_color_dict[c] = []
             for X_pos, Y_pos, m, color, l in zip(X, Y, markers, colors, labels):
                 if l in label_done:
                     lab = ''
                 else:
                     lab= l
                     label_done.append(l)
+                xy_by_color_dict[color].append([X_pos,Y_pos])
                 ax_cell.scatter(X_pos, Y_pos, marker=m, c=color, label=lab, s=30)
-
+            if args.add_ellipse:
+                for c in set(colors):
+                    ell, edge = ellip_enclose(np.asarray(xy_by_color_dict[c]), c)
+                    ax_cell.add_artist(ell)
+                    ax_cell.add_artist(edge)
         else:
             ax_cell.scatter(top_cell_trans[:, 0], top_cell_trans[:, 1], alpha=0.75)
-            annotate = True
+            annotate = args.annotate_cell_pca
         ax_cell.set_xlim([min(top_cell_trans[:, 0])-1, max(top_cell_trans[:, 0]+1)])
         ax_cell.set_ylim([min(top_cell_trans[:, 1])-1, max(top_cell_trans[:, 1]+2)])
         ax_cell.set_title(title+'_cell')
@@ -507,8 +515,18 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
             labels = top_by_gene.columns.tolist()
             markers = [gene_map[gene][1] for gene in top_by_gene.columns.tolist()]
             colors = [gene_map[gene][0] for gene in top_by_gene.columns.tolist()]
+            xy_by_color_dict = {}
+            for c in set(colors):
+                xy_by_color_dict[c] = []
             for X_pos, Y_pos, m, color, l in zip(X, Y, markers, colors, labels):
+                xy_by_color_dict[color].append([X_pos,Y_pos])
                 ax_gene.scatter(X_pos, Y_pos, marker=m, c=color, label = l, s=30)
+            if args.add_ellipse:
+                for c in set(colors):
+                    ell, edge = ellip_enclose(np.asarray(xy_by_color_dict[c]), c)
+                    ax_gene.add_artist(ell)
+                    ax_gene.add_artist(edge)
+
         else:
             ax_gene.scatter(top_gene_trans[:, 0], top_gene_trans[:, 1], alpha=0.75)
         ax_gene.set_xlim([min(top_gene_trans[:, 0])-1, max(top_gene_trans[:, 0])+1])
@@ -516,8 +534,14 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_gene.set_title(title+'_gene')
         ax_gene.set_xlabel('PC1')
         ax_gene.set_ylabel('PC2')
-        for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
-            ax_gene.annotate(label, (x+0.1, y+0.1))
+        if args.annotate_gene_subset:
+            genes_plot = pd.read_csv(os.path.join(os.path.dirname(args.filepath),args.annotate_gene_subset), sep=None)
+            for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
+                if label in genes_plot['GeneID'].tolist():
+                    ax_gene.annotate(label, (x+0.1, y+0.1))
+        else:
+            for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
+                ax_gene.annotate(label, (x+0.1, y+0.1))
         if plot:
             plt.show()
         if title != '':
@@ -800,7 +824,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
                     xtick.set_color(xcolor)
                     xtick.set_rotation(90)
             else:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical')
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=4)
             ax.set_ylim([0, df_by_gene[to_plot].values.max()])
             ax.xaxis.set_major_formatter(ticker.NullFormatter())
             ax.tick_params(axis='x', which ='minor', labelsize=10)
@@ -1080,7 +1104,7 @@ def main(args):
         log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
 
 
-    cell_color_list = ['r', 'b', 'm', 'c', 'g', 'orange', 'darkslateblue']
+    cell_color_list = ['b', 'm', 'r', 'c', 'g', 'orange', 'darkslateblue']
     gene_color_list = ['r', 'm', 'b', 'c', 'g', 'orange', 'darkslateblue']
     markers = ['o', 'v','D','*','x','h', 's']
 
@@ -1297,6 +1321,21 @@ def get_parser():
                         action="store_true",
                         default=False,
                         help="With cell group file, will exclude all other cells from analysis (at all levels of analysis). Header must be 'SampleID'.")
+    parser.add_argument("-add_ellipse",
+                        dest="add_ellipse",
+                        action="store_true",
+                        default=False,
+                        help="When present colored ellipses will be added to cell and gene PCA plots. Must provide gene and/or cell groups.")
+    parser.add_argument("-annotate_gene_subset",
+                        dest="annotate_gene_subset",
+                        default=False,
+                        help="Provide path or filename (if in same file) to file with genes to be annotated on gene PCA. Must have 'GeneID' header.")
+    parser.add_argument("-annotate_cell_pca",
+                        dest="annotate_cell_pca",
+                        action="store_true",
+                        default=False,
+                        help="Option will annotate cell PCA with cell names. Default is off (False).")
+
     return parser
 
 
