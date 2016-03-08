@@ -31,7 +31,7 @@ import matplotlib.patches as patches
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
     if isinstance(gene_list_source,str):
-        gene_df = pd.read_csv(gene_list_source)
+        gene_df = pd.read_csv(gene_list_source, sep=None)
         try:
             gene_list = list(set(gene_df['GeneID'].tolist()))
             if exclude_list != "":
@@ -77,7 +77,7 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
         sys.exit("Error: gene list must be filepath or a list.")
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
-    cell_df = pd.read_csv(cell_list_file)
+    cell_df = pd.read_csv(cell_list_file, sep=None)
     cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
     cell_list_old = org_matrix_by_cell.columns.tolist()
     overlap = [c for c in cell_list_new if c in cell_list_old]
@@ -480,14 +480,22 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
             markers = [label_map[cell][1] for cell in top_by_cell.columns.tolist()]
             colors = [label_map[cell][0] for cell in top_by_cell.columns.tolist()]
             label_done = []
+            xy_by_color_dict = {}
+            for c in set(colors):
+                xy_by_color_dict[c] = []
             for X_pos, Y_pos, m, color, l in zip(X, Y, markers, colors, labels):
                 if l in label_done:
                     lab = ''
                 else:
                     lab= l
                     label_done.append(l)
+                xy_by_color_dict[color].append([X_pos,Y_pos])
                 ax_cell.scatter(X_pos, Y_pos, marker=m, c=color, label=lab, s=30)
-
+            if args.add_ellipse:
+                for c in set(colors):
+                    ell, edge = ellip_enclose(np.asarray(xy_by_color_dict[c]), c)
+                    ax_cell.add_artist(ell)
+                    ax_cell.add_artist(edge)
         else:
             ax_cell.scatter(top_cell_trans[:, 0], top_cell_trans[:, 1], alpha=0.75)
             annotate = True
@@ -507,8 +515,18 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
             labels = top_by_gene.columns.tolist()
             markers = [gene_map[gene][1] for gene in top_by_gene.columns.tolist()]
             colors = [gene_map[gene][0] for gene in top_by_gene.columns.tolist()]
+            xy_by_color_dict = {}
+            for c in set(colors):
+                xy_by_color_dict[c] = []
             for X_pos, Y_pos, m, color, l in zip(X, Y, markers, colors, labels):
+                xy_by_color_dict[color].append([X_pos,Y_pos])
                 ax_gene.scatter(X_pos, Y_pos, marker=m, c=color, label = l, s=30)
+            if args.add_ellipse:
+                for c in set(colors):
+                    ell, edge = ellip_enclose(np.asarray(xy_by_color_dict[c]), c)
+                    ax_gene.add_artist(ell)
+                    ax_gene.add_artist(edge)
+
         else:
             ax_gene.scatter(top_gene_trans[:, 0], top_gene_trans[:, 1], alpha=0.75)
         ax_gene.set_xlim([min(top_gene_trans[:, 0])-1, max(top_gene_trans[:, 0])+1])
@@ -555,21 +573,21 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
         if label_map and gene_map:
             Xlabs = [cell_list[i] for i in col_order]
             Xcolors = [label_map[cell][0] for cell in Xlabs]
-            col_colors = pd.DataFrame({'Annotation 1': Xcolors},index=Xlabs)
+            col_colors = pd.DataFrame({'Cell Groups': Xcolors},index=Xlabs)
 
             Ylabs = [gene_list[i] for i in row_order]
             Ycolors = [gene_map[gene][0] for gene in Ylabs]
-            row_colors = pd.DataFrame({'Annotation 2': Ycolors},index=Ylabs)
+            row_colors = pd.DataFrame({'Gene Groups': Ycolors},index=Ylabs)
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(30, 35), cmap =cmap)
         elif label_map:
             Xlabs = [cell_list[i] for i in col_order]
             Xcolors = [label_map[cell][0] for cell in Xlabs]
-            col_colors = pd.DataFrame({'Annotation 1': Xcolors},index=Xlabs)
+            col_colors = pd.DataFrame({'Cell Groups': Xcolors},index=Xlabs)
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(30, 35), cmap =cmap)
         elif gene_map:
             Ylabs = [gene_list[i] for i in row_order]
             Ycolors = [gene_map[gene][0] for gene in Ylabs]
-            row_colors = pd.DataFrame({'Annotation 2': Ycolors},index=Ylabs)
+            row_colors = pd.DataFrame({'Gene Groups': Ycolors},index=Ylabs)
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, figsize=(30, 35), cmap =cmap)
 
         cg.ax_heatmap.set_title(title)
@@ -823,7 +841,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
 def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
     plot_pvalue = False
     stats = importr('stats')
-    cell_groups_df = pd.read_csv(cell_group_filename)
+    cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
     group_name_list = list(set(cell_groups_df['GroupID']))
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -985,7 +1003,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
 
 
 def cell_color_map(cell_group_filename, cell_list, color_list, markers):
-    cell_groups_df = pd.read_csv(cell_group_filename)
+    cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
@@ -1006,7 +1024,7 @@ def cell_color_map(cell_group_filename, cell_list, color_list, markers):
     return cell_list_1, label_map
 
 def gene_list_map(gene_list_file, gene_list, color_list, markers, exclude_list = []):
-    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file))
+    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), sep=None)
 
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
@@ -1297,6 +1315,11 @@ def get_parser():
                         action="store_true",
                         default=False,
                         help="With cell group file, will exclude all other cells from analysis (at all levels of analysis). Header must be 'SampleID'.")
+    parser.add_argument("-add_ellipse",
+                        dest="add_ellipse",
+                        action="store_true",
+                        default=False,
+                        help="When present colored ellipses will be added to cell and gene PCA plots. Must provide gene and/or cell groups.")
     return parser
 
 
