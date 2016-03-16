@@ -25,6 +25,7 @@ import math
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector
 import matplotlib.patches as patches
+from collections import defaultdict
 
 
 
@@ -45,10 +46,11 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
         try:
             gmatrix_df = org_matrix_by_gene[gene_list]
         except KeyError as error_gene:
-            cause = error_gene.args[0]
-            absent_gene = cause.split('\'')[1]
-            print(absent_gene+' not in matrix file.')
-            new_list = [x for x in gene_list if x not in [absent_gene]]
+            cause1 = error_gene.args[0].strip(' not in index')
+            cause = [v.strip('\n\' ') for v in cause1.strip('[]').split(' ')]
+            absent_gene = cause
+            print(' '.join(absent_gene)+' not in matrix file.')
+            new_list = [x for x in gene_list if x not in absent_gene]
             gmatrix_df = org_matrix_by_gene[new_list]
         cmatrix_df = gmatrix_df.transpose()
         cell_list1 = cmatrix_df.columns.values
@@ -160,91 +162,7 @@ def log2_oulierfilter(df_by_cell, plot=False):
     else:
         print("no common genes found")
         return log2_df, log2_df.transpose()
-class _makeDendrogram(object):
-    def __init__(self, data, metric, method, axis):
-        self.axis = axis
-        if self.axis == 1:
-            data = data.T
 
-        if isinstance(data, pd.DataFrame):
-            array = data.values
-        else:
-            array = np.asarray(data)
-            data = pd.DataFrame(array)
-
-        self.array = array
-        self.data = data
-
-        self.shape = self.data.shape
-        self.metric = metric
-        self.method = method
-
-        self.linkage = self.calculated_linkage
-        print(self.linkage)
-        self.dendrogram = self.calculate_dendrogram()
-        return self.linkage, self.dendrogram
-
-    def _calculate_linkage_scipy(self):
-        if np.product(self.shape) >= 10000:
-            UserWarning('This will be slow... (gentle suggestion: '
-                        '"pip install fastcluster")')
-
-        pairwise_dists = distance.pdist(self.array, metric=self.metric)
-        linkage = hierarchy.linkage(pairwise_dists, method=self.method)
-        del pairwise_dists
-        return linkage
-
-    def _calculate_linkage_fastcluster(self):
-        import fastcluster
-        # Fastcluster has a memory-saving vectorized version, but only
-        # with certain linkage methods, and mostly with euclidean metric
-        vector_methods = ('single', 'centroid', 'median', 'ward')
-        euclidean_methods = ('centroid', 'median', 'ward')
-        euclidean = self.metric == 'euclidean' and self.method in \
-            euclidean_methods
-        if euclidean or self.method == 'single':
-            return fastcluster.linkage_vector(self.array,
-                                              method=self.method,
-                                              metric=self.metric)
-        else:
-            pairwise_dists = distance.pdist(self.array, metric=self.metric)
-            linkage = fastcluster.linkage(pairwise_dists, method=self.method)
-            del pairwise_dists
-            return linkage
-
-
-    def calculated_linkage(self):
-        try:
-            return self._calculate_linkage_fastcluster()
-        except ImportError:
-            return self._calculate_linkage_scipy()
-
-    def calculate_dendrogram(self):
-        """Calculates a dendrogram based on the linkage matrix
-        Made a separate function, not a property because don't want to
-        recalculate the dendrogram every time it is accessed.
-        Returns
-        -------
-        dendrogram : dict
-            Dendrogram dictionary as returned by scipy.cluster.hierarchy
-            .dendrogram. The important key-value pairing is
-            "reordered_ind" which indicates the re-ordering of the matrix
-        """
-        return hierarchy.dendrogram(self.linkage, no_plot=True, color_threshold=-np.inf)
-
-    def reordered_ind(self):
-        """Indices of the matrix, reordered by the dendrogram"""
-        return self.dendrogram['leaves']
-
-def run_cluster(by_gene_matrix, metric='seuclidean', method='ward'):
-    cell_list = [x for x in list(by_gene_matrix.index.values)]
-    row_linkage, row_dendrogram = _makeDendrogram(by_gene_matrix, metric, method, axis=0)
-    col_linkage, col_dendrogram = _makeDendrogram(by_gene_matrix, metric, method, axis=1)
-    link_mat = pd.DataFrame(row_linkage,
-                 columns=['row label 1', 'row label 2', 'distance', 'no. of items in clust.'],
-                 index=['cluster %d' %(i+1) for i in range(row_linkage.shape[0])])
-
-    return row_linkage, col_linkage, row_dendrogram, col_dendrogram
 
 def augmented_dendrogram(*args, **kwargs):
     plt.clf()
@@ -411,7 +329,7 @@ def find_twobytwo(cc, df_by_cell, full_by_cell_df, path_filename, cluster_size=2
         sig_df.to_csv(os.path.join(path_filename,'sig_'+v+'_pvalues.txt'), sep = '\t')
         cell_names_df.to_csv(os.path.join(path_filename,'sig_'+v+'_cells.txt'), sep = '\t')
 
-def ellip_enclose(points, color, inc=1.2, lw=2, nst=2):
+def ellip_enclose(points, color, inc=1, lw=2, nst=2):
     """
     Plot the minimum ellipse around a set of points.
 
@@ -502,7 +420,10 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_cell.set_xlim([min(top_cell_trans[:, 0])-1, max(top_cell_trans[:, 0]+1)])
         ax_cell.set_ylim([min(top_cell_trans[:, 1])-1, max(top_cell_trans[:, 1]+2)])
         ax_cell.set_title(title+'_cell')
-        ax_cell.legend(loc='best', ncol=1, prop={'size':12}, markerscale=1.5, frameon=True)
+        handles, labs = ax_cell.get_legend_handles_labels()
+        # sort both labels and handles by labels
+        labs, handles = zip(*sorted(zip(labs, handles), key=lambda t: t[0]))
+        ax_cell.legend(handles, labs, loc='best', ncol=1, prop={'size':12}, markerscale=1.5, frameon=True)
         ax_cell.set_xlabel('PC1')
         ax_cell.set_ylabel('PC2')
         if annotate:
@@ -535,7 +456,8 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_gene.set_xlabel('PC1')
         ax_gene.set_ylabel('PC2')
         if args.annotate_gene_subset:
-            genes_plot = pd.read_csv(os.path.join(os.path.dirname(args.filepath),args.annotate_gene_subset), sep=None)
+            plot_subset_path = os.path.join(os.path.dirname(args.filepath),args.annotate_gene_subset)
+            genes_plot = pd.read_csv(plot_subset_path, sep='\t', index_col=False)
             for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
                 if label in genes_plot['GeneID'].tolist():
                     ax_gene.annotate(label, (x+0.1, y+0.1))
@@ -844,7 +766,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
             pass
 
 
-def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
+def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_dict_cell):
     plot_pvalue = False
     stats = importr('stats')
     cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
@@ -966,15 +888,14 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
                 print(gp[1], 'not present in cell matrix')
             else:
                 print(gp[0], 'not present in cell matrix')
-    fig, axs = plt.subplots(1, len(group_name_list), figsize=(20,12), sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, len(group_name_list), figsize=(25,12), sharex=False, sharey=False)
     axs = axs.ravel()
     color_map = {}
-    color_list = ["m", "r", "b", "c", "g", "orange", "darkslateblue"]
-    for group, color in zip(group_name_list, color_list[0:len(group_name_list)]):
-        color_map['significance vs '+group] = color
+
     for i, name in enumerate(group_name_list):
         to_plot= barplot_dict[name]
-        clr = [color_map[v] for v in to_plot['Vs']]
+        for v in set(to_plot['Vs']):
+            color_map[v] = color_dict_cell[v.split(" ")[-1]][0]
         g = sns.barplot(x='pvalues', y='genes', hue='Vs', data=to_plot, ax = axs[i], palette=color_map)
         axs[i].set_xscale("log", nonposx='clip')
         bar_list = []
@@ -1008,7 +929,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename):
 
 
 
-def cell_color_map(cell_group_filename, cell_list, color_list, markers):
+def cell_color_map(cell_group_filename, cell_list, color_dict):
     cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
@@ -1019,23 +940,24 @@ def cell_color_map(cell_group_filename, cell_list, color_list, markers):
         for cell, group in list(set(zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()))):
             if cell not in cells_seen:
                 group_count = group_set.index(group)
-                label_map[cell] = (color_list[group_count],markers[group_count],group)
+                label_map[cell] = (color_dict[group][0],color_dict[group][1],group)
                 cells_seen.append(cell)
         non_group_cells = [c for c in cell_list if c not in cells_seen]
         if non_group_cells != []:
+            markers = ['o', 'v','D','*','x','h', 's']
+            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']
             for cell in non_group_cells:
                 label_map[cell] = (color_list[group_count+1],markers[group_count+1],'No_Group')
     else:
         label_map = False
     return cell_list_1, label_map
 
-def gene_list_map(gene_list_file, gene_list, color_list, markers, exclude_list = []):
+def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
     gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), sep=None)
-
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
     gene_df = gene_df1.copy()
-    gene_list_1 = list(set(gene_df['GeneID'].tolist()))
+    gene_list_1 = [g for g in list(set(gene_df['GeneID'].tolist())) if g in gene_list]
     if len(gene_df['GeneID']) == len(gene_df['GroupID']):
         gene_label_map = {}
         group_pos = 0
@@ -1049,15 +971,69 @@ def gene_list_map(gene_list_file, gene_list, color_list, markers, exclude_list =
                     group_seen[group_pos] = str(group)
                     pos = group_pos
                     group_pos += 1
-                gene_label_map[gene] = (color_list[pos],markers[pos],group)
+                gene_label_map[gene] = (color_dict[str(group)][0],color_dict[str(group)][1],str(group))
                 genes_seen.append(gene)
-        non_group_genes = [g for g in gene_list if g not in genes_seen]
+        non_group_genes = [g for g in gene_list_1 if g not in genes_seen]
         if non_group_genes != []:
+            markers = ['o', 'v','D','*','x','h', 's']
+            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']
             for cell in non_group_genes:
                 gene_label_map[gene] = (color_list[group_pos+1],markers[group_pos+1],'No_ID')
     else:
         gene_label_map = False
     return gene_list_1, gene_label_map
+
+def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, gene_or_cell, minimum = 0.25, cut = 0.4, vsize = 1.5, legend = True, borders = False):
+    from rpy2.robjects import pandas2ri
+    pandas2ri.activate()
+    import rpy2.robjects as robjects
+    from rpy2.robjects.packages import importr
+    qgraph = importr('qgraph')
+    psych = importr('psych')
+    if gene_or_cell=='cell':
+        r_dataframe = pandas2ri.py2ri(data.transpose())
+        cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
+        cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
+        group_set = list(set(cell_groups_df['GroupID'].tolist()))
+        d = defaultdict(list)
+        cell_list_all = data.columns.tolist()
+        for i, cell in enumerate(cell_list_all):
+            group = label_map[cell][2]
+            d[group].append(i+1)
+
+        label_list = robjects.vectors.StrVector(cell_list_all)
+    elif gene_or_cell=='gene':
+        r_dataframe = pandas2ri.py2ri(data.transpose())
+        gene_groups_df = pd.read_csv(gene_filename, sep=None)
+        gene_list_1 = list(set(gene_groups_df['GeneID'].tolist()))
+        group_set = list(set(gene_groups_df['GroupID'].tolist()))
+        d = defaultdict(list)
+        d_color = []
+        color_dict2 = {'r':'red', 'm':'magenta', 'b':'blue', 'g':'green', 'c':'cyan'}
+        gene_list_all = data.transpose().columns.tolist()
+        for i, gene in enumerate(gene_list_all):
+            group = gene_map[gene][2]
+            color = gene_map[gene][0]
+            d[group].append(i+1)
+            d_color.append(color_dict2[color])
+
+        label_list = robjects.vectors.StrVector(gene_list_all)
+        d_color_r = robjects.vectors.StrVector(d_color)
+    from rpy2.robjects.vectors import FloatVector
+    for colname in d:
+        d[colname] = FloatVector(d[colname])
+
+    # data frame
+    from rpy2.robjects.vectors import ListVector
+    group_data = ListVector(d)
+    pca = psych.principal(robjects.r.cor(r_dataframe), 3, rotate = "promax")
+    qpca = qgraph.qgraph(pca, groups = group_data, layout = "circle", rotation = "promax",
+    minimum = 0.2, cut = 0.4, vsize = FloatVector([1.5, 15]), labels= label_list, borders = False,
+     vTrans = 200,filename='graph_pca_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
+    Q = qgraph.qgraph(robjects.r.cor(r_dataframe), minimum = 0.25, cut = 0.4, vsize = 1.5, groups = group_data,
+    legend = True, borders = False, color=d_color_r, labels = label_list, filename='graph_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
+    Q = qgraph.qgraph(Q, layout = "spring", overlay=True)
+
 
 def main(args):
     new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_subgroups')
@@ -1103,10 +1079,39 @@ def main(args):
     else:
         log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
 
-
-    cell_color_list = ['b', 'm', 'r', 'c', 'g', 'orange', 'darkslateblue']
-    gene_color_list = ['r', 'm', 'b', 'c', 'g', 'orange', 'darkslateblue']
     markers = ['o', 'v','D','*','x','h', 's']
+    cell_color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']
+    color_dict_cells= {}
+    color_dict_genes= {}
+    if args.color_cells:
+        color_list1 = args.color_cells.split(' ')
+        for i, c in enumerate(color_list1):
+            c_pair = c.split(',')
+            if len(c_pair) == 2:
+                color_dict_cells[c_pair[0]] = [c_pair[1],markers[i]]
+            elif len(cc_pair == 3):
+                color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
+    elif args.cell_list_filename:
+        cell_groups_df = pd.read_csv(cell_file, sep=None)
+        group_set = list(set(cell_groups_df['GroupID'].tolist()))
+        for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
+            color_dict_cells[g] =[c,m]
+    if args.color_genes =='same':
+        color_dict_genes = color_dict_cells
+    elif args.color_genes:
+        color_list1 = args.color_genes.split(' ')
+        for i, c in enumerate(color_list1):
+            c_pair = c.split(',')
+            if len(c_pair) == 2:
+                color_dict_genes[c_pair[0]] = [c_pair[1],markers[i]]
+            elif len(c_pair == 3):
+                color_dict_genes[c_pair[0]] = [c_pair[1],c_pair[2]]
+    elif args.gene_list_filename:
+        gene_groups_df = pd.read_csv(gene_list_file, sep=None)
+        group_set = list(set(gene_groups_df['GroupID'].tolist()))
+        for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
+            color_dict_genes[g] =[c,m]
+
 
 
 
@@ -1116,27 +1121,25 @@ def main(args):
             exclude_list = hu_cc_gene_df['GeneID'].tolist()
             df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file, exclude_list=exclude_list)
             df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers, exclude_list=exclude_list)
-            cell_list, label_map_pca = cell_color_map(cell_file, df_by_cell.columns.values, gene_color_list, markers)
-            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes, exclude_list=exclude_list)
+            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_dict_cells)
         else:
             df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
             df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
-            cell_list, label_map_pca = cell_color_map(cell_file, df_by_cell.columns.values, gene_color_list, markers)
-            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes)
+            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_dict_cells)
     elif args.gene_list_filename:
         if args.exclude_genes:
             hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
             exclude_list = hu_cc_gene_df['GeneID'].tolist()
             df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file,exclude_list=exclude_list)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers,exclude_list=exclude_list)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes,exclude_list=exclude_list)
         else:
             df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, gene_color_list, markers)
+            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes)
     elif args.cell_list_filename:
         df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
-        cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, cell_color_list, markers)
+        cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_dict_cells)
         gene_color_map = False
     else:
         if args.exclude_genes:
@@ -1173,6 +1176,13 @@ def main(args):
                 cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(gene_list, df_by_gene, new_file, num_to_plot=len(gene_list), label_map=label_map, gene_map=gene_color_map)
                 cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
                 make_subclusters(cc, df_by_cell, log2_expdf_cell, gene_corr_list=corr_gene_list ,path_filename=new_file, base_name=args.base_name, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
+                if args.qgraph_plot == 'both':
+                    run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='gene')
+                    run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='cell')
+                elif args.qgraph_plot == 'gene':
+                    run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='gene')
+                elif args.qgraph_plot == 'cell':
+                    run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='cell')
             else:
                 top_pca = plot_PCA(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
                 top_pca_by_gene = log2_expdf_gene[top_pca]
@@ -1208,7 +1218,7 @@ def main(args):
             if args.all_sig:
                 find_twobytwo(cc, top_pca_by_cell, log2_expdf_cell, new_file, cluster_size=args.depth_of_clustering)
     if args.group_sig_test and args.cell_list_filename:
-        multi_group_sig(log2_expdf_cell, cell_file, new_file)
+        multi_group_sig(log2_expdf_cell, cell_file, new_file, color_dict_cells)
 
     #cell_dist, row_dist, row_clusters, link_mat, row_dendr = run_cluster(top_pca_by_gene)
 
@@ -1246,9 +1256,9 @@ def get_parser():
                         help="Filepath to cell-gene matrix file")
     parser.add_argument("-n","--name",
                         dest="base_name",
-                        default='',
+                        default='scicast_analysis',
                         type=str,
-                        help="The base name for files that will be generated")
+                        help="The base name for files that will be generated.")
     parser.add_argument("-g","--gene_number",
                         dest="gene_number",
                         default=200,
@@ -1311,7 +1321,7 @@ def get_parser():
                         dest="no_heatmaps",
                         action="store_false",
                         default=True,
-                        help="Don't run heatmaps and pca. Default is on.")
+                        help="Don't run heatmaps and pca. Default is will generate heatmaps and pca.")
     parser.add_argument("-exclude_genes",
                         dest="exclude_genes",
                         default=False,
@@ -1335,6 +1345,21 @@ def get_parser():
                         action="store_true",
                         default=False,
                         help="Option will annotate cell PCA with cell names. Default is off (False).")
+    parser.add_argument("-color_cells",
+                        dest="color_cells",
+                        default=False,
+                        type=str,
+                        help="Follow with cell group names and pairs (matching cell group names). Forces color and marker style on group. Just color or color and marker can be provided.  Example: Group1,color,marker Group2,red,v")
+    parser.add_argument("-color_genes",
+                        dest="color_genes",
+                        default=False,
+                        type=str,
+                        help="Can be 'same' if names are the same as cell groups. Follow with gene group names and pairs (matching gene group names). Forces color and marker style on group. Just color or color and marker can be provided.  Example: Group1,color,marker Group2,red,v")
+    parser.add_argument("-qgraph_plot",
+                        dest="qgraph_plot",
+                        default=False,
+                        type=str
+                        help="Can be 'cell' 'gene' or 'both' will plot qgraph gene and/or cell network and pca correlation network plot to pdf. Requires both gene and cell groups to be provided.")
 
     return parser
 
