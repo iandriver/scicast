@@ -19,11 +19,11 @@ Requires
 --------------
 Simple Command:
 
-python cluster.py -f '/Path/to/gene_cell_matrix' -n 'my_gene_cell_matrix_analyis'
+          python cluster.py -f '/Path/to/gene_cell_matrix' -n 'my_gene_cell_matrix_analyis'
 
 Command with cell and gene files:
 
-python cluster.py -f '/Path/to/gene_cell_matrix' -n 'my_gene_cell_matrix_analyis' -v -cell_group 'sc_cell_groups.csv' -gene_list 'sc_gene_groups.csv' -depth 100 -z 0 -genes_corr Myc,Nanog,Vegf -method ward -metric seuclidean -annotate_gene_subset 'gene_annotation_subset.csv' -add_ellipse
+          python cluster.py -f '/Path/to/gene_cell_matrix' -n 'my_gene_cell_matrix_analyis' -v -cell_group 'sc_cell_groups.csv' -gene_list 'sc_gene_groups.csv' -depth 100 -z 0 -genes_corr Myc,Nanog,Vegf -method ward -metric seuclidean -annotate_gene_subset 'gene_annotation_subset.csv' -add_ellipse
 
 =======
 
