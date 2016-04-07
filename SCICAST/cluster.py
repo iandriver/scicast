@@ -26,13 +26,15 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector
 import matplotlib.patches as patches
 from collections import defaultdict
+import collections
+
 
 
 
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
     if isinstance(gene_list_source,str):
-        gene_df = pd.read_csv(gene_list_source, sep=None)
+        gene_df = pd.read_csv(gene_list_source, sep=None, engine='python')
         try:
             gene_list = list(set(gene_df['GeneID'].tolist()))
             if exclude_list != "":
@@ -79,13 +81,13 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
         sys.exit("Error: gene list must be filepath or a list.")
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
-    cell_df = pd.read_csv(cell_list_file, sep=None)
+    cell_df = pd.read_csv(cell_list_file, sep=None, engine='python')
     cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
     cell_list_old = org_matrix_by_cell.columns.tolist()
     overlap = [c for c in cell_list_new if c in cell_list_old]
     not_in_matrix = [c for c in cell_list_new if c not in cell_list_old]
     if not_in_matrix != []:
-        print('These cells were in the cell list provided by not found in the matrix provided:')
+        print('These cells were in the cell list provided, but not found in the matrix provided:')
         print(not_in_matrix)
     new_cmatrix_df = org_matrix_by_cell[overlap]
     new_gmatrix_df = new_cmatrix_df.transpose()
@@ -115,7 +117,12 @@ def find_top_common_genes(log2_df_by_cell, num_common=25):
     log2_df_by_gene = log2_df_by_cell.transpose()
     log2_df2_gene = pd.DataFrame(pd.to_numeric(log2_df_by_gene, errors='coerce'))
     log_mean = log2_df2_gene.mean(axis=0).sort_values(ascending=False)
-    log2_sorted_gene = log2_df_by_gene.reindex_axis(log2_df_by_gene.mean(axis=0).sort_values(ascending=False).index, axis=1)
+    try:
+        log2_sorted_gene = log2_df_by_gene.reindex_axis(log2_df_by_gene.mean(axis=0).sort_values(ascending=False).index, axis=1)
+    except ValueError:
+        overlap_list = [item for item, count in collections.Counter(log2_df_by_cell.index).items() if count > 1]
+        print(overlap_list, len(overlap_list))
+        sys.exit('Error: Duplicate GeneIDs are present.')
     for gene in log2_sorted_gene.columns.tolist():
         if sum(genes < 1 for genes in log2_df_by_gene[gene])<6:
             if count < num_common:
@@ -420,10 +427,11 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         ax_cell.set_xlim([min(top_cell_trans[:, 0])-1, max(top_cell_trans[:, 0]+1)])
         ax_cell.set_ylim([min(top_cell_trans[:, 1])-1, max(top_cell_trans[:, 1]+2)])
         ax_cell.set_title(title+'_cell')
-        handles, labs = ax_cell.get_legend_handles_labels()
-        # sort both labels and handles by labels
-        labs, handles = zip(*sorted(zip(labs, handles), key=lambda t: t[0]))
-        ax_cell.legend(handles, labs, loc='best', ncol=1, prop={'size':12}, markerscale=1.5, frameon=True)
+        if label_map:
+            handles, labs = ax_cell.get_legend_handles_labels()
+            # sort both labels and handles by labels
+            labs, handles = zip(*sorted(zip(labs, handles), key=lambda t: t[0]))
+            ax_cell.legend(handles, labs, loc='best', ncol=1, prop={'size':12}, markerscale=1.5, frameon=True)
         ax_cell.set_xlabel('PC1')
         ax_cell.set_ylabel('PC2')
         if annotate:
@@ -460,9 +468,13 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
             genes_plot = pd.read_csv(plot_subset_path, sep='\t', index_col=False)
             for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
                 if label in genes_plot['GeneID'].tolist():
+                    if '_' in label:
+                        label = label.split('_')[0]
                     ax_gene.annotate(label, (x+0.1, y+0.1))
         else:
             for label, x, y in zip(top_by_gene.columns, top_gene_trans[:, 0], top_gene_trans[:, 1]):
+                if '_' in label:
+                    label = label.split('_')[0]
                 ax_gene.annotate(label, (x+0.1, y+0.1))
         if plot:
             plt.show()
@@ -495,9 +507,9 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
     cluster_df = df_by_gene[gene_list[0:num_to_plot]].transpose()
     cluster_df[abs(cluster_df)<3e-12] = 0.0
     try:
-        cg1 = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, figsize=(30, 35), cmap =cmap)
-        col_order = cg1.dendrogram_col.reordered_ind
-        row_order = cg1.dendrogram_row.reordered_ind
+        cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, figsize=(30, 35), cmap =cmap)
+        col_order = cg.dendrogram_col.reordered_ind
+        row_order = cg.dendrogram_row.reordered_ind
         if label_map and gene_map:
             Xlabs = [cell_list[i] for i in col_order]
             Xcolors = [label_map[cell][0] for cell in Xlabs]
@@ -769,7 +781,7 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
 def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_dict_cell):
     plot_pvalue = False
     stats = importr('stats')
-    cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
+    cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
     group_name_list = list(set(cell_groups_df['GroupID']))
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -930,7 +942,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
 
 
 def cell_color_map(cell_group_filename, cell_list, color_dict):
-    cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
+    cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
@@ -953,7 +965,7 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
     return cell_list_1, label_map
 
 def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
-    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), sep=None)
+    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), sep=None, engine='python')
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
     gene_df = gene_df1.copy()
@@ -992,7 +1004,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, ge
     psych = importr('psych')
     if gene_or_cell=='cell':
         r_dataframe = pandas2ri.py2ri(data.transpose())
-        cell_groups_df = pd.read_csv(cell_group_filename, sep=None)
+        cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
         cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
         group_set = list(set(cell_groups_df['GroupID'].tolist()))
         d = defaultdict(list)
@@ -1004,7 +1016,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, ge
         label_list = robjects.vectors.StrVector(cell_list_all)
     elif gene_or_cell=='gene':
         r_dataframe = pandas2ri.py2ri(data.transpose())
-        gene_groups_df = pd.read_csv(gene_filename, sep=None)
+        gene_groups_df = pd.read_csv(gene_filename, sep=None, engine='python')
         gene_list_1 = list(set(gene_groups_df['GeneID'].tolist()))
         group_set = list(set(gene_groups_df['GroupID'].tolist()))
         d = defaultdict(list)
@@ -1059,7 +1071,9 @@ def main(args):
             sys.exit('Error: Cannot find cell list file. Please place the gene list file in the same directory or provide a full path.')
 
     by_cell = pd.DataFrame.from_csv(args.filepath, sep="\t")
-
+    dup_gene_list = [item for item, count in collections.Counter(by_cell.index).items() if count > 1]
+    if len(dup_gene_list) >0:
+        by_cell.drop(dup_gene_list, inplace=True)
     by_gene = by_cell.transpose()
     #create list of genes
     gene_list_inital = by_cell.index.tolist()
@@ -1092,7 +1106,7 @@ def main(args):
             elif len(cc_pair == 3):
                 color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
     elif args.cell_list_filename:
-        cell_groups_df = pd.read_csv(cell_file, sep=None)
+        cell_groups_df = pd.read_csv(cell_file, sep=None, engine='python')
         group_set = list(set(cell_groups_df['GroupID'].tolist()))
         for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
             color_dict_cells[g] =[c,m]
@@ -1107,7 +1121,7 @@ def main(args):
             elif len(c_pair == 3):
                 color_dict_genes[c_pair[0]] = [c_pair[1],c_pair[2]]
     elif args.gene_list_filename:
-        gene_groups_df = pd.read_csv(gene_list_file, sep=None)
+        gene_groups_df = pd.read_csv(gene_list_file, sep=None, engine='python')
         group_set = list(set(gene_groups_df['GroupID'].tolist()))
         for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
             color_dict_genes[g] =[c,m]
@@ -1358,7 +1372,7 @@ def get_parser():
     parser.add_argument("-qgraph_plot",
                         dest="qgraph_plot",
                         default=False,
-                        type=str
+                        type=str,
                         help="Can be 'cell' 'gene' or 'both' will plot qgraph gene and/or cell network and pca correlation network plot to pdf. Requires both gene and cell groups to be provided.")
 
     return parser
