@@ -19,7 +19,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/SCICAST'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/SCICAST'
-VERSION = '0.1.dev'
+VERSION = '0.2.dev'
 
 try:
     from setuptools import setup
