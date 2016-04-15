@@ -1338,7 +1338,7 @@ def get_parser():
                         dest="genes_corr",
                         default='',
                         type=str,
-                        help="If you want to look for correation on a specific gene or set of genes enter them as a comma seperated list i.e. 'Gapdh,Actb'.")
+                        help="If you want to look for correlation on a specific gene or set of genes enter them as a comma seperated list i.e. 'Gapdh,Actb'.")
     parser.add_argument("-all_sig",
                         dest="all_sig",
                         action="store_true",
