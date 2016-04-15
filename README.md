@@ -141,12 +141,13 @@ optional arguments:
                         and gene PCA plots. Must provide gene and/or cell
                         groups. (default: False)                                
 
-  -annotate_gene_subset ANNOTATE_GENE_SUBSET                                                          
+  -annotate_gene_subset ANNOTATE_GENE_SUBSET                                    
                         Provide path or filename (if in same file) to file
                         with genes to be annotated on gene PCA. Must have
                         'GeneID' header. (default: False)                       
 
-  -annotate_cell_pca    Option will annotate cell PCA with cell names. Default
+  -annotate_cell_pca                                                            
+                        Option will annotate cell PCA with cell names. Default
                         is off (False). (default: False)                        
 
   -color_cells COLOR_CELLS                                                      
