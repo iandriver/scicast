@@ -362,6 +362,18 @@ def ellip_enclose(points, color, inc=1, lw=2, nst=2):
                           facecolor='none', edgecolor=color, lw=lw)
     return ell, edge
 
+def return_top_pca_gene(df_by_gene, num_genes=100):
+    gene_pca = skPCA(n_components=3)
+    np_by_gene = np.asarray(df_by_gene)
+
+    by_gene_trans = gene_pca.fit_transform(np_by_gene)
+    Pc_df = pd.DataFrame(gene_pca.components_.T, columns=['PC-1', 'PC-2', 'PC-3'], index=df_by_gene.columns.tolist())
+    pca_rank_df = Pc_df.abs().sum(axis=1)
+    Pc_sort_df = pca_rank_df.nlargest(len(df_by_gene.columns.tolist()))
+    top_pca_list = Pc_sort_df.index.tolist()
+    new_gene_matrix = df_by_gene[top_pca_list[0:num_genes]]
+    return(new_gene_matrix)
+
 def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
@@ -646,6 +658,8 @@ def clust_stability(log2_expdf_gene, iterations, path_filename):
 #run correlation matrix and save only those above threshold
 def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, run_new=True, min_period=3):
     if run_new:
+        if len(df_by_gene.columns.tolist())>5000:
+            df_by_gene = return_top_pca_gene(df_by_gene, num_genes=5000)
         if method_name != 'kendall':
             corr_by_gene = df_by_gene.corr(method=method_name, min_periods=min_period)
         else:
