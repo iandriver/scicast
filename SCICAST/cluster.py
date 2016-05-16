@@ -656,7 +656,7 @@ def clust_stability(log2_expdf_gene, iterations, path_filename):
     return stability_ratio
 
 #run correlation matrix and save only those above threshold
-def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, run_new=True, min_period=3):
+def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, run_new=True, min_period=3, save_corrs=False):
     if run_new:
         if len(df_by_gene.columns.tolist())>5000:
             df_by_gene = return_top_pca_gene(df_by_gene, num_genes=5000)
@@ -672,7 +672,12 @@ def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_thresh
         cor = cor.stack()
         corr_by_gene_pos = cor[cor >=sig_threshold]
         corr_by_gene_neg = cor[cor <=(sig_threshold*-1)]
-
+    else:
+        corr_by_g_pos =  open(os.path.join(path_filename,'gene_correlations_sig_pos_'+method_name+'.p'), 'rb')
+        corr_by_g_neg =  open(os.path.join(path_filename,'gene_correlations_sig_neg_'+method_name+'.p'), 'rb')
+        corr_by_gene_pos = pickle.load(corr_by_g_pos)
+        corr_by_gene_neg = pickle.load(corr_by_g_neg)
+    if save_corrs:
         with open(os.path.join(path_filename,'gene_correlations_sig_neg_'+method_name+'.p'), 'wb') as fp:
             pickle.dump(corr_by_gene_neg, fp)
         with open(os.path.join(path_filename,'gene_correlations_sig_pos_'+method_name+'.p'), 'wb') as fp0:
@@ -681,11 +686,7 @@ def run_corr(df_by_gene, title, path_filename, method_name='pearson', sig_thresh
             pickle.dump(corr_by_gene, fp1)
         with open(os.path.join(path_filename,'by_cell_corr.p'), 'wb') as fp2:
             pickle.dump(corr_by_cell, fp2)
-    else:
-        corr_by_g_pos =  open(os.path.join(path_filename,'gene_correlations_sig_pos_'+method_name+'.p'), 'rb')
-        corr_by_g_neg =  open(os.path.join(path_filename,'gene_correlations_sig_neg_'+method_name+'.p'), 'rb')
-        corr_by_gene_pos = pickle.load(corr_by_g_pos)
-        corr_by_gene_neg = pickle.load(corr_by_g_neg)
+
 
     cor_pos_df = pd.DataFrame(corr_by_gene_pos)
     cor_neg_df = pd.DataFrame(corr_by_gene_neg)
@@ -1055,9 +1056,13 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, ge
     pca = psych.principal(robjects.r.cor(r_dataframe), 3, rotate = "promax")
     qpca = qgraph.qgraph(pca, groups = group_data, layout = "circle", rotation = "promax",
     minimum = 0.2, cut = 0.4, vsize = FloatVector([1.5, 15]), labels= label_list, borders = False,
-     vTrans = 200,filename='graph_pca_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
-    Q = qgraph.qgraph(robjects.r.cor(r_dataframe), minimum = 0.25, cut = 0.4, vsize = 1.5, groups = group_data,
-    legend = True, borders = False, color=d_color_r, labels = label_list, filename='graph_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
+    vTrans = 200,filename='graph_pca_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
+    if gene_or_cell == 'gene':
+        Q = qgraph.qgraph(robjects.r.cor(r_dataframe), minimum = 0.25, cut = 0.4, vsize = 1.5, groups = group_data,
+        legend = True, borders = False, color=d_color_r, labels = label_list, filename='graph_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
+    elif gene_or_cell =='cell':
+        Q = qgraph.qgraph(robjects.r.cor(r_dataframe), minimum = 0.25, cut = 0.4, vsize = 1.5, groups = group_data,
+        legend = True, borders = False, labels = label_list, filename='graph_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
     Q = qgraph.qgraph(Q, layout = "spring", overlay=True)
 
 
@@ -1324,6 +1329,7 @@ def get_parser():
     parser.add_argument("-gene_list",
                         dest="gene_list_filename",
                         default=False,
+                        type=str,
                         help="Path to a file with a two columns with headers 'GeneID' and 'GroupID' (Singular format). GeneID list will be used to create a new matrix file with only those genes included.")
     parser.add_argument("-group_sig_test",
                         action="store_true",
