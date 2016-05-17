@@ -1010,11 +1010,12 @@ def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
         gene_label_map = False
     return gene_list_1, gene_label_map
 
-def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, gene_or_cell, minimum = 0.25, cut = 0.4, vsize = 1.5, legend = True, borders = False):
+def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, path_filename, gene_or_cell, minimum = 0.25, cut = 0.4, vsize = 1.5, legend = True, borders = False):
     from rpy2.robjects import pandas2ri
     pandas2ri.activate()
     import rpy2.robjects as robjects
     from rpy2.robjects.packages import importr
+    robjects.r.setwd(os.path.dirname(path_filename))
     qgraph = importr('qgraph')
     psych = importr('psych')
     if gene_or_cell=='cell':
@@ -1054,6 +1055,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, ge
     from rpy2.robjects.vectors import ListVector
     group_data = ListVector(d)
     pca = psych.principal(robjects.r.cor(r_dataframe), 3, rotate = "promax")
+    robjects.r.setwd(path_filename)
     qpca = qgraph.qgraph(pca, groups = group_data, layout = "circle", rotation = "promax",
     minimum = 0.2, cut = 0.4, vsize = FloatVector([1.5, 15]), labels= label_list, borders = False,
     vTrans = 200,filename='graph_pca_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
@@ -1064,6 +1066,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, ge
         Q = qgraph.qgraph(robjects.r.cor(r_dataframe), minimum = 0.25, cut = 0.4, vsize = 1.5, groups = group_data,
         legend = True, borders = False, labels = label_list, filename='graph_'+gene_or_cell, filetype = "pdf", height = 15, width = 15)
     Q = qgraph.qgraph(Q, layout = "spring", overlay=True)
+    robjects.r.setwd(os.path.dirname(path_filename))
 
 
 def main(args):
@@ -1213,12 +1216,12 @@ def main(args):
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
             make_subclusters(cc, df_by_cell, log2_expdf_cell, gene_corr_list=corr_gene_list ,path_filename=new_file, base_name=args.base_name, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
             if args.qgraph_plot == 'both':
-                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='gene')
-                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='cell')
+                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='gene')
+                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='cell')
             elif args.qgraph_plot == 'gene':
-                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='gene')
+                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='gene')
             elif args.qgraph_plot == 'cell':
-                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, gene_or_cell='cell')
+                run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='cell')
             if args.all_sig:
                 find_twobytwo(cc, df_by_cell, log2_expdf_cell, new_file, cluster_size=args.depth_of_clustering)
         elif not gene_color_map: #if only cell list is provided
