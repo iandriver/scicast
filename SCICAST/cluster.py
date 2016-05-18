@@ -777,9 +777,15 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
             ax.set_ylim([0, df_by_gene[to_plot].values.max()])
             ax.xaxis.set_major_formatter(ticker.NullFormatter())
             ax.tick_params(axis='x', which ='minor', labelsize=10)
-            if len(corr_tup) > 15:
+            if len(corr_tup) > 40:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.05), ncol=6, prop={'size':6})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.9), ncol=8, prop={'size':5})
+            elif len(corr_tup) > 25:
+                l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.4), ncol=8, prop={'size':5})
+            elif len(corr_tup) > 15:
+                l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.2), ncol=6, prop={'size':6})
             else:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
                 ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.05), ncol=4, prop={'size':8})
@@ -943,7 +949,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         axs[i].xaxis.set_ticks_position('none')
         axs[i].yaxis.tick_right()
         axs[i].set_title(name)
-        axs[i].legend(loc='upper left', fontsize=9)
+        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.2), ncol=2, prop={'size':5})
         axs[i].set_xlabel('adjusted p-value')
         for xmaj in axs[i].xaxis.get_majorticklocs():
             axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
@@ -971,8 +977,10 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
                 cells_seen.append(cell)
         non_group_cells = [c for c in cell_list if c not in cells_seen]
         if non_group_cells != []:
-            markers = ['o', 'v','D','*','x','h', 's']
-            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']
+            from matplotlib import colors
+            all_color_list = list(colors.cnames.keys())
+            markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
+            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_cells:
                 label_map[cell] = (color_list[group_count+1],markers[group_count+1],'No_Group')
     else:
@@ -1115,8 +1123,10 @@ def main(args):
     else:
         log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
 
-    markers = ['o', 'v','D','*','x','h', 's']
-    cell_color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']
+    markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
+    from matplotlib import colors
+    all_color_list = list(colors.cnames.keys())
+    cell_color_list = ['b', 'g', 'r', 'c', 'm','y','k']+all_color_list
     color_dict_cells= {}
     color_dict_genes= {}
     if args.color_cells:
@@ -1147,7 +1157,6 @@ def main(args):
         group_set = list(set(gene_groups_df['GroupID'].tolist()))
         for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
             color_dict_genes[g] =[c,m]
-
 
 
 
