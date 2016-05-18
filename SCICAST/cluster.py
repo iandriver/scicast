@@ -767,25 +767,25 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
             ax.set_title('Correlates with '+term_to_search, loc='right')
             ax.xaxis.set_minor_locator(LinearLocator(numticks=len(xlabels)))
             if label_map:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=4)
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=3)
                 Xcolors = [label_map[cell][0] for cell in xlabels]
                 for xtick, xcolor in zip(ax.get_xticklabels(which='minor'), Xcolors):
                     xtick.set_color(xcolor)
                     xtick.set_rotation(90)
             else:
-                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=4)
+                ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=3)
             ax.set_ylim([0, df_by_gene[to_plot].values.max()])
             ax.xaxis.set_major_formatter(ticker.NullFormatter())
             ax.tick_params(axis='x', which ='minor', labelsize=10)
             if len(corr_tup) > 40:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.9), ncol=8, prop={'size':5})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.4), ncol=8, prop={'size':5})
             elif len(corr_tup) > 25:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.4), ncol=8, prop={'size':5})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.25), ncol=8, prop={'size':5})
             elif len(corr_tup) > 15:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.2), ncol=6, prop={'size':6})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.1), ncol=6, prop={'size':6})
             else:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
                 ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.05), ncol=4, prop={'size':8})
@@ -900,7 +900,10 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
             fc = top_fc_df['ratio '+gp[0]+' to '+gp[1]].tolist()
             z = zip(genes,pvalues,fc)
             z_all = [s for s in z]
-            top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in ['Xist', 'Tsix', 'Per3', 'Dbp', 'Ddx3y', 'XIST', 'TSIX']]
+            if args.sig_unique:
+                top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in ['Xist', 'Tsix', 'Per3', 'Dbp', 'Ddx3y', 'XIST', 'TSIX']]
+            else:
+                top_t = [g for g in z_all if g[0] not in ['Xist', 'Tsix', 'Per3', 'Dbp', 'Ddx3y', 'XIST', 'TSIX']]
             if args.exclude_genes:
                 hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
                 exclude_list = hu_cc_gene_df['GeneID'].tolist()
@@ -949,7 +952,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         axs[i].xaxis.set_ticks_position('none')
         axs[i].yaxis.tick_right()
         axs[i].set_title(name)
-        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.2), ncol=2, prop={'size':5})
+        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.08), ncol=1, prop={'size':5})
         axs[i].set_xlabel('adjusted p-value')
         for xmaj in axs[i].xaxis.get_majorticklocs():
             axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
@@ -1427,6 +1430,11 @@ def get_parser():
                         default=False,
                         type=str,
                         help="Can be 'cell' 'gene' or 'both' will plot qgraph gene and/or cell network and pca correlation network plot to pdf. Requires both gene and cell groups to be provided.")
+    parser.add_argument("-sig_unique",
+                        dest="sig_unique",
+                        action="store_false",
+                        default=True,
+                        help="group_sig_test will by default find unique sets of significant genes, so that the whole list has no duplicates. This switches the top significant genes amoung groups to allow repeats.")
 
     return parser
 
