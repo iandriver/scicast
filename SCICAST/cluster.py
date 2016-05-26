@@ -779,13 +779,13 @@ def corr_plot(terms_to_search, df_by_gene, path_filename, title, num_to_plot, ge
             ax.tick_params(axis='x', which ='minor', labelsize=10)
             if len(corr_tup) > 40:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.4), ncol=8, prop={'size':5})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.7), ncol=8, prop={'size':5})
             elif len(corr_tup) > 25:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.25), ncol=8, prop={'size':5})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.3), ncol=8, prop={'size':5})
             elif len(corr_tup) > 15:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
-                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.1), ncol=6, prop={'size':6})
+                ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.15), ncol=6, prop={'size':6})
             else:
                 l_labels = [str(x[0])+' '+"%.2f" % x[1] for x in corr_tup]
                 ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, 1.05), ncol=4, prop={'size':8})
@@ -952,7 +952,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         axs[i].xaxis.set_ticks_position('none')
         axs[i].yaxis.tick_right()
         axs[i].set_title(name)
-        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.08), ncol=1, prop={'size':5})
+        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11), ncol=1, prop={'size':5})
         axs[i].set_xlabel('adjusted p-value')
         for xmaj in axs[i].xaxis.get_majorticklocs():
             axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
