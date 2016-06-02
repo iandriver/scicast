@@ -97,21 +97,10 @@ def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
     return new_cmatrix_df, new_gmatrix_df
 
 
-def preprocess_df(np_by_cell, gen_list, number_expressed=3):
-    g_todelete = []
-    for g1, gene in enumerate(np_by_cell):
-        cells_exp = (gene >= 1.0).sum()
-        if cells_exp < number_expressed:
-            g_todelete.append(g1)
-    g1_todelete = sorted(g_todelete, reverse = True)
-    for pos in g1_todelete:
-        if type(gen_list[pos]) != float:
-            if args.verbose:
-                print('Gene '+gen_list[pos]+' not expressed in '+str(number_expressed)+' cells.')
-            pass
-        del gen_list[pos]
-    n_by_cell = np.delete(np_by_cell, g1_todelete, axis=0)
-    return n_by_cell, gen_list
+def threshold_genes(by_gene, number_expressed=1, gene_express_cutoff=1.0):
+    by_gene.apply(lambda column: (column >= 1).sum())
+    return
+
 
 def find_top_common_genes(log2_df_by_cell, num_common=25):
     top_common_list = []
@@ -702,7 +691,7 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
         plt.close('all')
         return cell_linkage, df_by_gene[gene_list[0:num_to_plot]], col_order
     except FloatingPointError:
-        print('linkage distance has too many zeros. Heatmap with '+ str(len(cell_list))+' will not be created.')
+        print('linkage distance has too many zeros. Filter to remove non-expressed genes in order to produce heatmap. Heatmap with '+ str(len(cell_list))+' will not be created.')
         return False, False, False
 
 def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, base_name, gene_corr_list, label_map=False, gene_map=False, cluster_size=20, group_colors=False):
@@ -719,6 +708,7 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
             cell_subset = log2_expdf_cell[list(set(cell_list))]
             full_cell_subset = log2_expdf_cell_full[list(set(cell_list))]
             gene_subset = cell_subset.transpose()
+            gene_subset = gene_subset.apply(lambda x: np.all(x==0))
             norm_df_cell1 = np.exp2(full_cell_subset)
             norm_df_cell = norm_df_cell1 -1
             norm_df_cell.to_csv(os.path.join(path_filename, base_name+'_'+current_title+'_matrix.txt'), sep = '\t', index_col=0)
@@ -757,8 +747,7 @@ def clust_stability(log2_expdf_gene, iterations, path_filename):
     iter_list = range(100,int(round(end_num)),int(round(end_num/iterations)))
     for gene_number in iter_list:
         title= str(gene_number)+' genes plot.'
-        top_pca = plot_SVD(log2_expdf_gene, num_genes=gene_number, title=title)
-        top_pca_by_gene = log2_expdf_gene[top_pca]
+        top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=gene_number)
         top_pca_by_cell = top_pca_by_gene.transpose()
         cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, num_to_plot=gene_number, title=title)
         if gene_number == 100:
