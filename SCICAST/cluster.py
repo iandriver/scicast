@@ -706,22 +706,25 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
             group_ID+=1
             current_title = 'Group_'+str(group_ID)+'_with_'+str(num_members)+'_cells'
             cell_subset = log2_expdf_cell[list(set(cell_list))]
-            full_cell_subset = log2_expdf_cell_full[list(set(cell_list))]
             gene_subset = cell_subset.transpose()
-            gene_subset = gene_subset.apply(lambda x: np.all(x==0))
+            gene_subset = gene_subset.loc[:,(gene_subset!=0).any(0)]
+            full_cell_subset = log2_expdf_cell_full[list(set(cell_list))]
+            full_gene_subset = full_cell_subset.transpose()
+            full_gene_subset = full_gene_subset.loc[:,(full_gene_subset!=0).any(0)]
             norm_df_cell1 = np.exp2(full_cell_subset)
             norm_df_cell = norm_df_cell1 -1
             norm_df_cell.to_csv(os.path.join(path_filename, base_name+'_'+current_title+'_matrix.txt'), sep = '\t', index_col=0)
             if gene_map:
-                top_pca = plot_SVD(gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map, gene_map=gene_map)
+                top_pca_by_gene, top_pca = return_top_pca_gene(gene_subset, num_genes=args.gene_number)
+                plot_SVD(gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map, gene_map=gene_map)
             else:
-                top_pca = plot_SVD(gene_subset, path_filename, num_genes=int(args.gene_number), title=current_title, plot=False, label_map=label_map)
+                top_pca_by_gene, top_pca = return_top_pca_gene(full_gene_subset, num_genes=args.gene_number)
+                plot_SVD(full_gene_subset, path_filename, num_genes=int(args.gene_number), title=current_title, plot=False, label_map=label_map)
             if len(top_pca)<args.gene_number:
                 plot_num = len(top_pca)
             else:
                 plot_num = args.gene_number
             if top_pca != []:
-                top_pca_by_gene = gene_subset[top_pca]
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 if args.no_corr:
                     if gene_corr_list != []:
@@ -1098,11 +1101,8 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
                 group_count = group_set.index(group)
                 label_map[cell] = (color_dict[group][0],color_dict[group][1],group)
                 cells_seen.append(cell)
-        print(len(cells_seen), len(cell_list))
         non_group_cells = [c for c in cell_list if c not in cells_seen]
-        print(non_group_cells,'no_group')
         if non_group_cells != []:
-            print(non_group_cells,'no_group')
             from matplotlib import colors
             all_color_list = list(colors.cnames.keys())
             markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
