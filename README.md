@@ -6,6 +6,7 @@ Single Cell Iterative Clustering and Significance Testing
 Requires
 --------
           R
+            -must have qgraph installed in R for qgraph_plot to work
 
           scipy
 
@@ -101,8 +102,8 @@ optional arguments:
 
   -genes_corr GENES_CORR                                                        
                         If you want to look for correlation on a specific gene
-                        or set of genes enter them as a comma seperated list
-                        i.e. 'Gapdh,Actb'. (default: )                          
+                        or set of genes enter them as a comma separated list
+                        i.e. 'Gapdh,Actb'. This will be returned in addition to the top 3 correlation network genes.(default:)          
 
   -all_sig                                                                      
                         Do significance testing on all hierarchical clustering
@@ -143,19 +144,14 @@ optional arguments:
 
   -annotate_gene_subset ANNOTATE_GENE_SUBSET                                    
                         Provide path or filename (if in same file) to file
-                        with genes to be annotated on gene PCA. Must have
-                        'GeneID' header. (default: False)                       
+                        with genes to be annotated on gene PCA (rather than all genes being annotated). Must have 'GeneID' header. (default: False)                                        
 
   -annotate_cell_pca                                                            
                         Option will annotate cell PCA with cell names. Default
                         is off (False). (default: False)                        
 
   -color_cells COLOR_CELLS                                                      
-                        Follow with cell group names and pairs (matching cell
-                        group names). Forces color and marker style on group.
-                        Just color or color and marker can be provided.
-                        Example: Group1,color,marker Group2,red,v (default:
-                        False)                                                  
+                        Follow this flag with cell group names and pairs                        (matching cell group names). Forces color and marker style on group. Just color or color and marker can be provided. Example: Group1,color,marker Group2,red,v (default: False)                                        
 
   -color_genes COLOR_GENES                                                      
                         Can be 'same' if names are the same as cell groups.
