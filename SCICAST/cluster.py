@@ -37,7 +37,7 @@ from sklearn.cluster import KMeans
 
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
     if isinstance(gene_list_source,str):
-        gene_df = pd.read_csv(gene_list_source, sep=None, engine='python')
+        gene_df = pd.read_csv(open(gene_list_source,'rU'), sep=None, engine='python')
         try:
             gene_list = list(set(gene_df['GeneID'].tolist()))
             if exclude_list != "":
@@ -84,7 +84,7 @@ def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
         sys.exit("Error: gene list must be filepath or a list.")
 
 def make_new_matrix_cell(org_matrix_by_cell, cell_list_file):
-    cell_df = pd.read_csv(cell_list_file, sep=None, engine='python')
+    cell_df = pd.read_csv(open(cell_list_file,'rU'), sep=None, engine='python')
     cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
     cell_list_old = org_matrix_by_cell.columns.tolist()
     overlap = [c for c in cell_list_new if c in cell_list_old]
@@ -817,17 +817,17 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
             for ytick in cg.ax_heatmap.get_yticklabels():
                 ytick.set_rotation(0)
         if gene_map and label_map:
-            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.025, 0.8), title='Gene groups', prop={'size':12})
+            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.03, 0.8), title='Gene groups', prop={'size':12})
             plt.setp(gene_legend.get_title(),fontsize=18)
             cg.ax_heatmap.add_artist(gene_legend)
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.025, 1), title='Cell groups', prop={'size':12})
+            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.03, 1), title='Cell groups', prop={'size':12})
             plt.setp(cell_legend.get_title(),fontsize=18)
             #cg.ax_heatmap.add_artist(cell_legend)
         elif label_map:
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.025, 1), title='Cell groups', prop={'size':12})
+            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.03, 1), title='Cell groups', prop={'size':12})
             plt.setp(cell_legend.get_title(),fontsize=18)
         elif gene_map:
-            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.025, 0.8), title='Gene groups', prop={'size':12})
+            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.03, 0.8), title='Gene groups', prop={'size':12})
             plt.setp(gene_legend.get_title(),fontsize=18)
         if plot:
             plt.show()
@@ -1123,7 +1123,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         print(multi_sig_filename+' already exists. Files will be overwritten.')
     plot_pvalue = False
     stats = importr('stats')
-    cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
+    cell_groups_df = pd.read_csv(open(cell_group_filename,'rU'), sep=None, engine='python')
     group_name_list = list(set(cell_groups_df['GroupID']))
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -1288,7 +1288,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
 if the same cell is assigned to multiple groups it assigns it to the first groupID
 '''
 def cell_color_map(cell_group_filename, cell_list, color_dict):
-    cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
+    cell_groups_df = pd.read_csv(open(cell_group_filename,'rU'), sep=None, engine='python')
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
@@ -1304,7 +1304,7 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
         if non_group_cells != []:
             from matplotlib import colors
             all_color_list = list(colors.cnames.keys())
-            markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
+            markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
             color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_cells:
                 label_map[cell] = (color_list[group_count+1],markers[group_count+1],'No_Group')
@@ -1314,7 +1314,7 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
 
 #takes cell groups and creates dictionay 'label_map' that has attached color and marker
 def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
-    gene_df1 = pd.read_csv(os.path.join(os.path.dirname(args.filepath), gene_list_file), sep=None, engine='python')
+    gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath),'rU'), gene_list_file), sep=None, engine='python')
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
     gene_df = gene_df1.copy()
@@ -1337,7 +1337,7 @@ def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
         non_group_genes = [g for g in gene_list_1 if g not in genes_seen]
         if non_group_genes != []:
             all_color_list = list(colors.cnames.keys())
-            markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
+            markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
             color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_genes:
                 gene_label_map[gene] = (color_list[group_pos+1],markers[group_pos+1],'No_ID')
@@ -1356,7 +1356,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, pa
     psych = importr('psych')
     if gene_or_cell=='cell':
         r_dataframe = pandas2ri.py2ri(data.transpose())
-        cell_groups_df = pd.read_csv(cell_group_filename, sep=None, engine='python')
+        cell_groups_df = pd.read_csv(open(cell_group_filename,'rU'), sep=None, engine='python')
         cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
         group_set = list(set(cell_groups_df['GroupID'].tolist()))
         d = defaultdict(list)
@@ -1368,7 +1368,7 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, pa
         label_list = robjects.vectors.StrVector(cell_list_all)
     elif gene_or_cell=='gene':
         r_dataframe = pandas2ri.py2ri(data.transpose())
-        gene_groups_df = pd.read_csv(gene_filename, sep=None, engine='python')
+        gene_groups_df = pd.read_csv(open(gene_filename,'rU'), sep=None, engine='python')
         gene_list_1 = list(set(gene_groups_df['GeneID'].tolist()))
         group_set = list(set(gene_groups_df['GroupID'].tolist()))
         d = defaultdict(list)
@@ -1458,7 +1458,7 @@ def main(args):
     else:
         log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
 
-    markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
+    markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
     from matplotlib import colors
     all_color_list = list(colors.cnames.keys())
     cell_color_list = ['b', 'g', 'r', 'c', 'm','y','k']+all_color_list
@@ -1473,7 +1473,7 @@ def main(args):
             elif len(cc_pair == 3):
                 color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
     elif args.cell_list_filename:
-        cell_groups_df = pd.read_csv(cell_file, sep=None, engine='python')
+        cell_groups_df = pd.read_csv(open(cell_file,'rU'), sep=None, engine='python')
         group_set = list(set(cell_groups_df['GroupID'].tolist()))
         for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
             color_dict_cells[g] =[c,m]
@@ -1488,7 +1488,7 @@ def main(args):
             elif len(c_pair == 3):
                 color_dict_genes[c_pair[0]] = [c_pair[1],c_pair[2]]
     elif args.gene_list_filename:
-        gene_groups_df = pd.read_csv(gene_list_file, sep=None, engine='python')
+        gene_groups_df = pd.read_csv(open(gene_list_file,'rU'), sep=None, engine='python')
         group_set = list(set(gene_groups_df['GroupID'].tolist()))
         for g,c,m in zip(group_set, cell_color_list[0:len(group_set)],markers[0:len(group_set)]):
             color_dict_genes[g] =[c,m]
