@@ -1314,7 +1314,7 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
 
 #takes cell groups and creates dictionay 'label_map' that has attached color and marker
 def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
-    gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath),'rU'), gene_list_file), sep=None, engine='python')
+    gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), gene_list_file),'rU'), sep=None, engine='python')
     if exclude_list != []:
         gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
     gene_df = gene_df1.copy()
