@@ -1114,7 +1114,7 @@ def corr_plot(terms_to_search, df_by_gene_corr, path_filename, title, num_to_plo
 Also creates a best_gene_list with the top genes between each group, by adjusted p-value.
 Also creates a barplot of top significant genes between groups (can be unique or not).
 '''
-def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_dict_cell):
+def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_dict_cell, sig_to_plot = 20):
     #create seperate file for all of the significance files
     multi_sig_filename = os.path.join(path_filename,'group_pairwise_significance_files')
     try:
@@ -1232,14 +1232,14 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
             else:
                 top_t2 = top_t
             top = [list(t) for t in zip(*top_t2)]
-            barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:15]]
-            barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:15]
-            barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:15]
-            barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:15]))]
-            best_gene_list = best_gene_list+top[0][0:15]
-            best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:15]))]
-            best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:15]))]
-            best_pvalue_list = best_pvalue_list + top[1][0:15]
+            barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
+            barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]
+            barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:sig_to_plot]
+            barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+            best_gene_list = best_gene_list+top[0][0:sig_to_plot]
+            best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
+            best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+            best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
         else:
             if cell1_present == []:
                 print(gp[1], 'not present in cell matrix')
@@ -1305,7 +1305,7 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
             from matplotlib import colors
             all_color_list = list(colors.cnames.keys())
             markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
-            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
+            color_list = ['b', 'm', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_cells:
                 label_map[cell] = (color_list[group_count+1],markers[group_count+1],'No_Group')
     else:
@@ -1338,7 +1338,7 @@ def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
         if non_group_genes != []:
             all_color_list = list(colors.cnames.keys())
             markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
-            color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
+            color_list = ['b', 'm', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_genes:
                 gene_label_map[gene] = (color_list[group_pos+1],markers[group_pos+1],'No_ID')
     else:
@@ -1461,7 +1461,7 @@ def main(args):
     markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
     from matplotlib import colors
     all_color_list = list(colors.cnames.keys())
-    cell_color_list = ['b', 'g', 'r', 'c', 'm','y','k']+all_color_list
+    cell_color_list = ['b', 'm', 'r', 'c', 'g','y','k']+all_color_list
     color_dict_cells= {}
     color_dict_genes= {}
     if args.color_cells:
