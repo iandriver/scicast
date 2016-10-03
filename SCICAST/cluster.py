@@ -32,8 +32,7 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.cluster import KMeans
 import matplotlib.mlab as mlab
 import plotly.plotly as py
-
-
+from ui import ArgparseUi
 
 py.sign_in('driver.ian','0oql1n8y2r')
 def make_new_matrix_gene(org_matrix_by_gene, gene_list_source, exclude_list=""):
@@ -1435,8 +1434,8 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
                 cells_seen.append(cell)
         non_group_cells = [c for c in cell_list if c not in cells_seen]
         if non_group_cells != []:
-            from matplotlib import colors
-            all_color_list = list(colors.cnames.keys())
+            from matplotlib import colors as mp_colors
+            all_color_list = list(mp_colors.cnames.keys())
             markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
             color_list = ['b', 'g', 'r', 'c', 'g', 'orange', 'darkslateblue']+all_color_list
             for cell in non_group_cells:
@@ -1603,7 +1602,7 @@ def main(args):
             c_pair = c.split(',')
             if len(c_pair) == 2:
                 color_dict_cells[c_pair[0]] = [c_pair[1],markers[i]]
-            elif len(cc_pair == 3):
+            elif len(c_pair == 3):
                 color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
     elif args.cell_list_filename:
         cell_groups_df = pd.read_csv(open(cell_file,'rU'), sep=None, engine='python')
@@ -1786,7 +1785,7 @@ def is_valid_file(parser, arg):
         return arg
 
 
-def get_parser():
+def get_argument_parser():
     """Get parser object for script cluster.py."""
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     parser = ArgumentParser(description=__doc__,
@@ -1914,5 +1913,16 @@ def get_parser():
 
 
 if __name__ == "__main__":
-    args = get_parser().parse_args()
+    import sys
+    from PyQt5 import QtWidgets
+    p=get_argument_parser()
+    app = QtWidgets.QApplication(sys.argv)
+    a = ArgparseUi(p, use_scrollbars=True, use_save_load_button=True, window_title="Scicast")
+    a.show()
+    app.exec_()
+    if a.result() == 1: # Ok pressed
+        args = a.parse_args()
+    else:
+        args = None
+    
     main(args)
