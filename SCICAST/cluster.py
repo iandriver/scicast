@@ -129,8 +129,12 @@ def find_top_common_genes(log2_df_by_cell, num_common=25):
     else:
         return [0]
 
-def log2_oulierfilter(df_by_cell, plot=False):
-    log2_df = np.log2(df_by_cell+1)
+def log2_oulierfilter(df_by_cell, plot=False, already_log2=False):
+    if not already_log2:
+        log2_df = np.log2(df_by_cell+1)
+
+    else:
+        log2_df = df_by_cell
     top_log2 = find_top_common_genes(log2_df)
     if all(top_log2) != 0:
         log2_df2= log2_df.apply(pd.to_numeric,errors='coerce')
@@ -146,7 +150,10 @@ def log2_oulierfilter(df_by_cell, plot=False):
         excluded_cells = [x for x in log2_sorted.columns.tolist() if x not in keep_col]
         filtered_df_by_cell = df_by_cell[keep_col]
         filtered_df_by_gene = filtered_df_by_cell.transpose()
-        filtered_log2 = np.log2(filtered_df_by_cell[filtered_df_by_cell>0])
+        if not already_log2:
+            filtered_log2 = np.log2(filtered_df_by_cell[filtered_df_by_cell>0])
+        else:
+            filtered_log2 = filtered_df_by_cell[filtered_df_by_cell>0]
         if plot:
             ax = sns.boxplot(data=filtered_log2, whis= .75, notch=True)
             ax = sns.stripplot(x=filtered_log2.columns.values, y=filtered_log2.mean(axis=0), size=4, jitter=True, edgecolor="gray")
@@ -156,7 +163,10 @@ def log2_oulierfilter(df_by_cell, plot=False):
             plt.clf()
             sns.distplot(filtered_log2.mean())
             plt.show()
-        log2_expdf_cell = np.log2(filtered_df_by_cell+1)
+        if not already_log2:
+            log2_expdf_cell = np.log2(filtered_df_by_cell+1)
+        else:
+            log2_expdf_cell = filtered_df_by_cell
         log2_expdf_gene = log2_expdf_cell.transpose()
         return log2_expdf_cell, log2_expdf_gene
     else:
@@ -877,12 +887,15 @@ def plot_kmeans(df_by_gene, path_filename, num_genes=100, gene_list_filter=False
 
 
 
-def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', plot=False, label_map=False, gene_map=False):
-    if num_to_plot >175:
+def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', plot=False, label_map=False, gene_map=False, fontsize=18):
+    if num_to_plot >200:
         sns.set(context= 'poster', font_scale = 0.65/(num_to_plot/100))
     else:
-        sns.set(context= 'poster', font_scale = .80, font ='Verdana')
+        sns.set(context= 'poster', font_scale = 1.70, font ='Verdana')
 
+    font = {'size'   : fontsize}
+
+    plt.rc('font', **font)
     if len(str(args.z_direction)) > 1:
         z_choice = str(args.z_direction)
         if z_choice != 'None':
@@ -908,58 +921,63 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
             Ycolors = [gene_map[gene][0] for gene in Ylabs]
             Ygroup_labels= [gene_map[gene][2] for gene in Ylabs]
             row_colors = pd.DataFrame({'Gene Groups': Ycolors},index=Ylabs)
-            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(38, 30), cmap =cmap)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(38, 58), cmap =cmap)
         elif label_map:
             Xlabs = [cell_list[i] for i in col_order]
             Xcolors = [label_map[cell][0] for cell in Xlabs]
             Xgroup_labels = [label_map[cell][2] for cell in Xlabs]
             col_colors = pd.DataFrame({'Cell Groups': Xcolors},index=Xlabs)
-            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(38, 30), cmap =cmap)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(38, 58), cmap =cmap)
         elif gene_map:
             Ylabs = [gene_list[i] for i in row_order]
             Ycolors = [gene_map[gene][0] for gene in Ylabs]
             Ygroup_labels= [gene_map[gene][2] for gene in Ylabs]
             row_colors = pd.DataFrame({'Gene Groups': Ycolors},index=Ylabs)
-            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, figsize=(38, 30), cmap =cmap)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, figsize=(38, 58), cmap =cmap)
 
         cg.ax_heatmap.set_title(title)
+        cg.cax.set_title('Z-score')
         if label_map:
             leg_handles_cell =[]
             group_seen_cell = []
             for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), Xcolors, Xgroup_labels):
                 xtick.set_color(xcolor)
                 xtick.set_rotation(270)
+                xtick.set_fontsize(fontsize)
                 if xgroup_name not in group_seen_cell:
                     leg_handles_cell.append(patches.Patch(color=xcolor, label=xgroup_name))
                     group_seen_cell.append(xgroup_name)
         else:
             for xtick in cg.ax_heatmap.get_xticklabels():
                 xtick.set_rotation(270)
+                xtick.set_fontsize(fontsize)
         if gene_map:
             leg_handles_gene =[]
             group_seen_gene = []
             for ytick, ycolor, ygroup_name in zip(cg.ax_heatmap.get_yticklabels(), list(reversed(Ycolors)), list(reversed(Ygroup_labels))):
                 ytick.set_color(ycolor)
                 ytick.set_rotation(0)
+                ytick.set_fontsize(fontsize)
                 if ygroup_name not in group_seen_gene:
                     leg_handles_gene.append(patches.Patch(color=ycolor, label=ygroup_name))
                     group_seen_gene.append(ygroup_name)
         else:
             for ytick in cg.ax_heatmap.get_yticklabels():
                 ytick.set_rotation(0)
+                ytick.set_fontsize(fontsize)
         if gene_map and label_map:
-            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.03, 0.8), title='Gene groups', prop={'size':12})
-            plt.setp(gene_legend.get_title(),fontsize=18)
+            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 0.8), title='Gene groups', prop={'size':fontsize})
+            plt.setp(gene_legend.get_title(),fontsize=fontsize)
             cg.ax_heatmap.add_artist(gene_legend)
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.03, 1), title='Cell groups', prop={'size':12})
-            plt.setp(cell_legend.get_title(),fontsize=18)
+            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.04, 1), title='Cell groups', prop={'size':fontsize})
+            plt.setp(cell_legend.get_title(),fontsize=fontsize)
             #cg.ax_heatmap.add_artist(cell_legend)
         elif label_map:
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.03, 1), title='Cell groups', prop={'size':12})
-            plt.setp(cell_legend.get_title(),fontsize=18)
+            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.04, 1), title='Cell groups', prop={'size':fontsize})
+            plt.setp(cell_legend.get_title(),fontsize=fontsize)
         elif gene_map:
-            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.03, 0.8), title='Gene groups', prop={'size':12})
-            plt.setp(gene_legend.get_title(),fontsize=18)
+            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 0.8), title='Gene groups', prop={'size':fontsize})
+            plt.setp(gene_legend.get_title(),fontsize=fontsize)
         if plot:
             plt.show()
         cell_linkage = cg.dendrogram_col.linkage
@@ -1365,14 +1383,16 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
             else:
                 top_t2 = top_t
             top = [list(t) for t in zip(*top_t2)]
-            barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
-            barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]
-            barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:sig_to_plot]
-            barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
-            best_gene_list = best_gene_list+top[0][0:sig_to_plot]
-            best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
-            best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
-            best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
+            sig_to_plot = min(len(top),sig_to_plot)
+            if sig_to_plot != 0:
+                barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
+                barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]
+                barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:sig_to_plot]
+                barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+                best_gene_list = best_gene_list+top[0][0:sig_to_plot]
+                best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
+                best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+                best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
         else:
             if cell1_present == []:
                 print(gp[1], 'not present in cell matrix')
@@ -1387,32 +1407,33 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         to_plot= barplot_dict[name]
         for v in set(to_plot['Vs']):
             color_map[v] = color_dict_cell[v.split(" ")[-1]][0]
-        g = sns.barplot(x='pvalues', y='genes', hue='Vs', data=to_plot, ax = axs[i], palette=color_map)
-        axs[i].set_xscale("log", nonposx='clip')
-        bar_list = []
-        if plot_pvalue:
-            for p in axs[i].patches:
-                height = p.get_height()
-                width = p.get_width()
-                bar_list.append(width)
-            max_bar = max(bar_list)
-            for p in axs[i].patches:
-                height = p.get_height()
-                width = p.get_width()
-                axs[i].text(max_bar*50,p.get_y()+(height), "{:.2e}".format(width))
-        rect = axs[i].patch
-        rect.set_facecolor('white')
-        #sns.despine(left=True, bottom=True, top=True)
-        axs[i].invert_xaxis()
-        axs[i].xaxis.set_ticks_position('none')
-        axs[i].yaxis.tick_right()
-        axs[i].set_title(name)
-        axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11), ncol=1, prop={'size':5})
-        axs[i].set_xlabel('adjusted p-value')
-        for xmaj in axs[i].xaxis.get_majorticklocs():
-            axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
-        axs[i].xaxis.grid(True, which="major", linestyle='-')
-        plt.subplots_adjust(left=.08, wspace=.3)
+        if color_map != {}:
+            g = sns.barplot(x='pvalues', y='genes', hue='Vs', data=to_plot, ax = axs[i], palette=color_map)
+            axs[i].set_xscale("log", nonposx='clip')
+            bar_list = []
+            if plot_pvalue:
+                for p in axs[i].patches:
+                    height = p.get_height()
+                    width = p.get_width()
+                    bar_list.append(width)
+                max_bar = max(bar_list)
+                for p in axs[i].patches:
+                    height = p.get_height()
+                    width = p.get_width()
+                    axs[i].text(max_bar*50,p.get_y()+(height), "{:.2e}".format(width))
+            rect = axs[i].patch
+            rect.set_facecolor('white')
+            #sns.despine(left=True, bottom=True, top=True)
+            axs[i].invert_xaxis()
+            axs[i].xaxis.set_ticks_position('none')
+            axs[i].yaxis.tick_right()
+            axs[i].set_title(name)
+            axs[i].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11), ncol=1, prop={'size':5})
+            axs[i].set_xlabel('adjusted p-value')
+            for xmaj in axs[i].xaxis.get_majorticklocs():
+                axs[i].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
+            axs[i].xaxis.grid(True, which="major", linestyle='-')
+            plt.subplots_adjust(left=.08, wspace=.3)
     plt.savefig(os.path.join(path_filename,'differential_genes_foldchanges.pdf'), bbox_inches='tight')
     best_gene_df = pd.DataFrame({'GeneID':best_gene_list, 'GroupID':best_gene_groups, 'Vs':best_vs_list, 'adjusted_pvalue':best_pvalue_list})
     best_gene_df.to_csv(os.path.join(path_filename,'Best_Gene_list.txt'), sep = '\t')
@@ -1579,7 +1600,7 @@ def main(args):
     df_by_gene1 = pd.DataFrame(by_gene, columns=gene_list_inital, index=cell_list)
     if args.exclude_genes:
         hu_cc_gene_df = pd.DataFrame.from_csv(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
-        exclude_list = hu_cc_gene_df['GeneID'].tolist()
+        exclude_list = [ex_gene for ex_gene in hu_cc_gene_df['GeneID'].tolist() if ex_gene in df_by_gene1.index.tolist()]
         try:
             df_by_gene1.drop(exclude_list, axis=1, inplace=True)
         except ValueError:
@@ -1587,9 +1608,9 @@ def main(args):
     df_by_cell1 = df_by_gene1.transpose()
     if args.limit_cells and args.cell_list_filename:
         df_by_cell2, df_by_gene2 = make_new_matrix_cell(df_by_cell1, cell_file)
-        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell2, plot=False)
+        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell2, plot=False, already_log2=args.already_log2)
     else:
-        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False)
+        log2_expdf_cell, log2_expdf_gene = log2_oulierfilter(df_by_cell1, plot=False, already_log2=args.already_log2)
 
     markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
     from matplotlib import colors
@@ -1652,9 +1673,17 @@ def main(args):
             gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes)
         label_map = False
     elif args.cell_list_filename:
-        df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
-        cell_list, label_map = cell_color_map(cell_file, log2_expdf_cell.columns.values, color_dict_cells)
-        gene_color_map = False
+        if args.exclude_genes:
+            hu_cc_gene_df = pd.DataFrame.from_csv(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
+            exclude_list = hu_cc_gene_df['GeneID'].tolist()
+            df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, log2_expdf_gene.columns.tolist(), exclude_list=exclude_list)
+            df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
+            cell_list, label_map = cell_color_map(cell_file, log2_expdf_cell.columns.values, color_dict_cells)
+            gene_color_map = False
+        else:
+            df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
+            cell_list, label_map = cell_color_map(cell_file, log2_expdf_cell.columns.values, color_dict_cells)
+            gene_color_map = False
     else:
         if args.exclude_genes:
             hu_cc_gene_df = pd.DataFrame.from_csv(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
@@ -1851,6 +1880,11 @@ def get_parser():
                         dest="all_sig",
                         action="store_true",
                         help="Do significance testing on all hierarchical clustering groups. The minimum number of cells in a group is set by --depth.")
+    parser.add_argument("-already_log2",
+                        dest="already_log2",
+                        default=False,
+                        action="store_true",
+                        help="If the gene matrix is already log2 transformed i.e. rld or vsd DESeq2, this will disable log2 transform.")
     parser.add_argument("-z",
                         dest="z_direction",
                         default=0,
