@@ -1,4 +1,4 @@
-# SCICAST
+# scicast
 Single Cell Iterative Clustering and Significance Testing
 ------
 **This is still in development. If it is useful please let me know.  I will be updating with a proper manual and vignette with sample data set as I get closer to publishing. -Ian (ian.driver@ucsf.edu)**
