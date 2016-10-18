@@ -4,22 +4,28 @@
 import os
 
 
-DESCRIPTION = "SCICAST: Single Cell Iterative Clustering and Statistical Testing. A package for interrogating single cell sequencing data."
+DESCRIPTION = "scicast: Single Cell Iterative Clustering and Statistical Testing. A package for interrogating single cell sequencing data."
 LONG_DESCRIPTION = """\
-SCICAST is a python utility that automates many of the repetitive steps of analyzing single cell sequencing data.
+scicast is a python utility that automates many of the repetitive steps of analyzing single cell sequencing data.
+
+-k-means clustering to identify clusters
+
 -Clustering and subclustering of data to identify 'stable' sets of cells.
+
 -Statistical testing to identify top genes that indentify stable cluster.
+
 -Correlation search and analysis to identify gene networks driving cluster identity.
+
 -Outputs both plots for visualization (PCA and heatmap) cell and gene lists that can be used to refine analysis.
 """
 
-DISTNAME = 'SCICAST'
+DISTNAME = 'scicast'
 MAINTAINER = 'Ian Driver'
 MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
-URL = 'https://github.com/iandriver/SCICAST'
+URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
-DOWNLOAD_URL = 'https://github.com/iandriver/SCICAST'
-VERSION = '0.3.dev0'
+DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
+VERSION = '0.4.dev0'
 
 try:
     from setuptools import setup
@@ -76,7 +82,7 @@ if __name__ == "__main__":
         version=VERSION,
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
-        packages=['SCICAST'],
+        packages=['scicast'],
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
