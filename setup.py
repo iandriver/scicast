@@ -84,7 +84,7 @@ if __name__ == "__main__":
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
         packages=['scicast'],
-        keywords='single-cell single cell RNA-seq sequencing clustering PCA k-means'
+        keywords='single-cell single cell RNA-seq sequencing clustering PCA k-means',
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
