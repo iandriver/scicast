@@ -1611,7 +1611,7 @@ def main(args):
 
     try:
         by_cell = pd.DataFrame.from_csv(args.filepath, sep="\t")
-    except AttributeError:
+    except OSError:
         sys.exit('Please provide a valid path to a file.')
 
     dup_gene_list = [item for item, count in collections.Counter(by_cell.index).items() if count > 1]
