@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 
 try:
     from setuptools import setup
@@ -58,11 +58,15 @@ def check_dependencies():
     try:
         import seaborn
     except ImportError:
-        install_requires.append('seaborn')
+        install_requires.append('seaborn>=0.7.1')
     try:
         import rpy2
     except ImportError:
         install_requires.append('rpy2')
+    try:
+        import fastcluster
+    except ImportError:
+        install_requires.append('fastcluster')
 
     return install_requires
 
