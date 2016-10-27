@@ -235,4 +235,4 @@ class Window(tk.Tk):
         all_options_dict['genes_corr'] = asset_genes_corr
         all_options_dict['annotate_gene_subset'] = asset_annotate_gene_subset
         self.all_dict = all_options_dict
-        self.quit()
+        self.destroy()

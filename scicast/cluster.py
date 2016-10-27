@@ -4,7 +4,7 @@ import os
 import sys
 from subprocess import call
 import matplotlib
-#matplotlib.use('QT5Agg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator
 import scipy
@@ -1609,7 +1609,11 @@ def main(args):
         else:
             sys.exit('Error: Cannot find cell list file. Please place the gene list file in the same directory or provide a full path.')
 
-    by_cell = pd.DataFrame.from_csv(args.filepath, sep="\t")
+    try:
+        by_cell = pd.DataFrame.from_csv(args.filepath, sep="\t")
+    except AttributeError:
+        sys.exit('Please provide a valid path to a file.')
+
     dup_gene_list = [item for item, count in collections.Counter(by_cell.index).items() if count > 1]
     if len(dup_gene_list) >0:
         by_cell.drop(dup_gene_list, inplace=True)
