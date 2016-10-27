@@ -21,8 +21,6 @@ import itertools
 from functools import reduce
 import matplotlib.ticker as ticker
 import math
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import FloatVector
 import matplotlib.patches as patches
 from collections import defaultdict
 import collections
@@ -376,7 +374,7 @@ def return_top_pca_gene(df_by_gene, num_genes=100):
     new_gene_matrix = df_by_gene[top_pca_list[0:num_genes]]
     return new_gene_matrix, top_pca_list[0:num_genes]
 
-def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
+def plot_PCA(args, df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
     if gene_list_filter:
@@ -393,8 +391,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len(sig_by_gene.columns.tolist()))
     top_pca_list = Pc_sort_df.index.tolist()
-    if args.verbose:
-        print(top_pca_list[0:num_genes], 'top_pca_list')
+
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
     gene_top = skPCA(n_components=2)
     cell_pca = skPCA(n_components=2)
@@ -502,7 +499,7 @@ def plot_PCA(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
     else:
         return []
 
-def plot_SVD(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
+def plot_SVD(args,df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
     if gene_list_filter:
@@ -519,8 +516,7 @@ def plot_SVD(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len(sig_by_gene.columns.tolist()))
     top_pca_list = Pc_sort_df.index.tolist()
-    if args.verbose:
-        print(top_pca_list[0:num_genes], 'top_pca_list')
+
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
     gene_top = TruncatedSVD(n_components=2)
     cell_pca = TruncatedSVD(n_components=2)
@@ -631,7 +627,7 @@ def plot_SVD(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, t
         return []
 
 #create cell and gene TSNE scatter plots (one pdf)
-def plot_TSNE(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
+def plot_TSNE(args,df_by_gene, path_filename, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False):
     gene_list = df_by_gene.columns.tolist()
     sns.set_palette("RdBu_r", 10, 1)
     if gene_list_filter:
@@ -648,8 +644,7 @@ def plot_TSNE(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, 
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len(sig_by_gene.columns.tolist()))
     top_pca_list = Pc_sort_df.index.tolist()
-    if args.verbose:
-        print(top_pca_list[0:num_genes], 'top_pca_list')
+
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
     gene_top = TSNE(n_components=2, init='pca', random_state=0)
     cell_pca = TSNE(n_components=2, init='pca', random_state=0)
@@ -758,7 +753,7 @@ def plot_TSNE(df_by_gene, path_filename, num_genes=100, gene_list_filter=False, 
         return []
 
 #create cell and gene TSNE scatter plots (one pdf)
-def plot_kmeans(df_by_gene, path_filename, kmeans_range, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False, run_sig_test=False):
+def plot_kmeans(args, df_by_gene, path_filename, kmeans_range, num_genes=100, gene_list_filter=False, title='', plot=False, label_map=False, gene_map = False, run_sig_test=False):
     from sklearn.metrics import silhouette_samples, silhouette_score
     import matplotlib.cm as cm
     gene_list = df_by_gene.columns.tolist()
@@ -777,8 +772,7 @@ def plot_kmeans(df_by_gene, path_filename, kmeans_range, num_genes=100, gene_lis
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len(sig_by_gene.columns.tolist()))
     top_pca_list = Pc_sort_df.index.tolist()
-    if args.verbose:
-        print(top_pca_list[0:num_genes], 'top_pca_list')
+
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
 
     gene_top = TruncatedSVD(n_components=2)
@@ -886,13 +880,13 @@ def plot_kmeans(df_by_gene, path_filename, kmeans_range, num_genes=100, gene_lis
         #run heatmap with kmeans clustering and colors
         top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=args.gene_number)
         top_pca_by_cell = top_pca_by_gene.transpose()
-        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename, num_to_plot=args.gene_number, title= 'kmeans_label_with_'+str(n_clusters)+'_clusters',label_map=color_dict)
+        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, path_filename, num_to_plot=args.gene_number, title= 'kmeans_label_with_'+str(n_clusters)+'_clusters',label_map=color_dict)
         if run_sig_test:
-            multi_group_sig(df_by_gene.transpose(), cell_group_path, path_filename, group_color_dict, from_kmeans=str(n_clusters))
+            multi_group_sig(args, df_by_gene.transpose(), cell_group_path, path_filename, group_color_dict, from_kmeans=str(n_clusters))
 
 
 
-def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', plot=False, label_map=False, gene_map=False, fontsize=18):
+def clust_heatmap(args, gene_list, df_by_gene, path_filename, num_to_plot, title='', plot=False, label_map=False, gene_map=False, fontsize=18):
     cell_list = df_by_gene.index.tolist()
     cell_num =len(cell_list)
     longest_side = max(num_to_plot,cell_num*2)
@@ -1011,7 +1005,7 @@ def clust_heatmap(gene_list, df_by_gene, path_filename, num_to_plot, title='', p
         print('Linkage distance has too many zeros. Filter to remove non-expressed genes in order to produce heatmap. Heatmap with '+ str(len(cell_list))+' will not be created.')
         return False, False, False
 
-def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, base_name, gene_corr_list, label_map=False, gene_map=False, cluster_size=20, group_colors=False):
+def make_subclusters(args, cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, base_name, gene_corr_list, label_map=False, gene_map=False, cluster_size=20, group_colors=False):
     '''
     Walks a histogram branch map 'cc' and does PCA (SVD), heatmap and correlation search for each non-overlapping
     tree branch. Stops at defined cluster_size (default is 20).
@@ -1044,10 +1038,10 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
             norm_df_cell.to_csv(os.path.join(path_filename, base_name+'_'+current_title+'_matrix.txt'), sep = '\t', index_col=0)
             if gene_map:
                 top_pca_by_gene, top_pca = return_top_pca_gene(gene_subset, num_genes=args.gene_number)
-                plot_SVD(gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map, gene_map=gene_map)
+                plot_SVD(args,gene_subset, path_filename, num_genes=len(gene_subset.columns.tolist()), title=current_title, plot=False, label_map=label_map, gene_map=gene_map)
             else:
                 top_pca_by_gene, top_pca = return_top_pca_gene(full_gene_subset, num_genes=args.gene_number)
-                plot_SVD(full_gene_subset, path_filename, num_genes=int(args.gene_number), title=current_title, plot=False, label_map=label_map)
+                plot_SVD(args,full_gene_subset, path_filename, num_genes=int(args.gene_number), title=current_title, plot=False, label_map=label_map)
             if len(top_pca)<args.gene_number:
                 plot_num = len(top_pca)
             else:
@@ -1064,15 +1058,15 @@ def make_subclusters(cc, log2_expdf_cell, log2_expdf_cell_full, path_filename, b
                         top_genes_search = top_pca[0:50]
                         corr_plot(top_genes_search, full_gene_subset, path_filename, num_to_plot=3, title = current_title, label_map=label_map)
                 if gene_map:
-                    cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename, num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map, gene_map = gene_map)
+                    cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, path_filename, num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map, gene_map = gene_map)
                 else:
-                    cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, path_filename,num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map)
+                    cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, path_filename,num_to_plot=plot_num, title=current_title, plot=False, label_map=label_map)
                 plt.close('all')
             else:
                 print('Search for top genes by PCA failed in '+current_title+'. No plots will be generated for this subcluster. ')
                 pass
 
-def clust_stability(log2_expdf_gene, iterations, path_filename):
+def clust_stability(args, log2_expdf_gene, path_filename, iterations, label_map=False):
     sns.set(context='poster', font_scale = 1)
     sns.set_palette("RdBu_r")
     stability_ratio = []
@@ -1083,7 +1077,7 @@ def clust_stability(log2_expdf_gene, iterations, path_filename):
         title= str(gene_number)+' genes plot.'
         top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=gene_number)
         top_pca_by_cell = top_pca_by_gene.transpose()
-        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, num_to_plot=gene_number, title=title)
+        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, num_to_plot=gene_number, title=title, label_map=label_map)
         if gene_number == 100:
             s1 = col_order
             s0 = col_order
@@ -1207,10 +1201,7 @@ def corr_plot(terms_to_search, df_by_gene_corr, path_filename, title, num_to_plo
         corr_tup.sort(key=itemgetter(1), reverse=True)
         corr_df = pd.DataFrame(corr_tup, columns=['GeneID', 'Correlation'])
         corr_df.to_csv(os.path.join(path_filename, title+'_Corr_w_'+term_to_search+'_list.txt'), sep = '\t', index=False)
-        if args.verbose:
-            print('Correlations:')
-            for c in corr_tup:
-                print(c)
+
         to_plot = [x[0] for x in corr_tup]
         sns.set_palette(sns.cubehelix_palette(len(to_plot), start=1, rot=-.9, reverse=True))
         sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 1})
@@ -1278,7 +1269,7 @@ def corr_plot(terms_to_search, df_by_gene_corr, path_filename, title, num_to_plo
 Also creates a best_gene_list with the top genes between each group, by adjusted p-value.
 Also creates a barplot of top significant genes between groups (can be unique or not).
 '''
-def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_dict_cell, sig_to_plot = 20, from_kmeans=''):
+def multi_group_sig(args, full_by_cell_df, cell_group_filename, path_filename, color_dict_cell, sig_to_plot = 20, from_kmeans=''):
     #create seperate file for all of the significance files
     if from_kmeans == '':
         multi_sig_filename = os.path.join(path_filename,'user_defined_group_pairwise_significance_files')
@@ -1289,6 +1280,8 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
     except OSError:
         print(multi_sig_filename+' already exists. Files will be overwritten.')
     plot_pvalue = False
+    from rpy2.robjects.packages import importr
+    from rpy2.robjects.vectors import FloatVector
     stats = importr('stats')
     cell_groups_df = pd.read_csv(open(cell_group_filename,'rU'), sep=None, engine='python')
     group_name_list = list(set(cell_groups_df['GroupID']))
@@ -1315,9 +1308,9 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
         cell2_present = [c for c in set(cell_list2) if c in set(full_by_cell_df.columns.tolist())]
         all_other_cells =  [c for c in set(full_by_cell_df.columns.tolist()) if c not in set(cell_list1)]
         if cell1_present != [] and cell2_present != []:
-            df_by_cell_1 = full_by_cell_df[cell1_present]
-            df_by_cell_2 = full_by_cell_df[cell2_present]
-            df_by_cell_other = full_by_cell_df[all_other_cells]
+            df_by_cell_1 = full_by_cell_df.ix[:,cell1_present]
+            df_by_cell_2 = full_by_cell_df.ix[:,cell2_present]
+            df_by_cell_other = full_by_cell_df.ix[:,all_other_cells]
             df_by_gene_1 = df_by_cell_1.transpose()
             df_by_gene_2 = df_by_cell_2.transpose()
             df_by_gene_other = df_by_cell_other.transpose()
@@ -1343,7 +1336,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
                 mean1_list_all = []
                 mean2_list_all = []
                 for sig_gene in gene_index_all:
-                    sig_gene_df_all = by_gene_df[sig_gene]
+                    sig_gene_df_all = by_gene_df.ix[:,sig_gene]
                     mean_log2_exp_list_all.append(sig_gene_df_all.mean())
                     sig_cell_df_all = sig_gene_df_all.transpose()
                     mean_cell1_all = sig_cell_df_all[cell1_present].mean()
@@ -1364,7 +1357,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
             mean1_list = []
             mean2_list = []
             for sig_gene in gene_index:
-                sig_gene_df = by_gene_df[sig_gene]
+                sig_gene_df = by_gene_df.ix[:,sig_gene]
                 mean_log2_exp_list.append(sig_gene_df.mean())
                 sig_cell_df = sig_gene_df.transpose()
                 mean_cell1 = sig_cell_df[cell1_present].mean()
@@ -1379,7 +1372,7 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
             cell_names_df.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_'+gp[1]+'_cells.txt'), sep = '\t')
 
 
-            top_fc_df1 = sig_df[(sig_df['ratio '+gp[0]+' to '+gp[1]]>1.3)]
+            top_fc_df1 = sig_df.loc[(sig_df['ratio '+gp[0]+' to '+gp[1]]>1.3)]
             new_fc_list = [-1/x if x <0.3 else x for x in top_fc_df1['ratio '+gp[0]+' to '+gp[1]]]
             top_fc_df1.loc[:,'ratio '+gp[0]+' to '+gp[1]] = new_fc_list
             top_fc_df = top_fc_df1.sort_values(by='adjusted_p_values',axis=0, ascending=True)
@@ -1462,8 +1455,8 @@ def multi_group_sig(full_by_cell_df, cell_group_filename, path_filename, color_d
 '''takes cell groups and creates dictionay 'label_map' that has attached color and marker
 if the same cell is assigned to multiple groups it assigns it to the first groupID
 '''
-def cell_color_map(cell_group_filename, cell_list, color_dict):
-    cell_groups_df = pd.read_csv(open(cell_group_filename,'rU'), sep=None, engine='python')
+def cell_color_map(args, cell_group_filename, cell_list, color_dict):
+    cell_groups_df = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), cell_group_filename),'rU'), sep=None, engine='python')
     cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
     group_set = list(set(cell_groups_df['GroupID'].tolist()))
     if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
@@ -1488,10 +1481,10 @@ def cell_color_map(cell_group_filename, cell_list, color_dict):
     return cell_list_1, label_map
 
 #takes cell groups and creates dictionay 'label_map' that has attached color and marker
-def gene_list_map(gene_list_file, gene_list, color_dict, exclude_list = []):
+def gene_list_map(args, gene_list_file, gene_list, color_dict, exclude_list = []):
     gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), gene_list_file),'rU'), sep=None, engine='python')
     if exclude_list != []:
-        gene_df1 = gene_df1[~gene_df1['GeneID'].isin(exclude_list)]
+        gene_df1 = gene_df1.ix[~gene_df1['GeneID'].isin(exclude_list)]
     gene_df = gene_df1.copy()
     gene_list_1 = [g for g in list(set(gene_df['GeneID'].tolist())) if g in gene_list]
     if len(gene_df['GeneID']) == len(gene_df['GroupID']):
@@ -1588,7 +1581,10 @@ def run_qgraph(data, cell_group_filename, gene_filename, label_map, gene_map, pa
 
 
 def main(args):
-    new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast')
+    try:
+        new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast')
+    except AttributeError:
+        sys.exit('Please provide a valid path to a file.')
     if args.verbose:
         print('Making new folder for results of SCICAST clustering: '+new_file)
     try:
@@ -1692,22 +1688,22 @@ def main(args):
             exclude_list = hu_cc_gene_df['GeneID'].tolist()
             df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file, exclude_list=exclude_list)
             df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes, exclude_list=exclude_list)
-            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_dict_cells)
+            gene_list, gene_color_map = gene_list_map(args, gene_list_file, df_by_gene.columns.values, color_dict_genes, exclude_list=exclude_list)
+            cell_list, label_map = cell_color_map(args, cell_file, df_by_cell.columns.values, color_dict_cells)
         else:
             df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
             df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes)
-            cell_list, label_map = cell_color_map(cell_file, df_by_cell.columns.values, color_dict_cells)
+            gene_list, gene_color_map = gene_list_map(args, gene_list_file, df_by_gene.columns.values, color_dict_genes)
+            cell_list, label_map = cell_color_map(args, cell_file, df_by_cell.columns.values, color_dict_cells)
     elif args.gene_list_filename:
         if args.exclude_genes:
             hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
             exclude_list = hu_cc_gene_df['GeneID'].tolist()
             df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file,exclude_list=exclude_list)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes,exclude_list=exclude_list)
+            gene_list, gene_color_map = gene_list_map(args, gene_list_file, df_by_gene.columns.values, color_dict_genes,exclude_list=exclude_list)
         else:
             df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, gene_list_file)
-            gene_list, gene_color_map = gene_list_map(gene_list_file, df_by_gene.columns.values, color_dict_genes)
+            gene_list, gene_color_map = gene_list_map(args, gene_list_file, df_by_gene.columns.values, color_dict_genes)
         label_map = False
     elif args.cell_list_filename:
         if args.exclude_genes:
@@ -1715,11 +1711,11 @@ def main(args):
             exclude_list = hu_cc_gene_df['GeneID'].tolist()
             df_by_cell3, df_by_gene3 = make_new_matrix_gene(log2_expdf_gene, log2_expdf_gene.columns.tolist(), exclude_list=exclude_list)
             df_by_cell, df_by_gene = make_new_matrix_cell(df_by_cell3, cell_file)
-            cell_list, label_map = cell_color_map(cell_file, log2_expdf_cell.columns.values, color_dict_cells)
+            cell_list, label_map = cell_color_map(args, cell_file, log2_expdf_cell.columns.values, color_dict_cells)
             gene_color_map = False
         else:
             df_by_cell, df_by_gene = make_new_matrix_cell(log2_expdf_cell, cell_file)
-            cell_list, label_map = cell_color_map(cell_file, log2_expdf_cell.columns.values, color_dict_cells)
+            cell_list, label_map = cell_color_map(args, cell_file, log2_expdf_cell.columns.values, color_dict_cells)
             gene_color_map = False
     else:
         if args.exclude_genes:
@@ -1737,8 +1733,16 @@ def main(args):
 
 
     #run heatmap clustering stability function
-    if args.test_clust_stability != 0:
-        stability_ratio = clust_stability(log2_expdf_gene, iterations = test_clust_stability)
+    stability_iteration_num = int(args.test_clust_stability)
+    if  stability_iteration_num != 0:
+        if args.exclude_genes:
+            hu_cc_gene_df = pd.DataFrame.from_csv(args.exclude_genes, sep='\t', header=0, index_col=False)
+            exclude_list = hu_cc_gene_df['GeneID'].tolist()
+            df_by_cell, df_by_gene = make_new_matrix_gene(log2_expdf_gene, log2_expdf_gene.columns.tolist(),exclude_list=exclude_list)
+            stability_ratio = clust_stability(args, df_by_gene, new_file, stability_iteration_num ,label_map=label_map)
+        else:
+            stability_ratio = clust_stability(args, log2_expdf_gene, new_file, stability_iteration_num , label_map=label_map)
+
     #if there are genes supplied with genes_corr flag process them to a list for correlation search
     if args.genes_corr != '':
         corr_gene_list = args.genes_corr.split(',')
@@ -1746,23 +1750,22 @@ def main(args):
     else:
         corr_gene_list = []
     #run heatmaps and PCA only if no_heatmaps flag is not provided
-    if args.no_heatmaps:
-
+    if not args.no_heatmaps:
         if label_map != False and gene_color_map != False: #if both cell and gene lists are provided
-            plot_SVD(df_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
-            plot_TSNE(df_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
-            plot_kmeans(df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
+            plot_SVD(args,df_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
+            plot_TSNE(args,df_by_gene, new_file, num_genes=len(gene_list), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
+            plot_kmeans(args, df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
             top_pca_gene_df, top_pca = return_top_pca_gene(df_by_gene, num_genes=args.gene_number)
-            if args.no_corr:
+            if not args.no_corr:
                 if corr_gene_list != []:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, gene_corr_list= corr_gene_list, title = 'All_cells', label_map=label_map)
                 else:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, title = 'All_cells', label_map=label_map)
-            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(gene_list, df_by_gene, new_file, num_to_plot=len(gene_list), label_map=label_map, gene_map=gene_color_map)
+            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, gene_list, df_by_gene, new_file, num_to_plot=len(gene_list), label_map=label_map, gene_map=gene_color_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
-            make_subclusters(cc, df_by_cell, df_by_cell, gene_corr_list=corr_gene_list ,path_filename=new_file, base_name=args.base_name, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
+            make_subclusters(args, cc, df_by_cell, df_by_cell, gene_corr_list=corr_gene_list ,path_filename=new_file, base_name=args.base_name, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
             if args.qgraph_plot == 'both':
                 run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='gene')
                 run_qgraph(df_by_cell, cell_file, gene_list_file, label_map, gene_color_map, new_file, gene_or_cell='cell')
@@ -1773,66 +1776,79 @@ def main(args):
             if args.all_sig:
                 find_twobytwo(cc, df_by_cell, df_by_cell, new_file, cluster_size=args.depth_of_clustering)
         elif label_map != False: #if only cell list is provided
-            plot_SVD(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
-            plot_TSNE(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
-            plot_kmeans(df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
+            plot_SVD(args,df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
+            plot_TSNE(args,df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map)
+            plot_kmeans(args, df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
             top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=args.gene_number)
             top_pca_by_cell = top_pca_by_gene.transpose()
-            if args.no_corr:
+            if not args.no_corr:
                 if corr_gene_list != []:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, gene_corr_list= corr_gene_list, title = 'All_cells', label_map=label_map)
                 else:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, title = 'All_cells', label_map=label_map)
-            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map)
+            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
-            make_subclusters(cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, group_colors=True, label_map=label_map, cluster_size=args.depth_of_clustering)
+            make_subclusters(args, cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, group_colors=True, label_map=label_map, cluster_size=args.depth_of_clustering)
             if args.all_sig:
                 find_twobytwo(cc, df_by_cell, log2_expdf_cell, new_file, cluster_size=args.gene_number)
         elif gene_color_map != False: #if only gene list is provided
-            plot_SVD(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
-            plot_TSNE(df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
-            plot_kmeans(df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
+            plot_SVD(args,df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
+            plot_TSNE(args,df_by_gene, new_file, num_genes=int(args.gene_number), title='all_cells_pca', plot=False, label_map=label_map, gene_map=gene_color_map)
+            plot_kmeans(args,df_by_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
             top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=args.gene_number)
             top_pca_by_cell = top_pca_by_gene.transpose()
-            if args.no_corr:
+            if not args.no_corr:
                 if corr_gene_list != []:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, gene_corr_list= corr_gene_list, title = 'All_cells', label_map=label_map, gene_map=gene_color_map)
                 else:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, title = 'All_cells', label_map=label_map)
-            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map, gene_map=gene_color_map)
+            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map, gene_map=gene_color_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
-            make_subclusters(cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
+            make_subclusters(args, cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, group_colors=True, label_map=label_map, gene_map=gene_color_map, cluster_size=args.depth_of_clustering)
             if args.all_sig:
                 find_twobytwo(cc, df_by_cell, log2_expdf_cell, new_file, cluster_size=args.depth_of_clustering)
         else: #if neither cell or gene lists are provided
             label_map=False
             group_colors = False
-            plot_SVD(log2_expdf_gene, new_file, num_genes=args.gene_number, title='all_cells_pca', plot=False, label_map=label_map)
-            plot_TSNE(log2_expdf_gene, new_file, num_genes=args.gene_number, title='all_cells_pca', plot=False, label_map=label_map)
-            plot_kmeans(log2_expdf_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
+            plot_SVD(args, log2_expdf_gene, new_file, num_genes=args.gene_number, title='all_cells_pca', plot=False, label_map=label_map)
+            plot_TSNE(args, log2_expdf_gene, new_file, num_genes=args.gene_number, title='all_cells_pca', plot=False, label_map=label_map)
+            plot_kmeans(args,log2_expdf_gene, new_file, num_genes=args.gene_number, kmeans_range=kmeans_range, title='all_cells_pca', plot=False, label_map=label_map, run_sig_test=args.kmeans_sig_test)
             top_pca_by_gene, top_pca = return_top_pca_gene(df_by_gene, num_genes=args.gene_number)
             top_pca_by_cell = top_pca_by_gene.transpose()
-            if args.no_corr:
+            if not args.no_corr:
                 if corr_gene_list != []:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, gene_corr_list= corr_gene_list, title = 'All_cells', label_map=label_map)
                 else:
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, df_by_gene, new_file, num_to_plot=3, title = 'All_cells', label_map=label_map)
-            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map)
+            cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, top_pca, top_pca_by_gene, new_file, num_to_plot=args.gene_number, label_map=label_map)
             cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
-            make_subclusters(cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, cluster_size=args.depth_of_clustering)
+            make_subclusters(args,cc, top_pca_by_cell, df_by_cell, new_file, base_name=args.base_name, gene_corr_list=corr_gene_list, cluster_size=args.depth_of_clustering)
             if args.all_sig:
                 find_twobytwo(cc, top_pca_by_cell, log2_expdf_cell, new_file, cluster_size=args.depth_of_clustering)
     if args.group_sig_test and args.cell_list_filename:
-        multi_group_sig(log2_expdf_cell, cell_file, new_file, color_dict_cells)
+        multi_group_sig(args, log2_expdf_cell, cell_file, new_file, color_dict_cells)
 
 
 if __name__ == "__main__":
-    from scicast_argparse import get_parser
-    args = get_parser()
-    main(args)
+    from scicast_argparse import check_gui_parser
+    try:
+        gui = check_gui_parser()
+        run_gui = gui.gui_true
+    except:
+        run_gui = False
+    if run_gui:
+        from tkinter_scicast import Window
+        scicast_window = Window()
+        opts_all = scicast_window.mainloop()
+        main(opts_all)
+
+    else:
+        from scicast_argparse import get_parser
+        opts_all = get_parser()
+        main(opts_all)
