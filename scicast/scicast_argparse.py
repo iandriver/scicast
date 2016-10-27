@@ -181,7 +181,7 @@ def get_parser():
                         action='store_true',
                         help="Run significance test between groups defined by kmeans clusters.")
     args = parser.parse_args()
-    yes_or_no_options = ["Don't Run Heatmaps", "Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", 'Input matrix is log2']
+    yes_or_no_options = ["Don't Run Heatmaps", "Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2"]
     yes_or_no_answers = [args.no_heatmaps,args.no_corr, args.verbose,args.group_sig_test, args.all_sig, args.limit_cells, args.add_ellipse, args.annotate_cell_pca, args.sig_unique, args.kmeans_sig_test, args.already_log2]
 
     all_options_dict = {}

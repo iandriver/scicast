@@ -33,5 +33,5 @@ class Sci_load(object):
         self.annotate_cell_pca= all_options_dict["Add Cell Names to PCA"]
         self.sig_unique= all_options_dict["Display Only Unique Signifcant Genes"]
         self.kmeans_sig_test = all_options_dict["Run Significance Test for kmeans clusters"]
-        self.already_log2 = all_options_dict['Input matrix is log2']
+        self.already_log2 = all_options_dict["Input Matrix is already log2"]
         return(self)

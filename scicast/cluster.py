@@ -1845,7 +1845,13 @@ if __name__ == "__main__":
     if run_gui:
         from tkinter_scicast import Window
         scicast_window = Window()
-        opts_all = scicast_window.mainloop()
+        scicast_window.mainloop()
+        from sci_load import Sci_load
+        scil = Sci_load()
+        try:
+            opts_all = scil.load_options(all_options_dict = scicast_window.all_dict)
+        except AttributeError:
+            sys.exit('Please provide (at a minimum) a valid path to a file and click Run scicast.')
         main(opts_all)
 
     else:
