@@ -20,6 +20,25 @@ def is_valid_file(parser, arg):
     else:
         return arg
 
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter,SUPPRESS
+import sys as _sys
+from gettext import gettext as _
+class MyParser(ArgumentParser):
+    def error(self, message):
+        usage = self.usage
+        self.usage = None
+        self.print_usage(_sys.stderr)
+        self.exit(2, _('%s: error: %s\n') % (self.prog, message))
+        self.usage = usage
+def check_gui_parser():
+    p = MyParser(description=__doc__,formatter_class=ArgumentDefaultsHelpFormatter, usage=SUPPRESS)
+    p.add_argument("-gui",
+                        dest="gui_true",
+                        default = False,
+                        action = "store_true",
+                        help="To run gui instead of command line.")
+    gui_args = p.parse_args()
+    return(gui_args)
 
 def get_parser():
     """Get parser object for script cluster.py."""
@@ -56,10 +75,12 @@ def get_parser():
                         help="Path to a file with a two columns with headers 'GeneID' and 'GroupID' (Singular format). GeneID list will be used to create a new matrix file with only those genes included.")
     parser.add_argument("-group_sig_test",
                         action="store_true",
+                        default=False,
                         dest="group_sig_test",
                         help="If cell groups are provided, perform significance testing between all groups (independent of any cluster groups).")
     parser.add_argument("-stability",
                         dest="test_clust_stability",
+                        type=int,
                         default=0,
                         help="Provide a number of iterations to test how stable clustering is as the number of top PCA genes changes from 100-1000. Output will be clustering heatmaps for each iteration a summary of changes as gene number varies.")
     parser.add_argument("-metric",
@@ -97,13 +118,13 @@ def get_parser():
                         help="Either 0 (rows) or 1 (columns) or None. Whether or not to calculate z-scores for the rows or the columns. Z scores are: z = (x - mean)/std, so values in each row (column) will get the mean of the row (column) subtracted, then divided by the standard deviation of the row (column). This ensures that each row (column) has mean of 0 and variance of 1.")
     parser.add_argument("-no_corr",
                         dest="no_corr",
-                        action="store_false",
-                        default=True,
+                        action="store_true",
+                        default=False,
                         help="Don't run correlation search. Default is on.")
     parser.add_argument("-no_heatmaps",
                         dest="no_heatmaps",
-                        action="store_false",
-                        default=True,
+                        action="store_true",
+                        default=False,
                         help="Don't run heatmaps and pca. Default is will generate heatmaps and pca.")
     parser.add_argument("-exclude_genes",
                         dest="exclude_genes",
@@ -160,8 +181,9 @@ def get_parser():
                         action='store_true',
                         help="Run significance test between groups defined by kmeans clusters.")
     args = parser.parse_args()
-    yes_or_no_options = ["Run Heatmaps","Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes"]
-    yes_or_no_answers = [args.no_heatmaps,args.verbose,args.group_sig_test, args.all_sig, args.limit_cells, args.add_ellipse, args.annotate_cell_pca, args.sig_unique, args.kmeans_sig_test]
+    yes_or_no_options = ["Don't Run Heatmaps", "Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2"]
+    yes_or_no_answers = [args.no_heatmaps,args.no_corr, args.verbose,args.group_sig_test, args.all_sig, args.limit_cells, args.add_ellipse, args.annotate_cell_pca, args.sig_unique, args.kmeans_sig_test, args.already_log2]
+
     all_options_dict = {}
     all_options_dict['filepath'] = args.filepath
     all_options_dict['output_name'] = args.base_name
@@ -172,11 +194,22 @@ def get_parser():
     all_options_dict['cell_file'] = args.cell_list_filename
     all_options_dict['gene_file'] = args.gene_list_filename
     all_options_dict['zdir'] = args.z_direction
-    all_options_dict['graph'] = args.qgraph_plot
+    all_options_dict['qgraph'] = args.qgraph_plot
     all_options_dict['kmeans_cluster_range'] = args.kmeans_cluster_range
+    all_options_dict['exclude_genes'] = args.exclude_genes
+    all_options_dict['already_log2'] = args.already_log2
+    all_options_dict['color_cells'] = args.color_cells
+    all_options_dict['color_genes'] = args.color_genes
+    all_options_dict['test_clust_stability'] = args.test_clust_stability
+    all_options_dict['genes_corr'] = args.genes_corr
+    all_options_dict['annotate_gene_subset'] = args.annotate_gene_subset
     for var, flag in zip(yes_or_no_answers, yes_or_no_options):
         all_options_dict[flag] = var
-    return args
+    from sci_load import Sci_load
+    scil = Sci_load()
+    opts_all = scil.load_options(all_options_dict = all_options_dict)
+
+    return opts_all
 
 if __name__ == "__main__":
     pass
