@@ -119,6 +119,8 @@ def make_tree_json(row_clusters, df_by_gene, path_filename):
 
 #finds significant genes between subclusters
 def find_twobytwo(cc, args, matrix_data):
+    if not args.verbose:
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
     gene_list = matrix_data.gene_list
     by_gene_df = matrix_data.log2_df_cell.transpose()
     pair_dict = {}
@@ -185,7 +187,7 @@ def find_twobytwo(cc, args, matrix_data):
 
 
 
-def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=18, stablity_plot_num = 0, kmeans_color_map= {}):
+def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=18, stablity_plot_num = 0, kmeans_color_map= {}, plot=True):
     from dim_reduction import return_top_pca_gene
     if isinstance(matrix_subset,pd.DataFrame):
         cell_list = matrix_subset.index.tolist()
@@ -322,14 +324,15 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
         link_mat = pd.DataFrame(cell_linkage,
                     columns=['row label 1', 'row label 2', 'distance', 'no. of items in clust.'],
                     index=['cluster %d' %(i+1) for i in range(cell_linkage.shape[0])])
-        if title != '':
-            save_name = '_'.join(title.split(' ')[0:2])
-            #plot_url = py.plot_mpl(cg)
-            cg.savefig(os.path.join(matrix_data.new_filepath, save_name+'_heatmap.pdf'), bbox_inches='tight')
-        else:
-            #plot_url = py.plot_mpl(cg)
-            cg.savefig(os.path.join(matrix_data.new_filepath,'Group0_Heatmap_all_cells.pdf'), bbox_inches='tight')
-        plt.close('all')
+        if plot:
+            if title != '':
+                save_name = '_'.join(title.split(' ')[0:2])
+                #plot_url = py.plot_mpl(cg)
+                cg.savefig(os.path.join(matrix_data.new_filepath, save_name+'_heatmap.pdf'), bbox_inches='tight')
+            else:
+                #plot_url = py.plot_mpl(cg)
+                cg.savefig(os.path.join(matrix_data.new_filepath,'Group0_Heatmap_all_cells.pdf'), bbox_inches='tight')
+            plt.close('all')
         return cell_linkage, df_by_gene[gene_list], col_order
     except FloatingPointError:
         print('Linkage distance has too many zeros. Filter to remove non-expressed genes in order to produce heatmap. Heatmap with '+ str(len(cell_list))+' will not be created.')

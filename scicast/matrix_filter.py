@@ -49,7 +49,7 @@ class Matrix_filter(object):
         if args.limit_cells and self.cell_list_filepath:
             self.make_new_matrix_cell()
         else:
-            self.cell_list = cell_names
+            self.cell_list = self.cell_names
         self.gene_list = self.data_by_cell.index.tolist()
 
         #if a gene list is provided create the new matrix with only those genes included

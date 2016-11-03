@@ -97,6 +97,7 @@ def main(args):
 
     if not args.no_corr:
         from correlation import corr_plot
+        from dim_reduction import return_top_pca_gene
         top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell)
 
         top_genes_search = top_pca[0:50]
@@ -104,17 +105,20 @@ def main(args):
 
     if args.qgraph_plot == 'both':
         from R_qgraph import run_qgraph
-        run_qgraph(matrix_data, gene_or_cell='gene')
-        run_qgraph(matrix_data, gene_or_cell='cell')
+        run_qgraph(args, matrix_data, gene_or_cell='gene')
+        run_qgraph(args, matrix_data, gene_or_cell='cell')
     elif args.qgraph_plot == 'gene':
         from R_qgraph import run_qgraph
-        run_qgraph(matrix_data, gene_or_cell='gene')
+        run_qgraph(args, matrix_data, gene_or_cell='gene')
     elif args.qgraph_plot == 'cell':
         from R_qgraph import run_qgraph
-        run_qgraph(matrix_data, gene_or_cell='cell')
+        run_qgraph(args, matrix_data, gene_or_cell='cell')
     if args.all_sig:
         from heatmaps import find_twobytwo
-        find_twobytwo(cc, matrix_data)
+        from heatmaps import make_tree_json, clust_heatmap
+        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, matrix_data, plot=False)
+        cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
+        find_twobytwo(cc, args, matrix_data)
     if args.group_sig_test and args.cell_list_filename:
         from significance_testing import multi_group_sig
         multi_group_sig(args, matrix_data)

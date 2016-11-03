@@ -1,10 +1,13 @@
 import os
 import pandas as pd
 from collections import defaultdict
+import warnings
 
 
 #this script calls qgraph R package using rpy2, for gene or cell qgraph gene or cell groups must be provided (either or both)
-def run_qgraph(matrix_data, gene_or_cell, minimum = 0.25, cut = 0.4, vsize = 1.5, legend = True, borders = False):
+def run_qgraph(args, matrix_data, gene_or_cell, minimum = 0.25, cut = 0.4, vsize = 1.5, legend = True, borders = False):
+    if not args.verbose:
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
     path_filename = matrix_data.new_filepath
     label_map = matrix_data.cell_label_map
     gene_map = matrix_data.gene_label_map
