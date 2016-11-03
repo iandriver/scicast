@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 # Copyright (C) 2016 Ian Driver <ian.driver@ucsf.edu>
 import os
@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.7.1'
+VERSION = '0.7.3'
 
 try:
     from setuptools import setup
@@ -93,7 +93,6 @@ if __name__ == "__main__":
         keywords='single-cell single cell RNA-seq sequencing clustering PCA k-means',
         classifiers=[
                      'Intended Audience :: Science/Research',
-                     'Programming Language :: Python :: 2.7',
                      'Programming Language :: Python :: 3.3',
                      'Programming Language :: Python :: 3.5',
                      'License :: OSI Approved :: MIT License',
