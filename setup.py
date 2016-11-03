@@ -85,11 +85,11 @@ if __name__ == "__main__":
         url=URL,
         version=VERSION,
         entry_points={
-          'console_scripts': ['scicast = cluster.__main__:main']
+          'console_scripts': ['scicast = scicast.cluster.__main__:main']
         },
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
-        packages=['scicast'],
+        packages=['scicast', 'scicast.cluster'],
         keywords='single-cell single cell RNA-seq sequencing clustering PCA k-means',
         classifiers=[
                      'Intended Audience :: Science/Research',
