@@ -40,7 +40,7 @@ will launch the gui interface:
 
 scicast GUI window
 -------------
-![scicast GUI Window Image](/scicast_gui.tiff?raw=true)
+![scicast GUI Window Image](./scicast_gui.tiff?raw=true)
 
 otherwise:
 
@@ -237,6 +237,6 @@ optional arguments:
                         (inclusive) (default: 2,4)
 
   -kmeans_sig_test      
-                        
+
                         Run significance test between groups defined by kmeans
                         clusters. (default: False)
