@@ -45,24 +45,25 @@ def get_parser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     parser = ArgumentParser(description=__doc__,
                             formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-f", "--filepath",
+    parser.add_argument("-f", "-filepath",
                         dest="filepath",
                         type=lambda x: is_valid_file(parser, x),
                         required =True,
                         help="Filepath to cell-gene matrix file")
-    parser.add_argument("-n","--name",
+    parser.add_argument("-n","-name",
                         dest="base_name",
                         default='scicast_analysis',
                         type=str,
                         help="The base name for files that will be generated.")
-    parser.add_argument("-g","--gene_number",
+    parser.add_argument("-g","-gene_number",
                         dest="gene_number",
                         default=200,
                         type=int,
                         help="The number of genes that will be selected from top pca genes on each iteration.")
-    parser.add_argument("-v", "--verbose",
+    parser.add_argument("-v", "-verbose",
                         action="store_true",
                         dest="verbose",
+                        default=False,
                         help="Print more")
     parser.add_argument("-cell_group",
                         dest="cell_list_filename",

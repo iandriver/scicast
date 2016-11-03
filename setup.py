@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.5.1'
+VERSION = '0.7.0'
 
 try:
     from setuptools import setup
@@ -84,7 +84,9 @@ if __name__ == "__main__":
         license=LICENSE,
         url=URL,
         version=VERSION,
-        scripts=['bin/scicast'],
+        entry_points={
+          'console_scripts': ['scicast = cluster.__main__:main']
+        },
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
         packages=['scicast'],
