@@ -12,4 +12,4 @@ from .stability_test import *
 
 set()
 __all__ = ["scicast_argparse", "sci_load", "tkinter_scicast", "matrix_filter", "dim_reduction", "heatmaps", "correlation", "significance_testing", "R_qgraph", "stability_test"]
-__version__ = "0.7.0"
+__version__ = "0.7.1"
