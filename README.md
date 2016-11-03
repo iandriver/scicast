@@ -94,6 +94,7 @@ optional arguments:
                         genes on each iteration. (default: 200)
 
   -v, -verbose          
+
                         Print more (default: False)
 
   -cell_group CELL_LIST_FILENAME
@@ -111,6 +112,7 @@ optional arguments:
                         those genes included. (default: False)
 
   -group_sig_test       
+
                         If cell groups are provided, perform significance
                         testing between all groups (independent of any cluster
                         groups). (default: False)
@@ -124,6 +126,7 @@ optional arguments:
                         varies. (default: 0)
 
   -metric METRIC        
+
                         The distance metric to use. The distance function can
                         be: braycurtis, canberra, chebyshev, cityblock,
                         correlation, cosine, dice, euclidean, hamming,
@@ -132,6 +135,7 @@ optional arguments:
                         sokalsneath, sqeuclidean, yule. (default: euclidean)
 
   -method METHOD        
+
                         The linkage method to use. The linkage algorithm can
                         be: single, complete, average, weighted, centroid,
                         median or ward. (default: weighted)
@@ -149,16 +153,19 @@ optional arguments:
                         i.e. 'Gapdh,Actb'. (default: )
 
   -all_sig              
+
                         Do significance testing on all hierarchical clustering
                         groups. The minimum number of cells in a group is set
                         by --depth. (default: False)
 
   -already_log2         
+
                         If the gene matrix is already log2 transformed i.e.
                         rld or vsd DESeq2, this will disable log2 transform.
                         (default: False)
 
   -z Z_DIRECTION        
+
                         Either 0 (rows) or 1 (columns) or None. Whether or not
                         to calculate z-scores for the rows or the columns. Z
                         scores are: z = (x - mean)/std, so values in each row
@@ -168,10 +175,12 @@ optional arguments:
                         has mean of 0 and variance of 1. (default: 0)
 
   -no_corr              
+
                         Don't run correlation search. Default is on. (default:
                         False)
 
   -no_heatmaps          
+
                         Don't run heatmaps and pca. Default is will generate
                         heatmaps and pca. (default: False)
 
@@ -182,11 +191,13 @@ optional arguments:
                         (default: False)
 
   -limit_cells          
+
                         With cell group file, will exclude all other cells
                         from analysis (at all levels of analysis). Header must
                         be 'SampleID'. (default: False)
 
   -add_ellipse          
+
                         When present colored ellipses will be added to cell
                         and gene PCA plots. Must provide gene and/or cell
                         groups. (default: False)
@@ -198,6 +209,7 @@ optional arguments:
                         'GeneID' header. (default: False)
 
   -annotate_cell_pca    
+  
                         Option will annotate cell PCA with cell names. Default
                         is off (False). (default: False)
 
