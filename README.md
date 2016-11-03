@@ -40,7 +40,7 @@ will launch the gui interface:
 
 scicast GUI window
 -------------
-![scicast GUI Window Image](./scicast_gui.tiff?raw=true)
+![scicast GUI Window Image](./scicast_gui.tiff)
 
 otherwise:
 
