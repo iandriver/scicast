@@ -84,8 +84,9 @@ if __name__ == "__main__":
         license=LICENSE,
         url=URL,
         version=VERSION,
+        py_modules=['scicast.cluster'],
         entry_points={
-          'console_scripts': ['scicast = scicast.cluster.__main__:main']
+          'console_scripts': ['scicast = scicast.cluster:main']
         },
         download_url=DOWNLOAD_URL,
         install_requires=install_requires,
