@@ -23,12 +23,15 @@ Requires
 
           R >3.3
             -must have qgraph installed in R for qgraph_plot to work
+            ```R
+                install.packages("qgraph")
+            ```
 
           rpy2
 
           fastcluster
 
-pip or brew or conda install any that are missing, prior to scicast installation. 
+pip or brew or conda install any that are missing, prior to scicast installation.
 
 Note on rpy2
 --------------
