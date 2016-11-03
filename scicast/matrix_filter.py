@@ -24,7 +24,11 @@ class Matrix_filter(object):
         self.cell_names = cell_df.columns.tolist()
         self.gene_names = cell_df.index.tolist()
         self.data_by_cell = cell_df
-        self.new_filepath = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast')
+        if args.base_name:
+            self.new_filepath = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast_analysis')
+        else:
+            self.new_filepath = os.path.join(os.path.dirname(args.filepath),'scicast_analysis')
+
 
         self.markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
         from matplotlib import colors

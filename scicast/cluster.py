@@ -10,7 +10,10 @@ def main(args):
 
     from matrix_filter import Matrix_filter
     try:
-        new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast')
+        if args.base_name:
+            new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast_analysis')
+        else:
+            new_file = os.path.join(os.path.dirname(args.filepath),'scicast_analysis')
     except AttributeError:
         sys.exit('Please provide a valid path to a file.')
     if args.verbose:

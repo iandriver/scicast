@@ -1,0 +1,3 @@
+[console_scripts]
+scicast = cluster.__main__:main
+

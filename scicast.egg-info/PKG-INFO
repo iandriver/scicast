@@ -1,0 +1,33 @@
+Metadata-Version: 1.1
+Name: scicast
+Version: 0.7.0
+Summary: scicast: Single Cell Iterative Clustering and Statistical Testing. A package for interrogating single cell sequencing data.
+Home-page: https://github.com/iandriver/scicast
+Author: Ian Driver
+Author-email: ian.driver@ucsf.edu
+License: MIT
+Download-URL: https://github.com/iandriver/scicast
+Description: scicast is a python utility that automates many of the repetitive steps of analyzing single cell sequencing data.
+        
+        -k-means clustering to identify clusters
+        
+        -Clustering and subclustering of data to identify 'stable' sets of cells.
+        
+        -Statistical testing to identify top genes that indentify stable cluster.
+        
+        -Correlation search and analysis to identify gene networks driving cluster identity.
+        
+        -Outputs both plots for visualization (PCA and heatmap) cell and gene lists that can be used to refine analysis.
+        
+Keywords: single-cell single cell RNA-seq sequencing clustering PCA k-means
+Platform: UNKNOWN
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
