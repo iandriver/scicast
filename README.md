@@ -6,14 +6,12 @@ Single Cell Iterative Clustering and Significance Testing
 Installation
 ------------
 
-To install the released version, just do
+To install the released version, just type:
 
     pip install scicast
 
 Requires
 --------
-          R >3.3
-            -must have qgraph installed in R for qgraph_plot to work
 
           scipy
 
@@ -21,9 +19,16 @@ Requires
 
           seaborn >= 0.7.1
 
+          pandas >= 0.19.0
+
+          R >3.3
+            -must have qgraph installed in R for qgraph_plot to work
+
           rpy2
 
           fastcluster
+
+pip or brew or conda install any that are missing, prior to scicast installation. 
 
 Note on rpy2
 --------------
@@ -209,7 +214,7 @@ optional arguments:
                         'GeneID' header. (default: False)
 
   -annotate_cell_pca    
-  
+
                         Option will annotate cell PCA with cell names. Default
                         is off (False). (default: False)
 
@@ -238,6 +243,7 @@ optional arguments:
                         provided. (default: False)
 
   -sig_unique           
+
                         group_sig_test will by default find unique sets of
                         significant genes, so that the whole list has no
                         duplicates. This switches the top significant genes
