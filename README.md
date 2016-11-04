@@ -64,7 +64,7 @@ Command with cell and gene files:
 ```
 Example Dataset
 -------------
-For the soon to be vignette and for trying out scicast, an example single cell dataset is provided: [DESeq_krasnow_185_At2_rsem_matrix_norm.txt](krasnow_AT2_185_rsem_deseq_counts_norm.txt)
+For the soon to be vignette and for trying out scicast, an example single cell dataset is provided: [krasnow_AT2_185_rsem_deseq_counts_norm.txt](krasnow_AT2_185_rsem_deseq_counts_norm.txt)
 
 From the paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4145853/
 Raw sequencing was mapped and aligned to GRCm38 using rsem and normalized using Deseq2.
