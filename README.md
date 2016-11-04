@@ -58,6 +58,14 @@ Command with cell and gene files:
 ```python
           scicast -f /Path/to/gene_cell_matrix -n my_gene_cell_matrix_analyis -v -cell_group sc_cell_groups.csv -gene_list sc_gene_groups.csv -depth 100 -z 0 -genes_corr Myc,Nanog,Vegf -method ward -metric seuclidean -annotate_gene_subset gene_annotation_subset.csv -add_ellipse
 ```
+Example Dataset
+-------------
+For the soon to be vignette and for trying out scicast an example single cell dataset is provided: DESeq_krasnow_185_At2_rsem_matrix_norm.txt
+
+From the paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4145853/
+Raw sequencing was mapped and aligned to GRCm38 using rsem and normalized using Deseq2.
+Only E18.5 and Adult At2 cells are included.
+
 =======
 
 Usage
