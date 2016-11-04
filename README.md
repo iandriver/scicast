@@ -3,38 +3,42 @@ Single Cell Iterative Clustering and Significance Testing
 ------
 **This is still in development. If it is useful please let me know.  I will be updating with a proper manual and vignette with sample data set as I get closer to publishing. -Ian (ian.driver@ucsf.edu)**
 
+
+Requires
+--------
+- Python 2.7 or 3.4+ (preferred)
+
+- [numpy](http://www.numpy.org/)
+
+- [scipy](http://www.scipy.org/)
+
+- [matplotlib](http://matplotlib.org/)
+
+- [pandas >= 0.19.0](http://pandas.pydata.org/)
+
+- [seaborn >= 0.7.1](http://seaborn.pydata.org/)
+
+- [R >3.3](https://www.r-project.org/)
+        -[must have qgraph installed in R for qgraph_plot to work](http://sachaepskamp.com/qgraph)
+
+            install.packages("qgraph")
+
+- [rpy2](http://rpy2.bitbucket.org/)
+
+- [fastcluster](https://pypi.python.org/pypi/fastcluster)
+
+pip or brew or conda install any that are missing, prior to scicast installation.
+
+Note on rpy2
+--------------
+Install or update R, and then pip install rpy2. Otherwise it won't link properly.
+
 Installation
 ------------
 
 To install the released version, just type:
 
     pip install scicast
-
-Requires
---------
-
-          scipy
-
-          numpy
-
-          seaborn >= 0.7.1
-
-          pandas >= 0.19.0
-
-          R >3.3
-            -must have qgraph installed in R for qgraph_plot to work
-
-                install.packages("qgraph")
-
-          rpy2
-
-          fastcluster
-
-pip or brew or conda install any that are missing, prior to scicast installation.
-
-Note on rpy2
---------------
-Install or update R, and then pip install rpy2.
 
   Example command
 --------------
