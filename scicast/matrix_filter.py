@@ -47,7 +47,7 @@ class Matrix_filter(object):
             if args.verbose:
                 print(str(not_in_mat)+' already filtered from matrix.')
         else:
-            self.exclude_list = None
+            self.exclude_list = []
 
         #if cells are to be excluded filter them out and generate log2 matrix otherwise just generate log2_matrix
         if args.limit_cells and self.cell_list_filepath:
@@ -61,7 +61,7 @@ class Matrix_filter(object):
             self.make_new_matrix_gene(self.gene_list_filepath)
         else:
             self.gene_group_list = []
-            self.short_gene_list, self.short_gene_matrix_cell =None,None
+            self.short_gene_list, self.short_gene_matrix_cell =[],[]
 
 
         self.log2_outlierfilter(args)
@@ -139,7 +139,7 @@ class Matrix_filter(object):
             gene_df = pd.read_csv(open(gene_list_or_file,'rU'), sep=None, engine='python')
             try:
                 self.short_gene_list = list(set(gene_df['GeneID'].tolist()))
-                if self.exclude_list != None:
+                if self.exclude_list:
 
                     self.short_gene_list = [g for g in self.short_gene_list if g not in self.exclude_list and g in self.gene_list]
                 else:
@@ -147,7 +147,7 @@ class Matrix_filter(object):
             except KeyError:
                 sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
             try:
-                if self.exclude_list != None:
+                if self.exclude_list:
                     mask = [True if g not in self.exclude_list and g in self.gene_list else False for g in self.short_gene_list]
                     self.gene_group_list = list(compress(gene_df['GroupID'].tolist(), mask))
                 else:
@@ -167,7 +167,7 @@ class Matrix_filter(object):
                 self.short_gene_matrix_cell = self.data_by_cell.loc[new_list,:]
 
         elif isinstance(gene_list_or_file,list):
-            if self.exclude_list == None:
+            if self.exclude_list == []:
                 self.short_gene_list = gene_list_or_file
             else:
                 self.short_gene_list = [g for g in gene_list_or_file if g not in self.exclude_list and g in self.gene_list]
@@ -231,10 +231,14 @@ class Matrix_filter(object):
             self.log2_df_cell = np.log2(self.data_by_cell+1)
             if isinstance(self.short_gene_matrix_cell, pd.DataFrame):
                 self.log2_df_cell_gene_restricted = np.log2(self.short_gene_matrix_cell+1)
+            else:
+                self.log2_df_cell_gene_restricted = []
         else:
             self.log2_df_cell = self.data_by_cell
             if isinstance(self.short_gene_matrix_cell, pd.DataFrame):
                 self.log2_df_cell_gene_restricted = self.short_gene_matrix_cell
+            else:
+                self.log2_df_cell_gene_restricted = []
 
         top_log2 = self.find_top_common_genes()
         if all(top_log2) != 0:
@@ -281,7 +285,7 @@ class Matrix_filter(object):
             if isinstance(self.short_gene_matrix_cell, pd.DataFrame):
                 self.log2_df_cell_gene_restricted = self.threshold_genes(filtered_df_by_cell_gene_restricted_log2)
             else:
-                self.log2_df_cell_gene_restricted = None
+                self.log2_df_cell_gene_restricted = []
         else:
             if args.verbose:
                 print("no common genes found")

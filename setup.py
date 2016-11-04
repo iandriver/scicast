@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 #
 # Copyright (C) 2016 Ian Driver <ian.driver@ucsf.edu>
 import os
@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.7.3'
+VERSION = '0.7.92'
 
 try:
     from setuptools import setup
@@ -54,7 +54,7 @@ def check_dependencies():
     try:
         import pandas
     except ImportError:
-        install_requires.append('pandas')
+        install_requires.append('pandas>=0.19.0')
     try:
         import seaborn
     except ImportError:
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         license=LICENSE,
         url=URL,
         version=VERSION,
-        py_modules=['scicast.cluster'],
+        py_modules=['scicast.cluster', 'scicast.matrix_filter'],
         entry_points={
           'console_scripts': ['scicast = scicast.cluster:main']
         },
@@ -94,6 +94,7 @@ if __name__ == "__main__":
         keywords='single-cell single cell RNA-seq sequencing clustering PCA k-means',
         classifiers=[
                      'Intended Audience :: Science/Research',
+                     'Programming Language :: Python :: 2.7',
                      'Programming Language :: Python :: 3.3',
                      'Programming Language :: Python :: 3.5',
                      'License :: OSI Approved :: MIT License',

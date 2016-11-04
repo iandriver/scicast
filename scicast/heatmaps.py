@@ -188,7 +188,7 @@ def find_twobytwo(cc, args, matrix_data):
 
 
 def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=18, stablity_plot_num = 0, kmeans_color_map= {}, plot=True):
-    from dim_reduction import return_top_pca_gene
+    from .dim_reduction import return_top_pca_gene
     if isinstance(matrix_subset,pd.DataFrame):
         cell_list = matrix_subset.index.tolist()
         cell_num =len(cell_list)
@@ -343,7 +343,7 @@ def make_subclusters(args, cc, matrix_data):
     Walks a histogram branch map 'cc' and does PCA (SVD), heatmap and correlation search for each non-overlapping
     tree branch. Stops at defined cluster_size (default is 20).
     '''
-    from dim_reduction import return_top_pca_gene, plot_SVD
+    from .dim_reduction import return_top_pca_gene, plot_SVD
 
     #initial cell group is parent
     parent = cc[0][1]
@@ -394,7 +394,7 @@ def make_subclusters(args, cc, matrix_data):
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 #if no_corr flag is provided (False) no correlation plots will be made
                 if not args.no_corr:
-                    from correlation import corr_plot
+                    from .correlation import corr_plot
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, full_gene_subset, args, matrix_data, title = current_title)
 
