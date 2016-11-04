@@ -19,7 +19,7 @@ Requires
 - [seaborn >= 0.7.1](http://seaborn.pydata.org/)
 
 - [R >3.3](https://www.r-project.org/)
-        -[must have qgraph installed in R for qgraph_plot to work](http://sachaepskamp.com/qgraph)
+        -must have [qgraph](http://sachaepskamp.com/qgraph) installed in R for qgraph_plot to work
 
             install.packages("qgraph")
 
