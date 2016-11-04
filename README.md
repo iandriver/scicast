@@ -52,7 +52,7 @@ scicast GUI window
 otherwise:
 
 ```python
-          scicast -f /Path/to/gene_cell_matrix -n my_gene_cell_matrix_analyis
+          scicast -f path/to/DESeq_krasnow_185_At2_rsem_matrix_norm.txt -n krasnow_example_data
 ```
 Command with cell and gene files:
 ```python
