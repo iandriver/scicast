@@ -69,9 +69,11 @@ def find_top_corrs(terms_to_search, sig_corrs, num_to_return, gene_corr_list = [
         all_corrs_list.append(corr_tup)
     all_corrs_list.sort(key=len, reverse=True)
     good_count = 0
+    len_count = 0
     corr_genes_seen = []
-    while good_count <= num_to_return:
+    while good_count <= num_to_return and len_count <= len(all_corrs_list):
         for i, corrs in enumerate(all_corrs_list):
+            len_count+=1
             if corrs[0][0] not in corr_genes_seen:
                 best_corrs_list.append(corrs)
                 good_count+=1
