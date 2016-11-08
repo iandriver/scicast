@@ -8,6 +8,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
+import collections
 
 
 
@@ -34,6 +35,8 @@ class Matrix_filter(object):
         from matplotlib import colors
         all_color_list = list(colors.cnames.keys())
         self.cell_color_list = ['b', 'm', 'r', 'c', 'g','y','k']+all_color_list
+        colors_to_remove = ['gray', 'white', 'oldlace', 'silver', 'lightgrey', 'grey', 'linen', 'snow', 'dimgray', 'slategray', 'dimgrey', 'lightslategrey', 'antiquewhite', 'beige']
+        self.cell_color_list = [color for color in self.cell_color_list if color not in colors_to_remove]
 
         if args.exclude_genes:
             excluded_genes_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
@@ -58,7 +61,7 @@ class Matrix_filter(object):
 
         #if a gene list is provided create the new matrix with only those genes included
         if self.gene_list_filepath:
-            self.make_new_matrix_gene(self.gene_list_filepath)
+            self.make_new_matrix_gene(self.gene_list_filepath, v=args.verbose)
         else:
             self.gene_group_list = []
             self.short_gene_list, self.short_gene_matrix_cell =[],[]
@@ -74,15 +77,35 @@ class Matrix_filter(object):
                 c_pair = c.split(',')
                 if len(c_pair) == 2:
                     self.color_dict_cells[c_pair[0]] = [c_pair[1],self.markers[i]]
-                elif len(cc_pair == 3):
+                elif len(c_pair == 3):
                     self.color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
         #otherwise generate generic color dict from colors and markers
         elif self.cell_list_filepath:
+
+
             self.color_dict_cells= {}
+            self.cell_group_set = {}
             cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
-            self.cell_group_set = list(set(cell_groups_df['GroupID'].tolist()))
-            for g,c,m in zip(self.cell_group_set, self.cell_color_list[0:len(self.cell_group_set)],self.markers[0:len(self.cell_group_set)]):
-                self.color_dict_cells[g] =[c,m]
+            self.cell_group_names = cell_groups_df.columns.tolist()[1:]
+            cell_group_num = len(self.cell_group_names)
+            color_marker_start = 0
+            for group_name in self.cell_group_names:
+                group_member_num = len(self.cell_group_set[group_name])+color_marker_start
+                self.cell_group_set[group_name] = list(set(cell_groups_df[group_name].tolist()))
+                for i, group in enumerate(self.cell_group_set[group_name]):
+                    try:
+                        if math.isnan(float(group)):
+                            no_groups = True
+                            self.cell_group_set[group_name][i] = 'None'
+                    except ValueError:
+                        pass
+                for g,c,m in zip(self.cell_group_set[group_name], self.cell_color_list[0:group_member_num],self.markers[0:group_member_num]):
+                    if g != 'None':
+                        self.color_dict_cells[g] =[c,m]
+                    else:
+                        self.color_dict_cells[g] =['white',m]
+                color_marker_start = group_member_num
+
 
         #if gene user color inputs are provided
         if args.color_genes:
@@ -133,7 +156,7 @@ class Matrix_filter(object):
         else:
             return index.name
 
-    def make_new_matrix_gene(self, gene_list_or_file):
+    def make_new_matrix_gene(self, gene_list_or_file v = False):
         from itertools import compress
         if isinstance(gene_list_or_file,str):
             gene_df = pd.read_csv(open(gene_list_or_file,'rU'), sep=None, engine='python')
@@ -142,8 +165,7 @@ class Matrix_filter(object):
                 if self.exclude_list:
 
                     self.short_gene_list = [g for g in self.short_gene_list if g not in self.exclude_list and g in self.gene_list]
-                else:
-                    self.short_gene_list = gene_list
+
             except KeyError:
                 sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
             try:
@@ -159,12 +181,12 @@ class Matrix_filter(object):
 
             except KeyError as error_gene:
                 cause1 = error_gene.args[0].strip(' not in index')
-                cause = [v.strip('\n\' ') for v in cause1.strip('[]').split(' ')]
+                cause = [error_v.strip('\n\' ') for error_v in cause1.strip('[]').split(' ')]
                 absent_gene = cause
                 if args.verbose:
                     print(' '.join(absent_gene)+' not in matrix file.')
-                new_list = [x for x in gene_list if x not in absent_gene]
-                self.short_gene_matrix_cell = self.data_by_cell.loc[new_list,:]
+                new_list = [x for x in self.gene_list if x not in absent_gene]
+                self.short_gene_matrix_cell = self.threshold_genes(self.data_by_cell.loc[new_list,:])
 
         elif isinstance(gene_list_or_file,list):
             if self.exclude_list == []:
@@ -176,10 +198,10 @@ class Matrix_filter(object):
             except KeyError as error_gene:
                 cause = error_gene.args[0]
                 absent_gene = cause.split('\'')[1]
-                if args.verbose:
+                if v:
                     print(absent_gene+' not in matrix file.')
-                new_list = [x for x in gene_list if x not in [absent_gene]]
-                gmatrix_df = org_matrix_by_gene[new_list]
+                new_list = [x for x in self.gene_list if x not in [absent_gene]]
+                self.short_gene_matrix_cell = self.threshold_genes(self.data_by_cell.loc[new_list,:])
         else:
             sys.exit("Error: gene list must be filepath or a list.")
 
@@ -290,28 +312,35 @@ class Matrix_filter(object):
             if args.verbose:
                 print("no common genes found")
 
-    '''takes cell groups and creates dictionay 'label_map' that has attached color and marker
+    '''takes cell groups and creates dictionay 'cell_label_map' that has attached color and marker
     if the same cell is assigned to multiple groups it assigns it to the first groupID
     '''
     def cell_color_map(self, args):
         if self.cell_list_filepath:
             cell_groups_df = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), self.cell_list_filepath),'rU'), sep=None, engine='python')
             cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
-            if len(cell_groups_df['SampleID']) == len(cell_groups_df['GroupID']):
+            self.cell_label_map = {}
+            for cell1 in cell_list_1:
+                self.cell_label_map[cell1] = []
+            for group_name in self.cell_group_names:
                 group_seen = []
-                self.cell_label_map = {}
                 cells_seen = []
-                for cell, group in list(set(zip(cell_groups_df['SampleID'].tolist(), cell_groups_df['GroupID'].tolist()))):
+
+
+                for cell, group in list(set(zip(cell_groups_df['SampleID'].tolist(), cell_groups_df[group_name].tolist()))):
                     if cell not in cells_seen:
-                        group_count = self.cell_group_set.index(group)
-                        self.cell_label_map[cell] = (self.color_dict_cells[group][0],self.color_dict_cells[group][1],group)
+                        try:
+                            if math.isnan(float(group)):
+                                group = 'None'
+                        except ValueError:
+                            pass
+                        self.cell_label_map[cell].append((self.color_dict_cells[group][0] , self.color_dict_cells[group][1] , group))
                         cells_seen.append(cell)
                 non_group_cells = [c for c in cell_list_1 if c not in cells_seen]
                 if non_group_cells != []:
                     for cell in non_group_cells:
-                        self.cell_label_map[cell] = (self.color_list[group_count+1],self.markers[group_count+1],'No_Group')
-            else:
-                self.cell_label_map = False
+                        group = 'None'
+                        self.cell_label_map[cell].append((self.color_dict_cells[group][0],self.color_dict_cells[group][1],group))
         else:
             self.cell_label_map = False
 

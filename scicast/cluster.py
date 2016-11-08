@@ -9,9 +9,13 @@ import os
 import sys
 import collections
 
-
+'''Cluster main function looks for either -gui flag and takes tkinter flags or
+expects argparse arguments.Minimum input is a comma,tab, or space delimted
+file of cells or experiments as columns and genes as the index.
+'''
 
 def main():
+    #check for -gui flag
     from .scicast_argparse import check_gui_parser
     try:
         gui = check_gui_parser()
@@ -29,16 +33,16 @@ def main():
         except AttributeError:
             sys.exit('Please provide (at a minimum) a valid path to a file and click Run scicast.')
 
-
+    #if -gui flag isn't found check for all other flags
     else:
         from .scicast_argparse import get_parser
         args = get_parser()
 
-
-
+    #try to make file in the directory of the file provided
     try:
         if args.base_name:
             new_file = os.path.join(os.path.dirname(args.filepath),args.base_name+'_scicast_analysis')
+        #if no base name is provided just make the file as 'scicast_analysis'
         else:
             new_file = os.path.join(os.path.dirname(args.filepath),'scicast_analysis')
     except AttributeError:
@@ -51,6 +55,7 @@ def main():
         if args.verbose:
             print(new_file+' already exists. Files will be overwritten.')
 
+    #check for gene list file if full path is provided and in the same directory as the main file
     if args.gene_list_filename:
         if os.path.isfile(args.gene_list_filename):
             gene_file = args.gene_list_filename
@@ -61,7 +66,7 @@ def main():
     else:
         gene_file = False
 
-
+    #check for cell list file if full path is provided and in the same directory as the main file
     if args.cell_list_filename:
         if os.path.isfile(args.cell_list_filename):
             cell_file = args.cell_list_filename
@@ -72,11 +77,13 @@ def main():
     else:
         cell_file=False
 
+    #make main file in to pandas datframe
     try:
         by_cell = pd.read_csv(args.filepath, sep="\t", index_col=0)
     except OSError:
         sys.exit('Please provide a valid path to a file.')
 
+    #check for duplicate gene names and if they exist drop them from the dataframe
     dup_gene_list = [item for item, count in collections.Counter(by_cell.index).items() if count > 1]
     if len(dup_gene_list) >0:
         by_cell.drop(dup_gene_list, inplace=True)
@@ -86,19 +93,20 @@ def main():
     cell_list = [x for x in list(by_cell.columns.values)]
     df_by_cell1 = pd.DataFrame(by_cell, columns=cell_list, index=gene_list_inital)
 
+    #process matrix data into matrix class object matrix_data
     from .matrix_filter import Matrix_filter
     matrix_data = Matrix_filter(cell_df=df_by_cell1 , args=args, cell_list_filepath=cell_file, gene_list_filepath=gene_file)
 
 
 
-    #run heatmap clustering stability function
+    #if stability iteration number is provided run heatmap clustering stability function
     stability_iteration_num = int(args.test_clust_stability)
     if  stability_iteration_num != 0:
         from .stability_test import clust_stability
-        stability_ratio = clust_stability(args, matrix_data, stability_iteration_num)
+        clust_stability(args, matrix_data, stability_iteration_num)
 
 
-
+    #parse kmeans cluster range if seperate by a dash or a comma
     if ',' not in args.kmeans_cluster_range and '-' not in args.kmeans_cluster_range and args.kmeans_cluster_range == '0':
         kmeans_range = []
     elif ',' in args.kmeans_cluster_range:
@@ -115,8 +123,10 @@ def main():
         plot_SVD(args, matrix_data, title='all_cells')
         plot_TSNE(args, matrix_data, title='all_cells')
 
+        #if kmeans range is provided run kmeans cluster detection
         if kmeans_range:
             plot_kmeans(args, matrix_data, kmeans_range=kmeans_range, title='all_cells')
+        #
         if isinstance(matrix_data.log2_df_cell_gene_restricted, pd.DataFrame):
             top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell_gene_restricted)
         else:

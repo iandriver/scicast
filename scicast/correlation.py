@@ -14,44 +14,30 @@ import matplotlib.patches as patches
 
 
 #run correlation matrix and save only those above threshold
-def run_corr(args, df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, run_new=True, min_period=3, save_corrs=False):
+def run_corr(args, df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, min_period=3, save_corrs=False):
     from .dim_reduction import return_top_pca_gene
-    if run_new:
-        if len(df_by_gene.columns.tolist())>5000:
-            df_by_gene, top_pca_list = return_top_pca_gene(args, df_by_gene.transpose(), user_num_genes=5000)
-        if method_name != 'kendall':
-            corr_by_gene = df_by_gene.corr(method=method_name, min_periods=min_period)
-        else:
-            corr_by_gene = df_by_gene.corr(method=method_name)
 
-
-        cor = corr_by_gene
-        cor.loc[:,:] =  np.tril(cor.values, k=-1)
-        cor = cor.stack()
-        corr_by_gene_pos = cor[cor >=sig_threshold]
-        corr_by_gene_neg = cor[cor <=(sig_threshold*-1)]
+    if len(df_by_gene.columns.tolist())>5000:
+        df_by_gene, top_pca_list = return_top_pca_gene(args, df_by_gene.transpose(), user_num_genes=5000)
+    if method_name != 'kendall':
+        corr_by_gene = df_by_gene.corr(method=method_name, min_periods=min_period)
     else:
-        corr_by_g_pos =  open(os.path.join(path_filename,'gene_correlations_sig_pos_'+method_name+'.p'), 'rb')
-        corr_by_g_neg =  open(os.path.join(path_filename,'gene_correlations_sig_neg_'+method_name+'.p'), 'rb')
-        corr_by_gene_pos = pickle.load(corr_by_g_pos)
-        corr_by_gene_neg = pickle.load(corr_by_g_neg)
-    if save_corrs:
-        with open(os.path.join(path_filename,'gene_correlations_sig_neg_'+method_name+'.p'), 'wb') as fp:
-            pickle.dump(corr_by_gene_neg, fp)
-        with open(os.path.join(path_filename,'gene_correlations_sig_pos_'+method_name+'.p'), 'wb') as fp0:
-            pickle.dump(corr_by_gene_pos, fp0)
-        with open(os.path.join(path_filename,'by_gene_corr.p'), 'wb') as fp1:
-            pickle.dump(corr_by_gene, fp1)
+        corr_by_gene = df_by_gene.corr(method=method_name)
 
 
+    cor = corr_by_gene
+    cor.loc[:,:] =  np.tril(cor.values, k=-1)
+    cor = cor.stack()
+    corr_by_gene_pos = cor[cor >=sig_threshold]
+    corr_by_gene_neg = cor[cor <=(sig_threshold*-1)]
 
     cor_pos_df = pd.DataFrame(corr_by_gene_pos)
     cor_neg_df = pd.DataFrame(corr_by_gene_neg)
     sig_corr = cor_pos_df.append(cor_neg_df)
     sig_corrs = pd.DataFrame(sig_corr[0], columns=["corr"])
 
-    if run_new:
-        sig_corrs.to_csv(os.path.join(path_filename, title+'_counts_corr_sig_'+method_name+'.txt'), sep = '\t')
+
+    sig_corrs.to_csv(os.path.join(path_filename, title+'_counts_corr_sig_'+method_name+'.txt'), sep = '\t')
     return sig_corrs
 
 #finds most correlated gene groups that are not overlapping
@@ -141,8 +127,8 @@ def corr_plot(terms_to_search, df_by_gene_corr, args, matrix_data, title ='', so
             ax.xaxis.set_minor_locator(LinearLocator(numticks=len(xlabels)))
             if matrix_data.cell_label_map:
                 ax.set_xticklabels(xlabels, minor=True, rotation='vertical', fontsize=3)
-                Xcolors = [matrix_data.cell_label_map[cell][0] for cell in xlabels]
-                group_labels = [matrix_data.cell_label_map[cell][2] for cell in xlabels]
+                Xcolors = [matrix_data.cell_label_map[cell][0][0] for cell in xlabels]
+                group_labels = [matrix_data.cell_label_map[cell][0][2] for cell in xlabels]
                 group_seen = []
                 leg_handles = []
                 for xtick, xcolor, group_name in zip(ax.get_xticklabels(which='minor'), Xcolors, group_labels):

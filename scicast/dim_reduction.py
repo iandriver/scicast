@@ -44,7 +44,7 @@ def return_top_pca_gene(args, by_cell_matrix, user_num_genes = None):
     np_by_gene = np.asarray(by_cell_matrix.transpose())
     gene_index = by_cell_matrix.index.tolist()
 
-    if user_num_genes != None:
+    if user_num_genes is not None:
         num_genes = user_num_genes
     else:
         num_genes = min(args.gene_number, len(gene_index))
@@ -108,9 +108,15 @@ def plot_PCA(args, matrix_data, title = '', gene_subcluster_matrix=False):
             annotate = args.annotate_cell_pca
             X = [x for x in top_cell_trans[:, 0]]
             Y = [y for y in top_cell_trans[:, 1]]
-            labels = [matrix_data.cell_label_map[cell][2] for cell in top_by_cell.columns.tolist()]
-            markers = [matrix_data.cell_label_map[cell][1] for cell in top_by_cell.columns.tolist()]
-            colors = [matrix_data.cell_label_map[cell][0] for cell in top_by_cell.columns.tolist()]
+            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+                if group_index == 0:
+                    labels = [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()]
+                    colors = [matrix_data.cell_label_map[cell][group_index][0] for cell in top_by_cell.columns.tolist()]
+                elif group_index > 0:
+                    labels = [a+'_'+b for a, b in zip(labels, [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()])]
+
+            markers = [matrix_data.cell_label_map[cell][0][1] for cell in top_by_cell.columns.tolist()]
+
             label_done = []
             xy_by_color_dict = {}
             for c in set(colors):
@@ -134,7 +140,7 @@ def plot_PCA(args, matrix_data, title = '', gene_subcluster_matrix=False):
         ax_cell.set_xlim([min(top_cell_trans[:, 0])-1, max(top_cell_trans[:, 0]+1)])
         ax_cell.set_ylim([min(top_cell_trans[:, 1])-1, max(top_cell_trans[:, 1]+2)])
         ax_cell.set_title(title+'_cell')
-        if label_map:
+        if matrix_data.cell_label_map:
             handles, labs = ax_cell.get_legend_handles_labels()
             # sort both labels and handles by labels
             labs, handles = zip(*sorted(zip(labs, handles), key=lambda t: t[0]))
@@ -247,9 +253,15 @@ def plot_SVD(args, matrix_data, gene_subcluster_matrix=False, title = ''):
             annotate = args.annotate_cell_pca
             X = [x for x in top_cell_trans[:, 0]]
             Y = [y for y in top_cell_trans[:, 1]]
-            labels = [matrix_data.cell_label_map[cell][2] for cell in top_by_cell.columns.tolist()]
-            markers = [matrix_data.cell_label_map[cell][1] for cell in top_by_cell.columns.tolist()]
-            colors = [matrix_data.cell_label_map[cell][0] for cell in top_by_cell.columns.tolist()]
+            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+                if group_index == 0:
+                    labels = [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()]
+                    colors = [matrix_data.cell_label_map[cell][group_index][0] for cell in top_by_cell.columns.tolist()]
+                elif group_index > 0:
+                    labels = [a+'_'+b for a, b in zip(labels, [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()])]
+
+            markers = [matrix_data.cell_label_map[cell][0][1] for cell in top_by_cell.columns.tolist()]
+
             label_done = []
             xy_by_color_dict = {}
             for c in set(colors):
@@ -380,9 +392,15 @@ def plot_TSNE(args, matrix_data, title= ''):
             annotate = args.annotate_cell_pca
             X = [x for x in top_cell_trans[:, 0]]
             Y = [y for y in top_cell_trans[:, 1]]
-            labels = [matrix_data.cell_label_map[cell][2] for cell in top_by_cell.columns.tolist()]
-            markers = [matrix_data.cell_label_map[cell][1] for cell in top_by_cell.columns.tolist()]
-            colors = [matrix_data.cell_label_map[cell][0] for cell in top_by_cell.columns.tolist()]
+            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+                if group_index == 0:
+                    labels = [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()]
+                    colors = [matrix_data.cell_label_map[cell][group_index][0] for cell in top_by_cell.columns.tolist()]
+                elif group_index > 0:
+                    labels = [a+'_'+b for a, b in zip(labels, [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()])]
+
+            markers = [matrix_data.cell_label_map[cell][0][1] for cell in top_by_cell.columns.tolist()]
+
             label_done = []
             xy_by_color_dict = {}
             for c in set(colors):
@@ -600,13 +618,15 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
 
         #use colors to make label map compatable with heatmap
         color_dict ={}
+        for cell, m_color_tup in zip(top_by_cell.columns, zip(colors,[matrix_data.markers[pred] for pred in top_cell_pred],['kmeans_'+str(p) for p in top_cell_pred])):
+            color_dict[cell] = []
+            color_dict[cell].append(m_color_tup)
 
-        color_dict =dict(zip(top_by_cell.columns, zip(colors,[matrix_data.markers[pred] for pred in top_cell_pred],['kmeans_'+str(p) for p in top_cell_pred])))
         group_color_dict = dict(zip(['kmeans_'+str(p) for p in top_cell_pred],zip(colors,[matrix_data.markers[pred] for pred in top_cell_pred])))
         #run heatmap with kmeans clustering and colors
 
         top_pca_by_gene, top_pca = return_top_pca_gene(args, df_by_gene.transpose())
         cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, matrix_data, matrix_subset=top_pca_by_gene, title= 'kmeans_label_with_'+str(n_clusters)+'_clusters', kmeans_color_map=color_dict)
         if args.kmeans_sig_test:
-            from .significance_testing import multi_group_sig
+            sns.set(context= 'poster', font_scale = 1.2-(n_clusters*.08))
             multi_group_sig(args, matrix_data, from_kmeans='kmeans_'+str(n_clusters), alt_color_dict=group_color_dict, kmeans_groups_file=cell_group_path)

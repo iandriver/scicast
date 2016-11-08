@@ -1,4 +1,4 @@
-import numpy as np
+
 import pandas as pd
 import os
 import matplotlib
@@ -85,12 +85,15 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
     if alt_color_dict:
         color_dict_cell = alt_color_dict
         cell_groups_df = pd.read_csv(open(kmeans_groups_file,'rU'), sep=None, engine='python')
-        group_name_list = list(set(cell_groups_df['GroupID']))
+        primary_group_name = 'GroupID'
+        group_name_list = list(set(cell_groups_df[primary_group_name]))
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
         cell_groups_df = pd.read_csv(open(matrix_data.cell_list_filepath,'rU'), sep=None, engine='python')
-        group_name_list = list(set(cell_groups_df['GroupID']))
+        group_name_list = matrix_data.cell_group_names
+        primary_group_name = group_name_list[0]
+        group_name_list = list(set(cell_groups_df[primary_group_name]))
     plot_pvalue = False
     from rpy2.robjects.packages import importr
     from rpy2.robjects.vectors import FloatVector
@@ -98,7 +101,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
 
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
-    cell_group_ident_0 = zip(cell_groups_df['SampleID'],cell_groups_df['GroupID'])
+    cell_group_ident_0 = zip(cell_groups_df['SampleID'],cell_groups_df[primary_group_name])
     cell_group_ident= [c for c in cell_group_ident_0]
     barplot_dict = {}
     by_gene_df = full_by_cell_df.transpose()

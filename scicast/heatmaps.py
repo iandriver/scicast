@@ -7,62 +7,15 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import scipy
 import json
-from scipy.spatial import distance
+
 from scipy.cluster import hierarchy
 import seaborn as sns
 from functools import reduce
 import matplotlib.patches as patches
+import warnings
 
 
-def augmented_dendrogram(*args, **kwargs):
-    plt.clf()
-    ddata = dendrogram(*args, **kwargs)
 
-    if not kwargs.get('no_plot', False):
-        for i, d in zip(ddata['icoord'], ddata['dcoord'], ):
-            x = 0.5 * sum(i[1:3])
-            y = d[1]
-            if y >= 200000:
-                plt.plot(x, y, 'ro')
-                plt.annotate("%.3g" % y, (x, y), xytext=(0, -8),
-                         textcoords='offset points',
-                         va='top', ha='center')
-    plt.show()
-    plt.savefig(os.path.join(new_file,'augmented_dendrogram.png'))
-
-def cluster_indices(cluster_assignments):
-    n = cluster_assignments.max()
-    indices = []
-    for cluster_number in range(1, n + 1):
-        indices.append(np.where(cluster_assignments == cluster_number)[0])
-    return indices
-
-def clust_members(r_link, cutoff):
-    clust = fcluster(r_link,cutoff)
-    num_clusters = clust.max()
-    indices = cluster_indices(clust)
-    return  num_clusters, indices
-
-def print_clust_membs(indices, cell_list):
-    for k, ind in enumerate(indices):
-        print("cluster", k + 1, "is", [cell_list[x] for x in ind])
-
-def plot_tree(dendr, path_filename, pos=None, save=False):
-    icoord = scipy.array(dendr['icoord'])
-    dcoord = scipy.array(dendr['dcoord'])
-    color_list = scipy.array(dendr['color_list'])
-    xmin, xmax = icoord.min(), icoord.max()
-    ymin, ymax = dcoord.min(), dcoord.max()
-    if pos:
-        icoord = icoord[pos]
-        dcoord = dcoord[pos]
-    for xs, ys, color in zip(icoord, dcoord, color_list):
-        plt.plot(xs, ys, color)
-    plt.xlim(xmin-10, xmax + 0.1*abs(xmax))
-    plt.ylim(ymin, ymax + 0.1*abs(ymax))
-    if save:
-        plt.savefig(os.path.join(path_filename,'plot_dendrogram.png'))
-    plt.show()
 
 
 # Create a nested dictionary from the ClusterNode's returned by SciPy
@@ -254,9 +207,11 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
 
         if cell_color_map and matrix_data.gene_label_map and stablity_plot_num == 0:
             Xlabs = [cell_list[i] for i in col_order]
-            Xcolors = [cell_color_map[cell][0] for cell in Xlabs]
-            col_colors = pd.DataFrame({'Cell Groups': Xcolors},index=Xlabs)
-            Xgroup_labels = [cell_color_map[cell][2] for cell in Xlabs]
+            first_group_name = matrix_data.cell_group_names[0]
+            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+                Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
+            col_colors = pd.DataFrame(Xcolors,index=Xlabs)
+            Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
             Ylabs = [gene_list[i] for i in row_order]
             Ycolors = [matrix_data.gene_label_map[gene][0] for gene in Ylabs]
             Ygroup_labels= [matrix_data.gene_label_map[gene][2] for gene in Ylabs]
@@ -264,9 +219,10 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
         elif cell_color_map:
             Xlabs = [cell_list[i] for i in col_order]
-            Xcolors = [cell_color_map[cell][0] for cell in Xlabs]
-            Xgroup_labels = [cell_color_map[cell][2] for cell in Xlabs]
-            col_colors = pd.DataFrame({'Cell Groups': Xcolors},index=Xlabs)
+            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+                Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
+            col_colors = pd.DataFrame(Xcolors,index=Xlabs)
+            Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
         elif matrix_data.gene_label_map and stablity_plot_num == 0:
             Ylabs = [gene_list[i] for i in row_order]
@@ -280,7 +236,7 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
         if cell_color_map:
             leg_handles_cell =[]
             group_seen_cell = []
-            for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), Xcolors, Xgroup_labels):
+            for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), Xcolors[first_group_name], Xgroup_labels):
                 xtick.set_color(xcolor)
                 xtick.set_rotation(270)
                 xtick.set_fontsize(fontsize)

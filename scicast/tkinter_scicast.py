@@ -1,8 +1,8 @@
 
-import os, sys
+
 try:
     import tkinter as tk
-    from tkinter.filedialog import askdirectory, askopenfilename
+    from tkinter.filedialog import askopenfilename
 
     class Window(tk.Tk):
         def __init__(self):
@@ -238,8 +238,7 @@ try:
             self.destroy()
 except ImportError:
     import Tkinter as tk
-    import tkFileDialog.askopenfile as askopenfilename
-    import tkFileDialog.askdirectory as askdirectory
+    import tkFileDialog.askopenfilename as askopenfilename
 
     class Window(tk.Frame):
         def __init__(self):
