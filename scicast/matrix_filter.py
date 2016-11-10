@@ -81,17 +81,16 @@ class Matrix_filter(object):
                     self.color_dict_cells[c_pair[0]] = [c_pair[1],c_pair[2]]
         #otherwise generate generic color dict from colors and markers
         elif self.cell_list_filepath:
-
-
             self.color_dict_cells= {}
             self.cell_group_set = {}
             cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
             self.cell_group_names = cell_groups_df.columns.tolist()[1:]
+            print(self.cell_group_names, 'gn1')
             cell_group_num = len(self.cell_group_names)
             color_marker_start = 0
             for group_name in self.cell_group_names:
-                group_member_num = len(self.cell_group_set[group_name])+color_marker_start
                 self.cell_group_set[group_name] = list(set(cell_groups_df[group_name].tolist()))
+                group_member_num = len(self.cell_group_set[group_name])+color_marker_start
                 for i, group in enumerate(self.cell_group_set[group_name]):
                     try:
                         if math.isnan(float(group)):
@@ -156,7 +155,7 @@ class Matrix_filter(object):
         else:
             return index.name
 
-    def make_new_matrix_gene(self, gene_list_or_file v = False):
+    def make_new_matrix_gene(self, gene_list_or_file, v = False):
         from itertools import compress
         if isinstance(gene_list_or_file,str):
             gene_df = pd.read_csv(open(gene_list_or_file,'rU'), sep=None, engine='python')
@@ -318,7 +317,7 @@ class Matrix_filter(object):
     def cell_color_map(self, args):
         if self.cell_list_filepath:
             cell_groups_df = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), self.cell_list_filepath),'rU'), sep=None, engine='python')
-            cell_list_1 = list(set(cell_groups_df['SampleID'].tolist()))
+            cell_list_1 = list(set(self.cell_list))
             self.cell_label_map = {}
             for cell1 in cell_list_1:
                 self.cell_label_map[cell1] = []
@@ -340,7 +339,7 @@ class Matrix_filter(object):
                 if non_group_cells != []:
                     for cell in non_group_cells:
                         group = 'None'
-                        self.cell_label_map[cell].append((self.color_dict_cells[group][0],self.color_dict_cells[group][1],group))
+                        self.cell_label_map[cell].append(('w','8',group))
         else:
             self.cell_label_map = False
 
@@ -351,6 +350,8 @@ class Matrix_filter(object):
             gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), self.gene_list_filepath),'rU'), sep=None, engine='python')
             if self.exclude_list != []:
                 gene_df = gene_df1.ix[~gene_df1['GeneID'].isin(self.exclude_list)]
+            else:
+                gene_df = gene_df1.copy()
             gene_list_1 = [g for g in list(set(gene_df['GeneID'].tolist())) if g in self.gene_list]
             if len(gene_df['GeneID']) == len(gene_df['GroupID']):
                 self.gene_label_map ={}

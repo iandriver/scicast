@@ -141,7 +141,10 @@ def find_twobytwo(cc, args, matrix_data):
 
 
 def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=18, stablity_plot_num = 0, kmeans_color_map= {}, plot=True):
-    from .dim_reduction import return_top_pca_gene
+    try:
+        from .dim_reduction import return_top_pca_gene
+    except SystemError:
+        from dim_reduction import return_top_pca_gene
     if isinstance(matrix_subset,pd.DataFrame):
         cell_list = matrix_subset.index.tolist()
         cell_num =len(cell_list)
@@ -162,8 +165,12 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
 
     if kmeans_color_map:
         cell_color_map = kmeans_color_map
+        first_group_name = 'Kmeans_groups'
+        groups_list = ['Kmeans_groups']
     elif matrix_data.cell_label_map:
         cell_color_map = matrix_data.cell_label_map
+        first_group_name = matrix_data.cell_group_names[0]
+        groups_list = matrix_data.cell_group_names
     else:
         cell_color_map = {}
 
@@ -207,8 +214,7 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
 
         if cell_color_map and matrix_data.gene_label_map and stablity_plot_num == 0:
             Xlabs = [cell_list[i] for i in col_order]
-            first_group_name = matrix_data.cell_group_names[0]
-            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+            for group_index , group_name in enumerate(groups_list):
                 Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
             col_colors = pd.DataFrame(Xcolors,index=Xlabs)
             Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
@@ -219,7 +225,8 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
         elif cell_color_map:
             Xlabs = [cell_list[i] for i in col_order]
-            for group_index , group_name in enumerate(matrix_data.cell_group_names):
+
+            for group_index , group_name in enumerate(groups_list):
                 Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
             col_colors = pd.DataFrame(Xcolors,index=Xlabs)
             Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
@@ -236,6 +243,7 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
         if cell_color_map:
             leg_handles_cell =[]
             group_seen_cell = []
+            print(cg.ax_heatmap.get_xticklabels(), Xcolors[first_group_name], Xgroup_labels)
             for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), Xcolors[first_group_name], Xgroup_labels):
                 xtick.set_color(xcolor)
                 xtick.set_rotation(270)
@@ -299,7 +307,10 @@ def make_subclusters(args, cc, matrix_data):
     Walks a histogram branch map 'cc' and does PCA (SVD), heatmap and correlation search for each non-overlapping
     tree branch. Stops at defined cluster_size (default is 20).
     '''
-    from .dim_reduction import return_top_pca_gene, plot_SVD
+    try:
+        from .dim_reduction import return_top_pca_gene, plot_SVD
+    except SystemError:
+        from dim_reduction import return_top_pca_gene, plot_SVD
 
     #initial cell group is parent
     parent = cc[0][1]
@@ -327,7 +338,7 @@ def make_subclusters(args, cc, matrix_data):
                 full_cell_subset = matrix_data.log2_df_cell.loc[:,list(set(cell_list))]
                 full_gene_subset = full_cell_subset.transpose()
                 full_gene_subset = full_gene_subset.loc[:,(full_gene_subset!=0).any()]
-                num_genes = min(args.gene_number, matrix_data.short_gene_list)
+                num_genes = min(args.gene_number, len(matrix_data.short_gene_list))
                 top_pca_by_gene, top_pca = return_top_pca_gene(args, cell_subset)
                 plot_SVD(args, matrix_data, gene_subcluster_matrix=gene_subset, title=current_title)
             else:
@@ -350,7 +361,10 @@ def make_subclusters(args, cc, matrix_data):
                 top_pca_by_cell = top_pca_by_gene.transpose()
                 #if no_corr flag is provided (False) no correlation plots will be made
                 if not args.no_corr:
-                    from .correlation import corr_plot
+                    try:
+                        from .correlation import corr_plot
+                    except SystemError:
+                        from correlation import corr_plot
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, full_gene_subset, args, matrix_data, title = current_title)
 

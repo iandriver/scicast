@@ -16,17 +16,26 @@ file of cells or experiments as columns and genes as the index.
 
 def main():
     #check for -gui flag
-    from .scicast_argparse import check_gui_parser
+    try:
+        from .scicast_argparse import check_gui_parser
+    except SystemError:
+        from scicast_argparse import check_gui_parser
     try:
         gui = check_gui_parser()
         run_gui = gui.gui_true
     except:
         run_gui = False
     if run_gui:
-        from .tkinter_scicast import Window
+        try:
+            from .tkinter_scicast import Window
+        except SystemError:
+            from tkinter_scicast import Window
         scicast_window = Window()
         scicast_window.mainloop()
-        from .sci_load import Sci_load
+        try:
+            from .sci_load import Sci_load
+        except:
+            from sci_load import Sci_load
         scil = Sci_load()
         try:
             args = scil.load_options(all_options_dict = scicast_window.all_dict)
@@ -35,7 +44,10 @@ def main():
 
     #if -gui flag isn't found check for all other flags
     else:
-        from .scicast_argparse import get_parser
+        try:
+            from .scicast_argparse import get_parser
+        except SystemError:
+            from scicast_argparse import get_parser
         args = get_parser()
 
     #try to make file in the directory of the file provided
@@ -94,7 +106,10 @@ def main():
     df_by_cell1 = pd.DataFrame(by_cell, columns=cell_list, index=gene_list_inital)
 
     #process matrix data into matrix class object matrix_data
-    from .matrix_filter import Matrix_filter
+    try:
+        from .matrix_filter import Matrix_filter
+    except SystemError:
+        from matrix_filter import Matrix_filter
     matrix_data = Matrix_filter(cell_df=df_by_cell1 , args=args, cell_list_filepath=cell_file, gene_list_filepath=gene_file)
 
 
@@ -102,7 +117,10 @@ def main():
     #if stability iteration number is provided run heatmap clustering stability function
     stability_iteration_num = int(args.test_clust_stability)
     if  stability_iteration_num != 0:
-        from .stability_test import clust_stability
+        try:
+            from .stability_test import clust_stability
+        except SystemError:
+            from stability_test import clust_stability
         clust_stability(args, matrix_data, stability_iteration_num)
 
 
@@ -118,8 +136,12 @@ def main():
 
     #run heatmaps and PCA only if no_heatmaps flag is not provided
     if not args.no_heatmaps:
-        from .dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
-        from .heatmaps import clust_heatmap,make_tree_json,make_subclusters
+        try:
+            from .dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
+            from .heatmaps import clust_heatmap,make_tree_json,make_subclusters
+        except SystemError:
+            from dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
+            from heatmaps import clust_heatmap,make_tree_json,make_subclusters
         plot_SVD(args, matrix_data, title='all_cells')
         plot_TSNE(args, matrix_data, title='all_cells')
 
@@ -137,31 +159,51 @@ def main():
         make_subclusters(args, cc, matrix_data)
 
     if not args.no_corr:
-        from .correlation import corr_plot
-        from .dim_reduction import return_top_pca_gene
+        try:
+            from .correlation import corr_plot
+            from .dim_reduction import return_top_pca_gene
+        except SystemError:
+            from correlation import corr_plot
+            from dim_reduction import return_top_pca_gene
         top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell)
 
         top_genes_search = top_pca[0:50]
         corr_plot(top_genes_search, top_pca_gene_df, args, matrix_data, title = 'All_cells')
 
     if args.qgraph_plot == 'both':
-        from .R_qgraph import run_qgraph
+        try:
+            from .R_qgraph import run_qgraph
+        except SystemError:
+            from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     elif args.qgraph_plot == 'gene':
-        from .R_qgraph import run_qgraph
+        try:
+            from .R_qgraph import run_qgraph
+        except SystemError:
+            from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
     elif args.qgraph_plot == 'cell':
-        from .R_qgraph import run_qgraph
+        try:
+            from .R_qgraph import run_qgraph
+        except SystemError:
+            from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     if args.all_sig:
-        from .heatmaps import find_twobytwo
-        from .heatmaps import make_tree_json, clust_heatmap
+        try:
+            from .heatmaps import find_twobytwo
+            from .heatmaps import make_tree_json, clust_heatmap
+        except:
+            from heatmaps import find_twobytwo
+            from heatmaps import make_tree_json, clust_heatmap
         cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, matrix_data, plot=False)
         cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
         find_twobytwo(cc, args, matrix_data)
     if args.group_sig_test and args.cell_list_filename:
-        from .significance_testing import multi_group_sig
+        try:
+            from .significance_testing import multi_group_sig
+        except SystemError:
+            from significance_testing import multi_group_sig
         multi_group_sig(args, matrix_data)
 
 

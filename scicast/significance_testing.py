@@ -206,7 +206,10 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
             else:
                 top_t2 = top_t
             top = [list(t) for t in zip(*top_t2)]
-            sig_to_plot = min(len(top[0]),sig_to_plot)
+            try:
+                sig_to_plot = min(len(top[0]),sig_to_plot)
+            except IndexError:
+                sig_to_plot = 0
             if sig_to_plot != 0:
                 barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
                 barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]

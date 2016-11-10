@@ -15,7 +15,10 @@ import matplotlib.patches as patches
 
 #run correlation matrix and save only those above threshold
 def run_corr(args, df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, min_period=3, save_corrs=False):
-    from .dim_reduction import return_top_pca_gene
+    try:
+        from .dim_reduction import return_top_pca_gene
+    except SystemError:
+        from dim_reduction import return_top_pca_gene
 
     if len(df_by_gene.columns.tolist())>5000:
         df_by_gene, top_pca_list = return_top_pca_gene(args, df_by_gene.transpose(), user_num_genes=5000)

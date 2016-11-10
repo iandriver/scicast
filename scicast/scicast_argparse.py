@@ -206,7 +206,10 @@ def get_parser():
     all_options_dict['annotate_gene_subset'] = args.annotate_gene_subset
     for var, flag in zip(yes_or_no_answers, yes_or_no_options):
         all_options_dict[flag] = var
-    from .sci_load import Sci_load
+    try:
+        from .sci_load import Sci_load
+    except SystemError:
+        from sci_load import Sci_load
     scil = Sci_load()
     opts_all = scil.load_options(all_options_dict = all_options_dict)
 

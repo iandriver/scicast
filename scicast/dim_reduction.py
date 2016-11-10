@@ -488,8 +488,12 @@ def plot_TSNE(args, matrix_data, title= ''):
 def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     sns.set(context= 'poster', font_scale = 1.2)
     from sklearn.metrics import silhouette_samples, silhouette_score
-    from .heatmaps import clust_heatmap
-    from .significance_testing import multi_group_sig
+    try:
+        from .heatmaps import clust_heatmap
+        from .significance_testing import multi_group_sig
+    except SystemError:
+        from heatmaps import clust_heatmap
+        from significance_testing import multi_group_sig
     import matplotlib.cm as cm
     sns.set_palette("RdBu_r", 10, 1)
     path_filename = matrix_data.new_filepath
@@ -516,9 +520,13 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     top_pca_list = Pc_sort_df.index.tolist()
 
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
-
-    gene_top = TruncatedSVD(n_components=2)
-    cell_pca = TruncatedSVD(n_components=2)
+    use_TSNE = True
+    if use_TSNE:
+        gene_top = TSNE(n_components=2, init='pca', random_state=0)
+        cell_pca = TSNE(n_components=2, init='pca', random_state=0)
+    else:
+        gene_top = TruncatedSVD(n_components=2)
+        cell_pca = TruncatedSVD(n_components=2)
     top_by_cell = top_by_gene.transpose()
     np_top_gene = np.asarray(top_by_cell)
     np_top_cell = np.asarray(top_by_gene)
