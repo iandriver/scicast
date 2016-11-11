@@ -259,8 +259,11 @@ def plot_SVD(args, matrix_data, gene_subcluster_matrix=False, title = ''):
                     colors = [matrix_data.cell_label_map[cell][group_index][0] for cell in top_by_cell.columns.tolist()]
                 elif group_index > 0:
                     labels = [a+'_'+b for a, b in zip(labels, [matrix_data.cell_label_map[cell][group_index][2] for cell in top_by_cell.columns.tolist()])]
-
-            markers = [matrix_data.cell_label_map[cell][0][1] for cell in top_by_cell.columns.tolist()]
+            label_set = list(set(labels))
+            markers_dict = {}
+            for i, lab_set in enumerate(label_set):
+                markers_dict[lab_set] = matrix_data.markers[i]
+            markers = [markers_dict[x] for x in labels]
 
             label_done = []
             xy_by_color_dict = {}
@@ -520,7 +523,7 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     top_pca_list = Pc_sort_df.index.tolist()
 
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
-    use_TSNE = True
+    use_TSNE = False
     if use_TSNE:
         gene_top = TSNE(n_components=2, init='pca', random_state=0)
         cell_pca = TSNE(n_components=2, init='pca', random_state=0)

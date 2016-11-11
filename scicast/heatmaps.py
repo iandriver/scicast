@@ -214,20 +214,21 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
 
         if cell_color_map and matrix_data.gene_label_map and stablity_plot_num == 0:
             Xlabs = [cell_list[i] for i in col_order]
+            Xcolors = {}
             for group_index , group_name in enumerate(groups_list):
-                Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
+                Xcolors[group_name]=[cell_color_map[cell][group_index][0] for cell in Xlabs]
             col_colors = pd.DataFrame(Xcolors,index=Xlabs)
             Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
             Ylabs = [gene_list[i] for i in row_order]
             Ycolors = [matrix_data.gene_label_map[gene][0] for gene in Ylabs]
             Ygroup_labels= [matrix_data.gene_label_map[gene][2] for gene in Ylabs]
             row_colors = pd.DataFrame({'Gene Groups': Ycolors},index=Ylabs)
-            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice,row_colors=row_colors, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
+            cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, row_colors=row_colors, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
         elif cell_color_map:
             Xlabs = [cell_list[i] for i in col_order]
-
+            Xcolors = {}
             for group_index , group_name in enumerate(groups_list):
-                Xcolors = {group_name:[cell_color_map[cell][group_index][0] for cell in Xlabs]}
+                Xcolors[group_name]=[cell_color_map[cell][group_index][0] for cell in Xlabs]
             col_colors = pd.DataFrame(Xcolors,index=Xlabs)
             Xgroup_labels = [cell_color_map[cell][0][2] for cell in Xlabs]
             cg = sns.clustermap(cluster_df, method=args.method, metric=args.metric, z_score=z_choice, col_colors=col_colors, figsize=(width_heatmap, len_heatmap), cmap =cmap)
@@ -241,16 +242,21 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
         cg.ax_heatmap.set_title(title, y=title_set)
         cg.cax.set_title('Z-score')
         if cell_color_map:
-            leg_handles_cell =[]
-            group_seen_cell = []
-            print(cg.ax_heatmap.get_xticklabels(), Xcolors[first_group_name], Xgroup_labels)
-            for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), Xcolors[first_group_name], Xgroup_labels):
+
+            for xtick, xcolor, xgroup_name in zip(cg.ax_heatmap.get_xticklabels(), [cell_color_map[cell][0][0] for cell in Xlabs], Xgroup_labels):
                 xtick.set_color(xcolor)
                 xtick.set_rotation(270)
                 xtick.set_fontsize(fontsize)
-                if xgroup_name not in group_seen_cell:
-                    leg_handles_cell.append(patches.Patch(color=xcolor, label=xgroup_name))
-                    group_seen_cell.append(xgroup_name)
+
+            leg_handles_cell = {}
+
+            for group_index , group_name in enumerate(groups_list):
+                group_seen_cell = []
+                leg_handles_cell[group_name] = []
+                for xcolor, xgroup_name in zip([cell_color_map[cell][group_index][0] for cell in Xlabs], [cell_color_map[cell][group_index][2] for cell in Xlabs]):
+                    if xgroup_name not in group_seen_cell:
+                        leg_handles_cell[group_name].append(patches.Patch(color=xcolor, label=xgroup_name))
+                        group_seen_cell.append(xgroup_name)
         else:
             for xtick in cg.ax_heatmap.get_xticklabels():
                 xtick.set_rotation(270)
@@ -270,15 +276,24 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
                 ytick.set_rotation(0)
                 ytick.set_fontsize(fontsize)
         if matrix_data.gene_label_map and cell_color_map and stablity_plot_num == 0:
-            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 0.8), title='Gene groups', prop={'size':fontsize})
+            gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 1-(0.2*len(groups_list))), title='Gene groups', prop={'size':fontsize})
             plt.setp(gene_legend.get_title(),fontsize=fontsize)
             cg.ax_heatmap.add_artist(gene_legend)
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.04, 1), title='Cell groups', prop={'size':fontsize})
-            plt.setp(cell_legend.get_title(),fontsize=fontsize)
-            #cg.ax_heatmap.add_artist(cell_legend)
+            for group_count ,group_name in enumerate(groups_list):
+                cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell[group_name], loc=2, bbox_to_anchor=(1.04, 1-(0.2*group_count)), title='Cell groups '+group_name, prop={'size':fontsize})
+                if group_count == 0:
+                    cg.ax_heatmap.add_artist(cell_legend)
+                else:
+                    plt.setp(cell_legend.get_title(),fontsize=fontsize)
+                #cg.ax_heatmap.add_artist(cell_legend)
         elif cell_color_map:
-            cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell, loc=2, bbox_to_anchor=(1.04, 1), title='Cell groups', prop={'size':fontsize})
-            plt.setp(cell_legend.get_title(),fontsize=fontsize)
+            for group_count ,group_name in enumerate(groups_list):
+                cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell[group_name], loc=2, bbox_to_anchor=(1.04, 1-(0.2*group_count)), title='Cell groups '+group_name, prop={'size':fontsize})
+                if group_count == 0:
+                    cg.ax_heatmap.add_artist(cell_legend)
+                else:
+                    plt.setp(cell_legend.get_title(),fontsize=fontsize)
+
         elif matrix_data.gene_label_map and stablity_plot_num == 0:
             gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 0.8), title='Gene groups', prop={'size':fontsize})
             plt.setp(gene_legend.get_title(),fontsize=fontsize)

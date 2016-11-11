@@ -85,7 +85,6 @@ class Matrix_filter(object):
             self.cell_group_set = {}
             cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
             self.cell_group_names = cell_groups_df.columns.tolist()[1:]
-            print(self.cell_group_names, 'gn1')
             cell_group_num = len(self.cell_group_names)
             color_marker_start = 0
             for group_name in self.cell_group_names:
@@ -98,7 +97,7 @@ class Matrix_filter(object):
                             self.cell_group_set[group_name][i] = 'None'
                     except ValueError:
                         pass
-                for g,c,m in zip(self.cell_group_set[group_name], self.cell_color_list[0:group_member_num],self.markers[0:group_member_num]):
+                for g,c,m in zip(self.cell_group_set[group_name], self.cell_color_list[color_marker_start:group_member_num],self.markers[color_marker_start:group_member_num]):
                     if g != 'None':
                         self.color_dict_cells[g] =[c,m]
                     else:

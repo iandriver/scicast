@@ -154,7 +154,7 @@ def main():
         else:
             top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell)
 
-        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, matrix_data)
+        cell_linkage, plotted_df_by_gene, col_order = clust_heatmap(args, matrix_data, matrix_subset=top_pca_gene_df)
         cc = make_tree_json(cell_linkage, plotted_df_by_gene, new_file)
         make_subclusters(args, cc, matrix_data)
 
