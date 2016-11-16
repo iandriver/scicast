@@ -120,7 +120,6 @@ class Matrix_filter(object):
                 elif len(c_pair == 3):
                     self.color_dict_genes[c_pair[0]] = [c_pair[1],c_pair[2]]
         elif self.gene_list_filepath:
-            no_groups = False
             self.color_dict_genes= {}
             gene_groups_df = pd.read_csv(open(self.gene_list_filepath,'rU'), sep=None, engine='python')
 
@@ -128,15 +127,16 @@ class Matrix_filter(object):
             for i, group in enumerate(gene_group_set):
                 try:
                     if math.isnan(float(group)):
-                        no_groups = True
                         gene_group_set[i] = ' '
                 except ValueError:
                     pass
-            if not no_groups:
-                for g,c,m in zip(gene_group_set, self.cell_color_list[0:len(gene_group_set)],self.markers[0:len(gene_group_set)]):
-                    self.color_dict_genes[g] =[c,m]
-            else:
-                self.color_dict_genes[' '] =['b','o']
+
+            for g,c,m in zip(gene_group_set, self.cell_color_list[0:len(gene_group_set)],self.markers[0:len(gene_group_set)]):
+                if g == ' ':
+                    self.color_dict_genes[g] =['b','o']
+                else:
+                    self.color_dict_genes[g] =[ c, m ]
+
 
         self.cell_color_map(args)
         self.gene_color_map(args)
@@ -372,6 +372,7 @@ class Matrix_filter(object):
                             pos = group_pos
                             group_pos += 1
                         self.gene_label_map[gene] = (self.color_dict_genes[str(group)][0],self.color_dict_genes[str(group)][1],str(group))
+
                         genes_seen.append(gene)
                 non_group_genes = [g for g in gene_list_1 if g not in genes_seen]
                 if non_group_genes != []:

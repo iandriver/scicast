@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.8.01'
+VERSION = '0.8.11'
 
 try:
     from setuptools import setup

@@ -20,13 +20,13 @@ import warnings
 
 # Create a nested dictionary from the ClusterNode's returned by SciPy
 def add_node(node, parent):
-	# First create the new node and append it to its parent's children
-	newNode = dict( node_id=node.id, children=[] )
-	parent["children"].append( newNode )
+    # First create the new node and append it to its parent's children
+    newNode = dict( node_id=node.id, children=[] )
+    parent["children"].append( newNode )
 
-	# Recursively add the current node's children
-	if node.left: add_node( node.left, newNode )
-	if node.right: add_node( node.right, newNode )
+    # Recursively add the current node's children
+    if node.left: add_node( node.left, newNode )
+    if node.right: add_node( node.right, newNode )
 
 
 cc = []
@@ -282,17 +282,19 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
             for group_count ,group_name in enumerate(groups_list):
                 cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell[group_name], loc=2, bbox_to_anchor=(1.04, 1-(0.2*group_count)), title='Cell groups '+group_name, prop={'size':fontsize})
                 if group_count == 0:
-                    cg.ax_heatmap.add_artist(cell_legend)
-                else:
                     plt.setp(cell_legend.get_title(),fontsize=fontsize)
-                #cg.ax_heatmap.add_artist(cell_legend)
+                    #cg.ax_heatmap.add_artist(cell_legend)
+                else:
+                    #plt.setp(cell_legend.get_title(),fontsize=fontsize)
+                    cg.ax_heatmap.add_artist(cell_legend)
         elif cell_color_map:
             for group_count ,group_name in enumerate(groups_list):
                 cell_legend = cg.ax_heatmap.legend(handles=leg_handles_cell[group_name], loc=2, bbox_to_anchor=(1.04, 1-(0.2*group_count)), title='Cell groups '+group_name, prop={'size':fontsize})
                 if group_count == 0:
-                    cg.ax_heatmap.add_artist(cell_legend)
-                else:
                     plt.setp(cell_legend.get_title(),fontsize=fontsize)
+
+                else:
+                    cg.ax_heatmap.add_artist(cell_legend)
 
         elif matrix_data.gene_label_map and stablity_plot_num == 0:
             gene_legend = cg.ax_heatmap.legend(handles=leg_handles_gene, loc=2, bbox_to_anchor=(1.04, 0.8), title='Gene groups', prop={'size':fontsize})

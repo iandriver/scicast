@@ -99,7 +99,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
     from rpy2.robjects.vectors import FloatVector
     stats = importr('stats')
 
-    group_pairs = list(set(itertools.permutations(group_name_list,2)))
+    group_pairs = list(set(itertools.combinations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
     cell_group_ident_0 = zip(cell_groups_df['SampleID'],cell_groups_df[primary_group_name])
     cell_group_ident= [c for c in cell_group_ident_0]
@@ -169,6 +169,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
 
             mean_log2_exp_list = []
             sig_1_2_list = []
+            sig_2_1_list = []
             mean1_list = []
             mean2_list = []
             for sig_gene in gene_index:
@@ -182,43 +183,77 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 mean_cell2 = cell2.mean()
                 mean2_list.append(mean_cell2)
                 ratio_1_2 = (mean_cell1+1)/(mean_cell2+1)
+                ratio_2_1 = (mean_cell2+1)/(mean_cell1+1)
                 sig_1_2_list.append(ratio_1_2)
-            sig_df = pd.DataFrame({'pvalues':pvalues,'adjusted_p_values':p_adjust,'mean_all':mean_log2_exp_list,'mean_'+gp[0]:mean1_list, 'mean_'+gp[1]:mean2_list, 'ratio '+gp[0]+' to '+gp[1]:sig_1_2_list}, index=gene_index)
-            cell_names_df = pd.DataFrame({gp[0]+'_cells':pd.Series(cell1_present, index=range(len(cell1_present))), gp[1]+'_cells2':pd.Series(cell2_present, index=range(len(cell2_present)))})
-            sig_df.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_'+gp[1]+'_pvalues.txt'), sep = '\t')
-            cell_names_df.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_'+gp[1]+'_cells.txt'), sep = '\t')
+                sig_2_1_list.append(ratio_2_1)
+            sig_df_1 = pd.DataFrame({'pvalues':pvalues,'adjusted_p_values':p_adjust,'mean_all':mean_log2_exp_list,'mean_'+gp[0]:mean1_list, 'mean_'+gp[1]:mean2_list, 'ratio '+gp[0]+' to '+gp[1]:sig_1_2_list}, index=gene_index)
+            sig_df_2 = pd.DataFrame({'pvalues':pvalues,'adjusted_p_values':p_adjust,'mean_all':mean_log2_exp_list,'mean_'+gp[1]:mean2_list, 'mean_'+gp[1]:mean1_list, 'ratio '+gp[1]+' to '+gp[0]:sig_2_1_list}, index=gene_index)
+            cell_names_df_1 = pd.DataFrame({gp[0]+'_cells':pd.Series(cell1_present, index=range(len(cell1_present))), gp[1]+'_cells2':pd.Series(cell2_present, index=range(len(cell2_present)))})
+            cell_names_df_2 = pd.DataFrame({gp[1]+'_cells':pd.Series(cell2_present, index=range(len(cell2_present))), gp[0]+'_cells2':pd.Series(cell1_present, index=range(len(cell1_present)))})
+            sig_df_1.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_'+gp[1]+'_pvalues.txt'), sep = '\t')
+            sig_df_2.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[1]+'_VS_'+gp[0]+'_pvalues.txt'), sep = '\t')
+            cell_names_df_1.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_'+gp[1]+'_cells.txt'), sep = '\t')
+            cell_names_df_2.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[1]+'_VS_'+gp[0]+'_cells.txt'), sep = '\t')
 
-
-            top_fc_df1 = sig_df.loc[(sig_df['ratio '+gp[0]+' to '+gp[1]]>1.3)]
-
-            top_fc_df = top_fc_df1.sort_values(by='adjusted_p_values',axis=0, ascending=True)
-            genes = top_fc_df.index.tolist()
-            pvalues = top_fc_df['adjusted_p_values'].tolist()
-            fc = top_fc_df.loc[:,'ratio '+gp[0]+' to '+gp[1]].tolist()
-            z = zip(genes,pvalues,fc)
-            z_all = [s for s in z]
-            if args.sig_unique:
-                top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes']]
-            else:
-                top_t = [g for g in z_all if g[0]]
-            if matrix_data.exclude_list != None:
-                top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in matrix_data.exclude_list]
-            else:
-                top_t2 = top_t
-            top = [list(t) for t in zip(*top_t2)]
-            try:
-                sig_to_plot = min(len(top[0]),sig_to_plot)
-            except IndexError:
-                sig_to_plot = 0
-            if sig_to_plot != 0:
-                barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
-                barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]
-                barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:sig_to_plot]
-                barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
-                best_gene_list = best_gene_list+top[0][0:sig_to_plot]
-                best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
-                best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
-                best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
+            top_fc_df1 = sig_df_1.loc[(sig_df_1['ratio '+gp[0]+' to '+gp[1]]>1.3)]
+            top_fc_df2 = sig_df_2.loc[(sig_df_2['ratio '+gp[1]+' to '+gp[0]]>1.3)]
+            two_df_list = [top_fc_df1 , top_fc_df2]
+            for i, fc_df in enumerate(two_df_list):
+                top_fc_df = fc_df.sort_values(by='adjusted_p_values',axis=0, ascending=True)
+                genes = top_fc_df.index.tolist()
+                pvalues = top_fc_df['adjusted_p_values'].tolist()
+                if i == 0:
+                    fc = top_fc_df.loc[:,'ratio '+gp[0]+' to '+gp[1]].tolist()
+                    z = zip(genes,pvalues,fc)
+                    z_all = [s for s in z]
+                    if args.sig_unique:
+                        top_t = [g for g in z_all if g[0] not in barplot_dict[gp[0]]['genes']]
+                    else:
+                        top_t = z_all
+                    if matrix_data.exclude_list != None:
+                        top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in matrix_data.exclude_list]
+                    else:
+                        top_t2 = top_t
+                    top = [list(t) for t in zip(*top_t2)]
+                    try:
+                        sig_to_plot = min(len(top[0]),sig_to_plot)
+                    except IndexError:
+                        sig_to_plot = 0
+                    if sig_to_plot != 0:
+                        barplot_dict[gp[0]]['genes']= barplot_dict[gp[0]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
+                        barplot_dict[gp[0]]['pvalues']= barplot_dict[gp[0]]['pvalues']+top[1][0:sig_to_plot]
+                        barplot_dict[gp[0]]['fold_change']= barplot_dict[gp[0]]['fold_change']+top[2][0:sig_to_plot]
+                        barplot_dict[gp[0]]['Vs']= barplot_dict[gp[0]]['Vs']+ ['significance vs '+gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_gene_list = best_gene_list+top[0][0:sig_to_plot]
+                        best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
+                elif i == 1:
+                    fc = top_fc_df.loc[:,'ratio '+gp[1]+' to '+gp[0]].tolist()
+                    z = zip(genes,pvalues,fc)
+                    z_all = [s for s in z]
+                    if args.sig_unique:
+                        top_t = [g for g in z_all if g[0] not in barplot_dict[gp[1]]['genes']]
+                    else:
+                        top_t = z_all
+                    if matrix_data.exclude_list != None:
+                        top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[1]]['genes'] and g[0] not in matrix_data.exclude_list]
+                    else:
+                        top_t2 = top_t
+                    top = [list(t) for t in zip(*top_t2)]
+                    try:
+                        sig_to_plot = min(len(top[0]),sig_to_plot)
+                    except IndexError:
+                        sig_to_plot = 0
+                    if sig_to_plot != 0:
+                        barplot_dict[gp[1]]['genes']= barplot_dict[gp[1]]['genes']+[str(gene.strip(' ')) for gene in top[0][0:sig_to_plot]]
+                        barplot_dict[gp[1]]['pvalues']= barplot_dict[gp[1]]['pvalues']+top[1][0:sig_to_plot]
+                        barplot_dict[gp[1]]['fold_change']= barplot_dict[gp[1]]['fold_change']+top[2][0:sig_to_plot]
+                        barplot_dict[gp[1]]['Vs']= barplot_dict[gp[1]]['Vs']+ ['significance vs '+gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_gene_list = best_gene_list+top[0][0:sig_to_plot]
+                        best_gene_groups = best_gene_groups+[gp[0] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_vs_list = best_vs_list + [gp[1] for x in range(0,len(top[0][0:sig_to_plot]))]
+                        best_pvalue_list = best_pvalue_list + top[1][0:sig_to_plot]
         else:
             if cell1_present == []:
                 if args.verbose:
