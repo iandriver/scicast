@@ -8,17 +8,71 @@ import pandas as pd
 import os
 import sys
 import collections
+import datetime
 
 '''Cluster main function looks for either -gui flag and takes tkinter flags or
 expects argparse arguments.Minimum input is a comma,tab, or space delimted
 file of cells or experiments as columns and genes as the index.
 '''
+def make_command_log(args,new_filepath):
+    command_str = ''
+    now = datetime.datetime.now()
+    command_str+= '-f '+args.filepath
+    command_str+= ' -n '+args.base_name
+    command_str+= ' -method '+args.method
+    command_str+= ' -metric '+args.metric
+    command_str+= ' -g '+str(args.gene_number)
+    command_str+= ' -g '+str(args.depth_of_clustering)
+    if args.cell_list_filename:
+        command_str+= ' -cell_group '+args.cell_list_filename
+    if args.gene_list_filename:
+        command_str+= ' -gene_list '+args.gene_list_filename
+    command_str+= ' -z '+str(args.z_direction)
+    if args.qgraph_plot:
+        command_str+= ' -qgraph_plot '+args.qgraph_plot
+    if args.exclude_genes:
+        command_str+= ' -exclude_genes '+args.exclude_genes
+    command_str+= ' -kmeans_cluster_range '+args.kmeans_cluster_range
+    if args.color_cells:
+        command_str+= ' -color_cells '+args.color_cells
+    if args.color_genes:
+        command_str+= ' -color_genes '+args.color_genes
+    if args.genes_corr != '':
+        command_str+= ' -genes_corr '+args.genes_corr
+    if args.test_clust_stability != 0:
+        command_str+= '-stability '+str(args.test_clust_stability)
+    if args.annotate_gene_subset:
+        command_str+= ' -annotate_gene_subset '+args.annotate_gene_subset
+    if args.no_heatmaps:
+        command_str+= ' -no_heatmaps'
+    if args.no_corr:
+        command_str+= ' -no_corr'
+    if args.verbose:
+        command_str+= ' -v'
+    if args.group_sig_test:
+        command_str+= ' -group_sig_test'
+    if args.all_sig:
+        command_str+= ' -all_sig'
+    if args.limit_cells:
+        command_str+= ' -limit_cells'
+    if args.add_ellipse:
+        command_str+= ' -add_ellipse'
+    if args.annotate_cell_pca:
+        command_str+= ' -annotate_cell_pca'
+    if args.kmeans_sig_test:
+        command_str+= ' -kmeans_sig_test'
+    if args.already_log2:
+        command_str+= ' -already_log2'
+    new_file = new_filepath+'/scicast_command_log.txt'
+    with open(new_file, 'a+') as f:
+        f.write(now.strftime("%Y-%m-%d %H:%M")+'\n')
+        f.write(command_str+'\n')
 
 def main():
     #check for -gui flag
     try:
         from .scicast_argparse import check_gui_parser
-    except SystemError:
+    except (SystemError, ValueError):
         from scicast_argparse import check_gui_parser
     try:
         gui = check_gui_parser()
@@ -28,7 +82,7 @@ def main():
     if run_gui:
         try:
             from .tkinter_scicast import Window
-        except SystemError:
+        except (SystemError, ValueError):
             from tkinter_scicast import Window
         scicast_window = Window()
         scicast_window.mainloop()
@@ -46,7 +100,7 @@ def main():
     else:
         try:
             from .scicast_argparse import get_parser
-        except SystemError:
+        except (SystemError, ValueError):
             from scicast_argparse import get_parser
         args = get_parser()
 
@@ -66,6 +120,8 @@ def main():
     except OSError:
         if args.verbose:
             print(new_file+' already exists. Files will be overwritten.')
+
+    make_command_log(args,new_file)
 
     #check for gene list file if full path is provided and in the same directory as the main file
     if args.gene_list_filename:
@@ -108,7 +164,7 @@ def main():
     #process matrix data into matrix class object matrix_data
     try:
         from .matrix_filter import Matrix_filter
-    except SystemError:
+    except (SystemError, ValueError):
         from matrix_filter import Matrix_filter
     matrix_data = Matrix_filter(cell_df=df_by_cell1 , args=args, cell_list_filepath=cell_file, gene_list_filepath=gene_file)
 
@@ -119,7 +175,7 @@ def main():
     if  stability_iteration_num != 0:
         try:
             from .stability_test import clust_stability
-        except SystemError:
+        except (SystemError, ValueError):
             from stability_test import clust_stability
         clust_stability(args, matrix_data, stability_iteration_num)
 
@@ -139,7 +195,7 @@ def main():
         try:
             from .dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
             from .heatmaps import clust_heatmap,make_tree_json,make_subclusters
-        except SystemError:
+        except (SystemError, ValueError):
             from dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
             from heatmaps import clust_heatmap,make_tree_json,make_subclusters
         plot_SVD(args, matrix_data, title='all_cells')
@@ -162,7 +218,7 @@ def main():
         try:
             from .correlation import corr_plot
             from .dim_reduction import return_top_pca_gene
-        except SystemError:
+        except (SystemError, ValueError):
             from correlation import corr_plot
             from dim_reduction import return_top_pca_gene
         top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell)
@@ -173,20 +229,20 @@ def main():
     if args.qgraph_plot == 'both':
         try:
             from .R_qgraph import run_qgraph
-        except SystemError:
+        except (SystemError, ValueError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     elif args.qgraph_plot == 'gene':
         try:
             from .R_qgraph import run_qgraph
-        except SystemError:
+        except (SystemError, ValueError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
     elif args.qgraph_plot == 'cell':
         try:
             from .R_qgraph import run_qgraph
-        except SystemError:
+        except (SystemError, ValueError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     if args.all_sig:
@@ -202,7 +258,7 @@ def main():
     if args.group_sig_test and args.cell_list_filename:
         try:
             from .significance_testing import multi_group_sig
-        except SystemError:
+        except (SystemError, ValueError):
             from significance_testing import multi_group_sig
         multi_group_sig(args, matrix_data)
 

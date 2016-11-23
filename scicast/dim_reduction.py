@@ -494,7 +494,7 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     try:
         from .heatmaps import clust_heatmap
         from .significance_testing import multi_group_sig
-    except SystemError:
+    except (SystemError, ValueError):
         from heatmaps import clust_heatmap
         from significance_testing import multi_group_sig
     import matplotlib.cm as cm
@@ -515,7 +515,7 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
 
     gene_pca = TruncatedSVD(n_components=3)
     np_by_gene = np.asarray(df_by_gene)
-
+    #find top genes by PCA
     by_gene_trans = gene_pca.fit_transform(np_by_gene)
     Pc_df = pd.DataFrame(gene_pca.components_.T, columns=['PC-1', 'PC-2', 'PC-3'], index=gene_list)
     pca_rank_df = Pc_df.abs().sum(axis=1)
@@ -523,8 +523,9 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     top_pca_list = Pc_sort_df.index.tolist()
 
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
-    use_TSNE = False
-    if use_TSNE:
+
+    #use 2D t-SNE for kmeans clustering if option is selected
+    if args.use_TSNE:
         gene_top = TSNE(n_components=2, init='pca', random_state=0)
         cell_pca = TSNE(n_components=2, init='pca', random_state=0)
     else:

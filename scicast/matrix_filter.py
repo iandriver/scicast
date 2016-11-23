@@ -144,7 +144,7 @@ class Matrix_filter(object):
         self.log2_df_cell.to_csv(os.path.join(self.new_filepath, 'log2_matrix_after_filtering.txt'), sep= '\t', index_label=0)
         self.data_by_cell.to_csv(os.path.join(self.new_filepath, 'count_matrix_after_filtering.txt'), sep= '\t', index_label=0)
 
-    def threshold_genes(self, by_cell, row_sum=1, cell_sum=1):
+    def threshold_genes(self, by_cell, row_sum=2, cell_sum=1):
         return by_cell.loc[by_cell.sum(1) > row_sum, by_cell.sum(0) > cell_sum]
 
     def index_to_label(self,index):

@@ -1,4 +1,8 @@
 
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter,SUPPRESS
+import sys as _sys
+from gettext import gettext as _
+import os
 
 def is_valid_file(parser, arg):
     import os
@@ -20,9 +24,7 @@ def is_valid_file(parser, arg):
     else:
         return arg
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter,SUPPRESS
-import sys as _sys
-from gettext import gettext as _
+
 class MyParser(ArgumentParser):
     def error(self, message):
         usage = self.usage
@@ -50,7 +52,7 @@ def get_parser():
                         type=lambda x: is_valid_file(parser, x),
                         required =True,
                         help="Filepath to cell-gene matrix file")
-    parser.add_argument("-n","-name",
+    parser.add_argument("-n","-base_name",
                         dest="base_name",
                         default='scicast_analysis',
                         type=str,
@@ -65,7 +67,7 @@ def get_parser():
                         dest="verbose",
                         default=False,
                         help="Print more")
-    parser.add_argument("-cell_group",
+    parser.add_argument("-cell_group","-cell_list_filename",
                         dest="cell_list_filename",
                         default=False,
                         help="Provide a filename with two columns: 'SampleID' and 'GroupID'. If GroupID is empty the SampleID list will be used to restrict cells prior to analysis.")
@@ -79,7 +81,7 @@ def get_parser():
                         default=False,
                         dest="group_sig_test",
                         help="If cell groups are provided, perform significance testing between all groups (independent of any cluster groups).")
-    parser.add_argument("-stability",
+    parser.add_argument("-stability","-test_clust_stability",
                         dest="test_clust_stability",
                         type=int,
                         default=0,
@@ -94,7 +96,7 @@ def get_parser():
                         default='weighted',
                         type=str,
                         help="The linkage method to use. The linkage algorithm can be: single, complete, average, weighted, centroid, median or ward.")
-    parser.add_argument("-depth",
+    parser.add_argument("-depth","-depth_of_clustering",
                         dest="depth_of_clustering",
                         type=int,
                         default=20,
@@ -106,6 +108,7 @@ def get_parser():
                         help="If you want to look for correlation on a specific gene or set of genes enter them as a comma seperated list i.e. 'Gapdh,Actb'.")
     parser.add_argument("-all_sig",
                         dest="all_sig",
+                        default=False,
                         action="store_true",
                         help="Do significance testing on all hierarchical clustering groups. The minimum number of cells in a group is set by --depth.")
     parser.add_argument("-already_log2",
@@ -113,7 +116,7 @@ def get_parser():
                         default=False,
                         action="store_true",
                         help="If the gene matrix is already log2 transformed i.e. rld or vsd DESeq2, this will disable log2 transform.")
-    parser.add_argument("-z",
+    parser.add_argument("-z","-z_direction",
                         dest="z_direction",
                         default=0,
                         help="Either 0 (rows) or 1 (columns) or None. Whether or not to calculate z-scores for the rows or the columns. Z scores are: z = (x - mean)/std, so values in each row (column) will get the mean of the row (column) subtracted, then divided by the standard deviation of the row (column). This ensures that each row (column) has mean of 0 and variance of 1.")
@@ -181,9 +184,16 @@ def get_parser():
                         default=False,
                         action='store_true',
                         help="Run significance test between groups defined by kmeans clusters.")
+    parser.add_argument("-use_TSNE",
+                        dest="use_TSNE",
+                        default=False,
+                        action='store_true',
+                        help="Use t-SNE dimensions for k-means clustering rather than SVD.")
+
     args = parser.parse_args()
-    yes_or_no_options = ["Don't Run Heatmaps", "Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2"]
-    yes_or_no_answers = [args.no_heatmaps,args.no_corr, args.verbose,args.group_sig_test, args.all_sig, args.limit_cells, args.add_ellipse, args.annotate_cell_pca, args.sig_unique, args.kmeans_sig_test, args.already_log2]
+
+    yes_or_no_options = ["Don't Run Heatmaps", "Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2", "use t-SNE (for kmeans clustering)"]
+    yes_or_no_answers = [args.no_heatmaps,args.no_corr, args.verbose,args.group_sig_test, args.all_sig, args.limit_cells, args.add_ellipse, args.annotate_cell_pca, args.sig_unique, args.kmeans_sig_test, args.already_log2, args.use_TSNE]
 
     all_options_dict = {}
     all_options_dict['filepath'] = args.filepath
@@ -208,7 +218,7 @@ def get_parser():
         all_options_dict[flag] = var
     try:
         from .sci_load import Sci_load
-    except SystemError:
+    except (SystemError, ValueError):
         from sci_load import Sci_load
     scil = Sci_load()
     opts_all = scil.load_options(all_options_dict = all_options_dict)

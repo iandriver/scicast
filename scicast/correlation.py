@@ -17,7 +17,7 @@ import matplotlib.patches as patches
 def run_corr(args, df_by_gene, title, path_filename, method_name='pearson', sig_threshold= 0.5, min_period=3, save_corrs=False):
     try:
         from .dim_reduction import return_top_pca_gene
-    except SystemError:
+    except (SystemError, ValueError):
         from dim_reduction import return_top_pca_gene
 
     if len(df_by_gene.columns.tolist())>5000:

@@ -9,7 +9,7 @@ def clust_stability(args, matrix_data, iterations):
     try:
         from .heatmaps import clust_heatmap
         from .dim_reduction import return_top_pca_gene
-    except SystemError:
+    except (SystemError, ValueError):
         from heatmaps import clust_heatmap
         from dim_reduction import return_top_pca_gene
 

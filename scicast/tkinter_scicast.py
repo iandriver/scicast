@@ -77,7 +77,7 @@ try:
             zdir_menu_label = tk.Label(self, text="Choose z:")
             zdir_option_menu = tk.OptionMenu(self, self.zdir_menu_var, 1,'None')
 
-            self.flags = ["Don't Run Heatmaps","Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2"]
+            self.flags = ["Don't Run Heatmaps","Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2", "use t-SNE (for kmeans clustering)"]
             self.variables = []
 
 
@@ -313,7 +313,7 @@ except ImportError:
             zdir_menu_label = tk.Label(self, text="Choose z:")
             zdir_option_menu = tk.OptionMenu(self, self.zdir_menu_var, 1,'None')
 
-            self.flags = ["Don't Run Heatmaps","Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2"]
+            self.flags = ["Don't Run Heatmaps","Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2", "use t-SNE (for kmeans clustering)"]
             self.variables = []
 
 
