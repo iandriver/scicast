@@ -88,7 +88,8 @@ class Matrix_filter(object):
             cell_group_num = len(self.cell_group_names)
             color_marker_start = 0
             for group_name in self.cell_group_names:
-                self.cell_group_set[group_name] = list(set(cell_groups_df[group_name].tolist()))
+                group_name = str(group_name)
+                self.cell_group_set[group_name] = [str(x) for x in list(set(cell_groups_df[group_name].tolist()))]
                 group_member_num = len(self.cell_group_set[group_name])+color_marker_start
                 for i, group in enumerate(self.cell_group_set[group_name]):
                     try:
@@ -332,13 +333,13 @@ class Matrix_filter(object):
                                 group = 'None'
                         except ValueError:
                             pass
-                        self.cell_label_map[cell].append((self.color_dict_cells[group][0] , self.color_dict_cells[group][1] , group))
+                        self.cell_label_map[cell].append((self.color_dict_cells[str(group)][0] , self.color_dict_cells[str(group)][1] , group))
                         cells_seen.append(cell)
                 non_group_cells = [c for c in cell_list_1 if c not in cells_seen]
                 if non_group_cells != []:
                     for cell in non_group_cells:
                         group = 'None'
-                        self.cell_label_map[cell].append(('w','8',group))
+                        self.cell_label_map[cell].append(('w','8',str(group)))
         else:
             self.cell_label_map = False
 

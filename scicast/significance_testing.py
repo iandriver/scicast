@@ -9,6 +9,7 @@ import seaborn as sns
 import itertools
 import matplotlib.patches as patches
 import warnings
+import numpy as np
 
 
 def group_gene_expression(args, matrix_data, threshold_of_expression = 1, from_kmeans='', alt_color_dict = {}, kmeans_groups_file = ''):
@@ -37,7 +38,7 @@ def group_gene_expression(args, matrix_data, threshold_of_expression = 1, from_k
     best_vs_list =[]
     best_pvalue_list = []
     for name in group_name_list:
-        barplot_dict[name] = {'# genes expressed':[], 'pvalues':[], 'Vs':[]}
+        barplot_dict[str(name)] = {'# genes expressed':[], 'pvalues':[], 'Vs':[]}
     for gp in group_pairs:
         index_list = []
         sig_gene_list = []
@@ -110,14 +111,15 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
     best_vs_list =[]
     best_pvalue_list = []
     for name in group_name_list:
-        barplot_dict[name] = {'genes':[], 'pvalues':[], 'fold_change':[], 'Vs':[]}
+        barplot_dict[str(name)] = {'genes':[], 'pvalues':[], 'fold_change':[], 'Vs':[]}
     for gp in group_pairs:
+        gp = [str(x) for x in gp]
         index_list = []
         sig_gene_list = []
         gp_vs_all_seen = []
         sig_vs_all_gene_list = []
-        cell_list1 = [c[0] for c in cell_group_ident if c[1] == gp[0]]
-        cell_list2 = [c[0] for c in cell_group_ident if c[1] == gp[1]]
+        cell_list1 = [c[0] for c in cell_group_ident if str(c[1]) == gp[0]]
+        cell_list2 = [c[0] for c in cell_group_ident if str(c[1]) == gp[1]]
         cell1_present = [c for c in set(cell_list1) if c in set(full_by_cell_df.columns.tolist())]
         cell2_present = [c for c in set(cell_list2) if c in set(full_by_cell_df.columns.tolist())]
         all_other_cells =  [c for c in set(full_by_cell_df.columns.tolist()) if c not in set(cell_list1)]
@@ -141,9 +143,9 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
             sig_gene_list.sort(key=lambda tup: tup[1])
             if gp[0] not in gp_vs_all_seen:
                 sig_vs_all_gene_list.sort(key=lambda tup: tup[1])
-                pvalues_all = [p[1] for p in sig_vs_all_gene_list]
+                pvalues_all = np.asarray([p[1] for p in sig_vs_all_gene_list], dtype=float)
 
-                p_adjust_all = stats.p_adjust(FloatVector(pvalues_all), method = 'BH')
+                p_adjust_all = np.asarray(stats.p_adjust(FloatVector(pvalues_all), method = 'BH'), dtype=float)
                 gene_index_all = [ge[0] for ge in sig_vs_all_gene_list]
                 mean_log2_exp_list_all = []
                 sig_1_2_list_all = []
@@ -151,17 +153,20 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 mean2_list_all = []
                 for sig_gene in gene_index_all:
                     sig_gene_df_all = by_gene_df.loc[:,sig_gene]
-                    mean_log2_exp_list_all.append(sig_gene_df_all.mean())
+                    mean_log2_exp_list_all.append(np.asarray(sig_gene_df_all, dtype=float).mean())
                     cell1_all = by_gene_df.loc[cell1_present,sig_gene]
-                    mean_cell1_all = cell1_all.mean()
+                    mean_cell1_all = np.asarray(cell1_all, dtype=float).mean()
                     mean1_list_all.append(mean_cell1_all)
                     cell_other = by_gene_df.loc[all_other_cells,sig_gene]
-                    mean_cell_other = cell_other.mean()
+                    mean_cell_other = np.asarray(cell_other, dtype=float).mean()
                     mean2_list_all.append(mean_cell_other)
                     ratio_1_other = (mean_cell1_all+1)/(mean_cell_other+1)
                     sig_1_2_list_all.append(ratio_1_other)
-                sig_df_vs_other = pd.DataFrame({'pvalues':pvalues_all,'adjusted_p_values':p_adjust_all,'mean_all':mean_log2_exp_list_all, 'mean_'+gp[0]:mean1_list_all, 'mean_all_other':mean2_list_all, 'ratio '+gp[0]+' to everything':sig_1_2_list_all}, index=gene_index_all)
-                sig_df_vs_other.to_csv(os.path.join(multi_sig_filename,'sig_'+gp[0]+'_VS_all_other_pvalues.txt'), sep = '\t')
+                sig_vs_other_dict = {'pvalues':pvalues_all,'adjusted_p_values':p_adjust_all,'mean_all':np.asarray(mean_log2_exp_list_all,dtype=float), 'mean_'+str(gp[0]):np.asarray(mean1_list_all, dtype=float), 'mean_all_other':np.asarray(mean2_list_all,dtype=float), 'ratio '+str(gp[0])+' to everything':np.asarray(sig_1_2_list_all, dtype=float)}
+
+                sig_df_vs_other = pd.DataFrame(sig_vs_other_dict, index=gene_index_all)
+
+                sig_df_vs_other.to_csv(os.path.join(multi_sig_filename,'sig_'+str(gp[0])+'_VS_all_other_pvalues.txt'), sep = '\t')
                 gp_vs_all_seen.append(gp[0])
             pvalues = [p[1] for p in sig_gene_list]
             p_adjust = stats.p_adjust(FloatVector(pvalues), method = 'BH')
@@ -267,7 +272,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
 
     #plot top significant genes for each group compared to all other groups
     for i, name in enumerate(group_name_list):
-        to_plot= barplot_dict[name]
+        to_plot= barplot_dict[str(name)]
         for v in set(to_plot['Vs']):
             color_map[v] = color_dict_cell[v.split("significance vs ")[-1]][0]
         if color_map != {}:
