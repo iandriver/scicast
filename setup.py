@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.8.2'
+VERSION = '0.8.22'
 
 try:
     from setuptools import setup
@@ -102,5 +102,5 @@ if __name__ == "__main__":
                      'Topic :: Scientific/Engineering :: Bio-Informatics',
                      'Operating System :: POSIX',
                      'Operating System :: Unix',
-                     'Operating System :: MacOS'],
+                     'Operating System :: MacOS']
           )

@@ -14,4 +14,4 @@ matplotlib.use('TkAgg')
 
 set()
 __all__ = ["scicast_argparse", "sci_load", "tkinter_scicast", "matrix_filter", "dim_reduction", "heatmaps", "correlation", "significance_testing", "R_qgraph", "stability_test"]
-__version__ = "0.8.2"
+__version__ = "0.8.22"
