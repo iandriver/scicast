@@ -13,10 +13,15 @@ def run_qgraph(args, matrix_data, gene_or_cell, minimum = 0.25, cut = 0.4, vsize
     gene_map = matrix_data.gene_label_map
 
 
+
+
     if isinstance(matrix_data.log2_df_cell_gene_restricted,pd.DataFrame):
+        cell_list = matrix_data.cell_list
         data = matrix_data.log2_df_cell_gene_restricted
+        cell_list_all = cell_list
     else:
         data = matrix_data.log2_df_cell
+        cell_list_all = data.columns.tolist()
 
     from rpy2.robjects import pandas2ri
     pandas2ri.activate()
@@ -29,9 +34,8 @@ def run_qgraph(args, matrix_data, gene_or_cell, minimum = 0.25, cut = 0.4, vsize
         r_dataframe = pandas2ri.py2ri(data)
 
         d = defaultdict(list)
-        cell_list_all = data.columns.tolist()
         for i, cell in enumerate(cell_list_all):
-            group = label_map[cell][2]
+            group = label_map[cell][0][2]
             d[group].append(i+1)
 
         label_list = robjects.vectors.StrVector(cell_list_all)
