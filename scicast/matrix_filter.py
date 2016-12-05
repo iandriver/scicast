@@ -72,6 +72,8 @@ class Matrix_filter(object):
         #if user input color and or marker values are provided generate color_dict
         if args.color_cells:
             self.color_dict_cells= {}
+            cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
+            self.cell_group_names = cell_groups_df.columns.tolist()[1:]
             color_list1 = args.color_cells.split(' ')
             for i, c in enumerate(color_list1):
                 c_pair = c.split(',')
@@ -107,12 +109,11 @@ class Matrix_filter(object):
 
 
         #if gene user color inputs are provided
-        if args.color_genes:
-            self.color_dict_genes= {}
         #if the gene group names are the same as cell groups
         if args.color_genes =='same':
             self.color_dict_genes = self.color_dict_cells
         elif args.color_genes:
+            self.color_dict_genes= {}
             color_list1 = args.color_genes.split(' ')
             for i, c in enumerate(color_list1):
                 c_pair = c.split(',')
@@ -372,7 +373,10 @@ class Matrix_filter(object):
                             group_seen[group_pos] = str(group)
                             pos = group_pos
                             group_pos += 1
-                        self.gene_label_map[gene] = (self.color_dict_genes[str(group)][0],self.color_dict_genes[str(group)][1],str(group))
+                        try:
+                            self.gene_label_map[gene] = (self.color_dict_genes[str(group)][0],self.color_dict_genes[str(group)][1],str(group))
+                        except KeyError:
+                            pass
 
                         genes_seen.append(gene)
                 non_group_genes = [g for g in gene_list_1 if g not in genes_seen]
