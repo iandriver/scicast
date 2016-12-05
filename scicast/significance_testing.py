@@ -216,7 +216,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                     else:
                         top_t = z_all
                     if matrix_data.exclude_list != None:
-                        top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[0]]['genes'] and g[0] not in matrix_data.exclude_list]
+                        top_t2 = [g for g in top_t if g[0] not in matrix_data.exclude_list]
                     else:
                         top_t2 = top_t
                     top = [list(t) for t in zip(*top_t2)]
@@ -242,7 +242,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                     else:
                         top_t = z_all
                     if matrix_data.exclude_list != None:
-                        top_t2 = [g for g in top_t if g[0] not in barplot_dict[gp[1]]['genes'] and g[0] not in matrix_data.exclude_list]
+                        top_t2 = [g for g in top_t if g[0] not in matrix_data.exclude_list]
                     else:
                         top_t2 = top_t
                     top = [list(t) for t in zip(*top_t2)]
