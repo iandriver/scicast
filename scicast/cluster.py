@@ -22,7 +22,7 @@ def make_command_log(args,new_filepath):
     command_str+= ' -method '+args.method
     command_str+= ' -metric '+args.metric
     command_str+= ' -g '+str(args.gene_number)
-    command_str+= ' -g '+str(args.depth_of_clustering)
+    command_str+= ' -depth '+str(args.depth_of_clustering)
     if args.cell_list_filename:
         command_str+= ' -cell_group '+args.cell_list_filename
     if args.gene_list_filename:
