@@ -22,7 +22,7 @@ def make_command_log(args,new_filepath):
     command_str+= ' -method '+args.method
     command_str+= ' -metric '+args.metric
     command_str+= ' -g '+str(args.gene_number)
-    command_str+= ' -g '+str(args.depth_of_clustering)
+    command_str+= ' -depth '+str(args.depth_of_clustering)
     if args.cell_list_filename:
         command_str+= ' -cell_group '+args.cell_list_filename
     if args.gene_list_filename:
@@ -34,9 +34,9 @@ def make_command_log(args,new_filepath):
         command_str+= ' -exclude_genes '+args.exclude_genes
     command_str+= ' -kmeans_cluster_range '+args.kmeans_cluster_range
     if args.color_cells:
-        command_str+= ' -color_cells '+args.color_cells
+        command_str+= ' -color_cells "'+args.color_cells+'"'
     if args.color_genes:
-        command_str+= ' -color_genes '+args.color_genes
+        command_str+= ' -color_genes "'+args.color_genes+'"'
     if args.genes_corr != '':
         command_str+= ' -genes_corr '+args.genes_corr
     if args.test_clust_stability != 0:
@@ -63,6 +63,8 @@ def make_command_log(args,new_filepath):
         command_str+= ' -kmeans_sig_test'
     if args.already_log2:
         command_str+= ' -already_log2'
+    if args.sig_unique:
+        command_str+= ' -sig_unique'
     new_file = new_filepath+'/scicast_command_log.txt'
     with open(new_file, 'a+') as f:
         f.write(now.strftime("%Y-%m-%d %H:%M")+'\n')
