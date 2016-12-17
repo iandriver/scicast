@@ -171,8 +171,8 @@ def get_parser():
                         help="Can be 'cell' 'gene' or 'both' will plot qgraph gene and/or cell network and pca correlation network plot to pdf. Requires both gene and cell groups to be provided.")
     parser.add_argument("-sig_unique",
                         dest="sig_unique",
-                        action="store_false",
-                        default=True,
+                        action="store_true",
+                        default=False,
                         help="group_sig_test will by default find unique sets of significant genes, so that the whole list has no duplicates. This switches the top significant genes amoung groups to allow repeats.")
     parser.add_argument("-kmeans_cluster_range",
                         dest="kmeans_cluster_range",
