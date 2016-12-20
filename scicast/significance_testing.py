@@ -287,7 +287,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 final_gp_df = top_df.drop_duplicates('GeneID')
 
             final_gp_df['GroupID'] = pd.Series([gp for c in top_df['GeneID']])
-            final_gp_df['Vs'] = pd.Series([vs_name for c in top_df['GeneID']])
+            final_gp_df['Vs'] = pd.Series(["Significance vs. "+vs_name for c in top_df['GeneID']])
 
             if len(final_gp_df['GeneID']) > sig_to_plot:
                 plot_gp_df_vs = final_gp_df.loc[list(range(0,sig_to_plot))]
