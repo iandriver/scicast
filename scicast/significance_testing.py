@@ -228,11 +228,13 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                     else:
                         top_t2 = z_all
                     top = [list(t) for t in zip(*top_t2)]
-
-                    if len(top[0]) > 0:
-                        all_gene_plot_dict[gp[0]].append(top)
-                        vs_dict[gp[0]].append(gp[1])
-                        gp_present_list.append(gp[0])
+                    try:
+                        if len(top[0]) > 0:
+                            all_gene_plot_dict[gp[0]].append(top)
+                            vs_dict[gp[0]].append(gp[1])
+                            gp_present_list.append(gp[0])
+                    except IndexError:
+                        print(gp[0]+' vs. '+gp[1]+' sig test failed.')
                 #same operation on the inverse comparison
                 elif i == 1:
                     fc = top_fc_df.loc[:,'ratio '+gp[1]+' to '+gp[0]].tolist()
@@ -244,11 +246,13 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                     else:
                         top_t2 = z_all
                     top = [list(t) for t in zip(*top_t2)]
-
-                    if len(top[0]) > 0:
-                        all_gene_plot_dict[gp[1]].append(top)
-                        vs_dict[gp[1]].append(gp[0])
-                        gp_present_list.append(gp[1])
+                    try:
+                        if len(top[0]) > 0:
+                            all_gene_plot_dict[gp[1]].append(top)
+                            vs_dict[gp[1]].append(gp[0])
+                            gp_present_list.append(gp[1])
+                    except IndexError:
+                        print(gp[1]+' vs. '+gp[0]+' sig test failed.')
         else:
             if cell1_present == []:
                 if args.verbose:
@@ -260,76 +264,82 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
     axs = axs.ravel()
     color_map = {}
     best_gene_df_list = []
+    list_of_gene_lists = []
     for g_index, gp in enumerate(group_name_list):
-        list_of_gene_lists = [l[0] for l in all_gene_plot_dict[gp]]
-        flat_list = [item for sublist in list_of_gene_lists for item in sublist]
-        gene_counter = Counter(itertools.chain.from_iterable(flat_list))
-        common_genes = []
-        for k,v in gene_counter.most_common():
-            if v > 1:
-                common_genes.append(k)
-        vs_list = vs_dict[gp]
-        plot_vs_df_list = []
-        for i, vs_name in enumerate(vs_list):
-            top_df1 = pd.DataFrame(all_gene_plot_dict[gp][i])
-            top_df = top_df1.T
-            top_df.columns = ['GeneID', 'adjusted_pvalue', 'fold_change']
-            top_df.sort_values(by='adjusted_pvalue', inplace=True)
-            if not args.sig_unique:
-                common_df = top_df[top_df['GeneID'].isin(common_genes)]
-                if not common_df.empty:
-                    final_gp_df = common_df.sort_values(by='adjusted_pvalue')
-                    if len(common_df['GeneID'] <= sig_to_plot):
-                        final_gp_df = pd.concat([common_df,top_df])
+        for l in all_gene_plot_dict[gp]:
+            if l != []:
+                list_of_gene_lists.append(l[0])
+        if list_of_gene_lists != []:
+            flat_list = [item for sublist in list_of_gene_lists for item in sublist]
+            gene_counter = Counter(itertools.chain.from_iterable(flat_list))
+            common_genes = []
+            for k,v in gene_counter.most_common():
+                if v > 1:
+                    common_genes.append(k)
+            vs_list = vs_dict[gp]
+            plot_vs_df_list = []
+            for i, vs_name in enumerate(vs_list):
+                top_df1 = pd.DataFrame(all_gene_plot_dict[gp][i])
+                top_df = top_df1.T
+                top_df.columns = ['GeneID', 'adjusted_pvalue', 'fold_change']
+                top_df.sort_values(by='adjusted_pvalue', inplace=True)
+                if not args.sig_unique:
+                    common_df = top_df[top_df['GeneID'].isin(common_genes)]
+                    if not common_df.empty:
+                        final_gp_df = common_df.sort_values(by='adjusted_pvalue')
+                        if len(common_df['GeneID'] <= sig_to_plot):
+                            final_gp_df = pd.concat([common_df,top_df])
+                    else:
+                        final_gp_df = top_df
                 else:
-                    final_gp_df = top_df
-            else:
-                final_gp_df = top_df.drop_duplicates('GeneID')
+                    final_gp_df = top_df.drop_duplicates('GeneID')
 
-            final_gp_df['GroupID'] = pd.Series([gp for c in top_df['GeneID']])
-            final_gp_df['Vs'] = pd.Series(["Significance vs. "+vs_name for c in top_df['GeneID']])
 
-            if len(final_gp_df['GeneID']) > sig_to_plot:
-                plot_gp_df_vs = final_gp_df.loc[list(range(0,sig_to_plot))]
-            else:
-                plot_gp_df_vs = final_gp_df
+                final_gp_df['GroupID'] = pd.Series([gp for c in top_df['GeneID']])
+                final_gp_df['Vs'] = pd.Series(["Significance vs. "+vs_name for c in top_df['GeneID']])
 
-            plot_vs_df_list.append(plot_gp_df_vs)
-            best_gene_df_list.append(final_gp_df)
 
-            color_map[vs_name] = color_dict_cell[vs_name][0]
+                if len(final_gp_df['GeneID']) > sig_to_plot:
+                    plot_gp_df_vs = final_gp_df.loc[list(range(0,sig_to_plot))]
+                else:
+                    plot_gp_df_vs = final_gp_df
 
-        final_plot_df = pd.concat(plot_vs_df_list)
-        if args.sig_unique:
-            final_plot_df = pd.concat(plot_vs_df_list).sort_values(by='adjusted_pvalue', inplace=True)
-            final_plot_df.drop_duplicates('GeneID', inplace=True)
-        if color_map != {}:
-            g = sns.barplot(x='adjusted_pvalue', y='GeneID', hue='Vs', data=final_plot_df, ax = axs[g_index], palette=color_map)
-            axs[g_index].set_xscale("log", nonposx='clip')
-            bar_list = []
-            if plot_pvalue:
-                for p in axs[g_index].patches:
-                    height = p.get_height()
-                    width = p.get_width()
-                    bar_list.append(width)
-                max_bar = max(bar_list)
-                for p in axs[g_index].patches:
-                    height = p.get_height()
-                    width = p.get_width()
-                    axs[g_index].text(max_bar*50,p.get_y()+(height), "{:.2e}".format(width))
-            rect = axs[g_index].patch
-            rect.set_facecolor('white')
-            #sns.despine(left=True, bottom=True, top=True)
-            axs[g_index].invert_xaxis()
-            axs[g_index].xaxis.set_ticks_position('none')
-            axs[g_index].yaxis.tick_right()
-            axs[g_index].set_title(gp)
-            axs[g_index].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11+(0.01*len(group_name_list))), ncol=1, prop={'size':15})
-            axs[g_index].set_xlabel('adjusted p-value')
-            for xmaj in axs[g_index].xaxis.get_majorticklocs():
-                axs[g_index].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
-            axs[g_index].xaxis.grid(True, which="major", linestyle='-')
-            plt.subplots_adjust(left=.08, wspace=.3)
+                plot_vs_df_list.append(plot_gp_df_vs)
+                best_gene_df_list.append(final_gp_df)
+
+                color_map[vs_name] = color_dict_cell[vs_name][0]
+
+            final_plot_df = pd.concat(plot_vs_df_list)
+            if args.sig_unique:
+                final_plot_df = pd.concat(plot_vs_df_list).sort_values(by='adjusted_pvalue', inplace=True)
+                final_plot_df.drop_duplicates('GeneID', inplace=True)
+            if color_map != {}:
+                g = sns.barplot(x='adjusted_pvalue', y='GeneID', hue='Vs', data=final_plot_df, ax = axs[g_index], palette=color_map)
+                axs[g_index].set_xscale("log", nonposx='clip')
+                bar_list = []
+                if plot_pvalue:
+                    for p in axs[g_index].patches:
+                        height = p.get_height()
+                        width = p.get_width()
+                        bar_list.append(width)
+                    max_bar = max(bar_list)
+                    for p in axs[g_index].patches:
+                        height = p.get_height()
+                        width = p.get_width()
+                        axs[g_index].text(max_bar*50,p.get_y()+(height), "{:.2e}".format(width))
+                rect = axs[g_index].patch
+                rect.set_facecolor('white')
+                #sns.despine(left=True, bottom=True, top=True)
+                axs[g_index].invert_xaxis()
+                axs[g_index].xaxis.set_ticks_position('none')
+                axs[g_index].yaxis.tick_right()
+                axs[g_index].set_title(gp)
+                axs[g_index].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11+(0.01*len(group_name_list))), ncol=1, prop={'size':15})
+                axs[g_index].set_xlabel('adjusted p-value')
+                for xmaj in axs[g_index].xaxis.get_majorticklocs():
+                    axs[g_index].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
+                axs[g_index].xaxis.grid(True, which="major", linestyle='-')
+                plt.subplots_adjust(left=.08, wspace=.3)
     best_gene_df = pd.concat(best_gene_df_list)
     if from_kmeans == '':
         plt.savefig(os.path.join(path_filename,'differential_genes_foldchanges.pdf'), bbox_inches='tight')
