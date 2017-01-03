@@ -21,12 +21,12 @@ def group_gene_expression(args, matrix_data, threshold_of_expression = 1, from_k
     if alt_color_dict:
         color_dict_cell = alt_color_dict
         cell_groups_df = pd.read_csv(open(kmeans_groups_file,'rU'), sep=None, engine='python')
-        group_name_list = list(set(cell_groups_df['GroupID']))
+        group_name_list = [str(gp) for gp in list(set(cell_groups_df['GroupID']))]
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
         cell_groups_df = pd.read_csv(open(matrix_data.cell_list_filepath,'rU'), sep=None, engine='python')
-        group_name_list = list(set(cell_groups_df['GroupID']))
+        group_name_list = [str(gp) for gp in list(set(cell_groups_df['GroupID']))]
 
 
     group_pairs = list(set(itertools.permutations(group_name_list,2)))
@@ -89,14 +89,14 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
         color_dict_cell = alt_color_dict
         cell_groups_df = pd.read_csv(open(kmeans_groups_file,'rU'), sep=None, engine='python')
         primary_group_name = 'GroupID'
-        group_name_list = list(set(cell_groups_df[primary_group_name]))
+        group_name_list = [str(gp) for gp in list(set(cell_groups_df[primary_group_name]))]
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
         cell_groups_df = pd.read_csv(open(matrix_data.cell_list_filepath,'rU'), sep=None, engine='python')
         group_name_list = matrix_data.cell_group_names
         primary_group_name = group_name_list[0]
-        group_name_list = list(set(cell_groups_df[primary_group_name]))
+        group_name_list = [str(gp) for gp in list(set(cell_groups_df[primary_group_name]))]
     plot_pvalue = False
     from rpy2.robjects.packages import importr
     from rpy2.robjects.vectors import FloatVector
@@ -266,7 +266,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
     best_gene_df_list = []
     list_of_gene_lists = []
     for g_index, gp in enumerate(group_name_list):
-        for l in all_gene_plot_dict[gp]:
+        for l in all_gene_plot_dict[str(gp)]:
             if l != []:
                 list_of_gene_lists.append(l[0])
         if list_of_gene_lists != []:
@@ -276,7 +276,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
             for k,v in gene_counter.most_common():
                 if v > 1:
                     common_genes.append(k)
-            vs_list = vs_dict[gp]
+            vs_list = vs_dict[str(gp)]
             plot_vs_df_list = []
             for i, vs_name in enumerate(vs_list):
                 top_df1 = pd.DataFrame(all_gene_plot_dict[gp][i])
@@ -307,7 +307,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 plot_vs_df_list.append(plot_gp_df_vs)
                 best_gene_df_list.append(final_gp_df)
 
-                color_map[vs_name] = color_dict_cell[vs_name][0]
+                color_map["Significance vs. "+vs_name] = color_dict_cell[vs_name][0]
 
             final_plot_df = pd.concat(plot_vs_df_list)
             if args.sig_unique:

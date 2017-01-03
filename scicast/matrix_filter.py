@@ -146,7 +146,8 @@ class Matrix_filter(object):
         self.log2_df_cell.to_csv(os.path.join(self.new_filepath, 'log2_matrix_after_filtering.txt'), sep= '\t', index_label=0)
         self.data_by_cell.to_csv(os.path.join(self.new_filepath, 'count_matrix_after_filtering.txt'), sep= '\t', index_label=0)
 
-    def threshold_genes(self, by_cell, row_sum=2, cell_sum=1):
+    #remove all zero cells and genes
+    def threshold_genes(self, by_cell, row_sum=1, cell_sum=1):
         return by_cell.loc[by_cell.sum(1) > row_sum, by_cell.sum(0) > cell_sum]
 
     def index_to_label(self,index):
@@ -156,10 +157,13 @@ class Matrix_filter(object):
         else:
             return index.name
 
+    #given a gene list make new matrix from gene subset
     def make_new_matrix_gene(self, gene_list_or_file, v = False):
         from itertools import compress
+        #if gene_list_or_file is string, treat as a path to a file
         if isinstance(gene_list_or_file,str):
             gene_df = pd.read_csv(open(gene_list_or_file,'rU'), sep=None, engine='python')
+            #look for GeneID header otherwise exit and print error
             try:
                 self.short_gene_list = list(set(gene_df['GeneID'].tolist()))
                 if self.exclude_list:
@@ -187,7 +191,7 @@ class Matrix_filter(object):
                     print(' '.join(absent_gene)+' not in matrix file.')
                 new_list = [x for x in self.gene_list if x not in absent_gene]
                 self.short_gene_matrix_cell = self.threshold_genes(self.data_by_cell.loc[new_list,:])
-
+        #if gene_list_or_file is a list instead of a file
         elif isinstance(gene_list_or_file,list):
             if self.exclude_list == []:
                 self.short_gene_list = gene_list_or_file
