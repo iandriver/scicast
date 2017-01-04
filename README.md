@@ -70,6 +70,11 @@ From the paper: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4145853/
 Raw sequencing was mapped and aligned to GRCm38 using rsem and normalized using Deseq2.
 Only E18.5 and Adult At2 cells are included.
 
+![example k-means cluster map](https://github.com/iandriver/scicast/blob/master/krasnow_scicast_example_output/scicast_analysis/kmeans_label_with_4_clusters_heatmap.pdf)
+
+![example Sftpa correlation group](https://github.com/iandriver/scicast/blob/master/krasnow_scicast_example_output/scicast_analysis/All_cells_corr_with_Sftpa1.pdf)
+
+
 =======
 
 Usage
