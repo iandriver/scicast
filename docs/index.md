@@ -24,8 +24,7 @@ Command Line:
 
 ![Files output:](scicast_filelist_ouput1.png)
 
-1. "scicast_command_log.txt" - log of command(s)
--------
+1.  "scicast_command_log.txt" - log of command(s)  
   Records exact command used to generate the output in the folder. Can be copy pasted to re-run and serves as a record of how results were generated.
 
   Example:
@@ -36,20 +35,16 @@ Command Line:
           -n vignette -method ward -metric seuclidean -g 200 -depth 100 -z 0
           -qgraph_plot none -kmeans_cluster_range 2,4 -kmeans_sig_test
           -image_format png
-  ```
-
-2. "top_log2_genes_plot.png" - plot of expression in log2 of top genes for each sample.
-------
+  ```  
+2.  "top_log2_genes_plot.png" - plot of expression in log2 of top genes for each sample.  
   An overview of expression in all samples and a way to see what samples are included after filtering.
 
   Example:
 
-  ![top_log2](vignette_scicast_analysis/top_log2_genes_plot.png)
-
-3. "distribution_log2_genes_plot.png" - distribution of mean expression before and after filtering.
------
+  ![top_log2](vignette_scicast_analysis/top_log2_genes_plot.png)  
+3.  "distribution_log2_genes_plot.png" - distribution of mean expression before and after filtering.  
   The distribution of mean log2 expression of all genes before and after filtering (often the same, especially if filtered prior to scicast).
 
   Example:
 
-  ![log2_dist](vignette_scicast_analysis/distribution_log2_genes_plot.png)
+  ![log2_dist](vignette_scicast_analysis/distribution_log2_genes_plot.png)  
