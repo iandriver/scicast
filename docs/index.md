@@ -9,11 +9,13 @@ After following the installation instructions, it is usable through a gui and th
 scicast vignette
 ==================
 Gui and command line for each step will be shown.
+
 Using the provided "krasnow_AT2_185_rsem_deseq_counts_norm.txt" file.
 
 ![GUI: Load the dataset](scicast_with_parameters1.png)
 
 Command Line:
+
 ```bash
         scicast -f path_to_file/krasnow_AT2_185_rsem_deseq_counts_norm.txt -n vignette -method ward -metric seuclidean -g 200 -depth 100 -z 0 -qgraph_plot none -kmeans_cluster_range 2,4 -kmeans_sig_test
 ```
