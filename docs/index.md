@@ -6,7 +6,7 @@ How do I use it?
 ------------
 After following the installation instructions, it is usable through a gui and through the command line. Both the gui and the command line do the same thing and the command is logged in "scicast_command_log.txt" so that it can be re-run by scicast "copy from log".
 
-scicast vignette
+**scicast vignette**
 ==================
 Gui and command line for each step will be shown.
 
@@ -21,3 +21,5 @@ Command Line:
         vignette -method ward -metric seuclidean -g 200 -depth 100 -z 0
         -qgraph_plot none -kmeans_cluster_range 2,4 -kmeans_sig_test
 ```
+
+![Files output:](scicast_filelist_ouput1.png)
