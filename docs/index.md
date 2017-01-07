@@ -36,6 +36,7 @@ Example:
         -qgraph_plot none -kmeans_cluster_range 2,4 -kmeans_sig_test
         -image_format png
 ```
+
 2. "top_log2_genes_plot.png" - plot of expression in log2 of top genes for each sample.
 ------
 An overview of expression in all samples and a way to see what samples are included after filtering.
