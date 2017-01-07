@@ -1,0 +1,1017 @@
+{
+    "children": [
+        {
+            "children": [
+                {
+                    "children": [
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1034013_AT2"
+                                                },
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1034018_AT2"
+                                                }
+                                            ],
+                                            "name": "SRR1034013_AT2-SRR1034018_AT2"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033986_AT2"
+                                                        },
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1034004_AT2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033986_AT2-SRR1034004_AT2"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1034014_AT2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033984_AT2"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033987_AT2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033984_AT2-SRR1033987_AT2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033984_AT2-SRR1033987_AT2-SRR1034014_AT2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1034010_AT2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1034002_AT2"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033992_AT2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033990_AT2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033990_AT2-SRR1033992_AT2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1034022_AT2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1034008_AT2"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1034019_AT2"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1033998_AT2"
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "name": "SRR1033998_AT2-SRR1034019_AT2"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033998_AT2-SRR1034008_AT2-SRR1034019_AT2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033998_AT2-SRR1034008_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034008_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034002_AT2-SRR1034008_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034002_AT2-SRR1034008_AT2-SRR1034010_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033984_AT2-SRR1033987_AT2-SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034002_AT2-SRR1034008_AT2-SRR1034010_AT2-SRR1034014_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                                }
+                                            ],
+                                            "name": "SRR1033984_AT2-SRR1033986_AT2-SRR1033987_AT2-SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034002_AT2-SRR1034004_AT2-SRR1034008_AT2-SRR1034010_AT2-SRR1034014_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                        }
+                                    ],
+                                    "name": "SRR1033984_AT2-SRR1033986_AT2-SRR1033987_AT2-SRR1033990_AT2-SRR1033992_AT2-SRR1033998_AT2-SRR1034002_AT2-SRR1034004_AT2-SRR1034008_AT2-SRR1034010_AT2-SRR1034013_AT2-SRR1034014_AT2-SRR1034018_AT2-SRR1034019_AT2-SRR1034022_AT2"
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1034026_AT2"
+                                                },
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033983_AT2"
+                                                }
+                                            ],
+                                            "name": "SRR1033983_AT2-SRR1034026_AT2"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033991_AT2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1034006_AT2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1034021_AT2"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033995_AT2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033995_AT2-SRR1034021_AT2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033995_AT2-SRR1034006_AT2-SRR1034021_AT2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033991_AT2-SRR1033995_AT2-SRR1034006_AT2-SRR1034021_AT2"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033997_AT2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1034005_AT2"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033993_AT2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033982_AT2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033982_AT2-SRR1033993_AT2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1034001_AT2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1034024_AT2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1034001_AT2-SRR1034024_AT2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033982_AT2-SRR1033993_AT2-SRR1034001_AT2-SRR1034024_AT2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033982_AT2-SRR1033993_AT2-SRR1034001_AT2-SRR1034005_AT2-SRR1034024_AT2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033994_AT2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033988_AT2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1034020_AT2"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1033996_AT2"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "children": [
+                                                                                                                {
+                                                                                                                    "children": [],
+                                                                                                                    "name": "SRR1034017_AT2"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "children": [],
+                                                                                                                    "name": "SRR1034009_AT2"
+                                                                                                                }
+                                                                                                            ],
+                                                                                                            "name": "SRR1034009_AT2-SRR1034017_AT2"
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "name": "SRR1033996_AT2-SRR1034009_AT2-SRR1034017_AT2"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033996_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033988_AT2-SRR1033996_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033988_AT2-SRR1033994_AT2-SRR1033996_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1034007_AT2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033981_AT2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033981_AT2-SRR1034007_AT2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033981_AT2-SRR1033988_AT2-SRR1033994_AT2-SRR1033996_AT2-SRR1034007_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033981_AT2-SRR1033982_AT2-SRR1033988_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033996_AT2-SRR1034001_AT2-SRR1034005_AT2-SRR1034007_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2-SRR1034024_AT2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033981_AT2-SRR1033982_AT2-SRR1033988_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1034001_AT2-SRR1034005_AT2-SRR1034007_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2-SRR1034024_AT2"
+                                                }
+                                            ],
+                                            "name": "SRR1033981_AT2-SRR1033982_AT2-SRR1033988_AT2-SRR1033991_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033995_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1034001_AT2-SRR1034005_AT2-SRR1034006_AT2-SRR1034007_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2-SRR1034021_AT2-SRR1034024_AT2"
+                                        }
+                                    ],
+                                    "name": "SRR1033981_AT2-SRR1033982_AT2-SRR1033983_AT2-SRR1033988_AT2-SRR1033991_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033995_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1034001_AT2-SRR1034005_AT2-SRR1034006_AT2-SRR1034007_AT2-SRR1034009_AT2-SRR1034017_AT2-SRR1034020_AT2-SRR1034021_AT2-SRR1034024_AT2-SRR1034026_AT2"
+                                }
+                            ],
+                            "name": "SRR1033981_AT2-SRR1033982_AT2-SRR1033983_AT2-SRR1033984_AT2-SRR1033986_AT2-SRR1033987_AT2-SRR1033988_AT2-SRR1033990_AT2-SRR1033991_AT2-SRR1033992_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033995_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1033998_AT2-SRR1034001_AT2-SRR1034002_AT2-SRR1034004_AT2-SRR1034005_AT2-SRR1034006_AT2-SRR1034007_AT2-SRR1034008_AT2-SRR1034009_AT2-SRR1034010_AT2-SRR1034013_AT2-SRR1034014_AT2-SRR1034017_AT2-SRR1034018_AT2-SRR1034019_AT2-SRR1034020_AT2-SRR1034021_AT2-SRR1034022_AT2-SRR1034024_AT2-SRR1034026_AT2"
+                        },
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "children": [],
+                                            "name": "SRR1033932_C18.5_3"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033856_C18.5_1"
+                                                        },
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033921_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033856_C18.5_1-SRR1033921_C18.5_3"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033855_C18.5_1"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033853_C18.5_1"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033914_C18.5_3"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033915_C18.5_3"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033914_C18.5_3-SRR1033915_C18.5_3"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033853_C18.5_1-SRR1033914_C18.5_3-SRR1033915_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033853_C18.5_1-SRR1033855_C18.5_1-SRR1033914_C18.5_3-SRR1033915_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033853_C18.5_1-SRR1033855_C18.5_1-SRR1033856_C18.5_1-SRR1033914_C18.5_3-SRR1033915_C18.5_3-SRR1033921_C18.5_3"
+                                        }
+                                    ],
+                                    "name": "SRR1033853_C18.5_1-SRR1033855_C18.5_1-SRR1033856_C18.5_1-SRR1033914_C18.5_3-SRR1033915_C18.5_3-SRR1033921_C18.5_3-SRR1033932_C18.5_3"
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033870_C18.5_1"
+                                                },
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033912_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033870_C18.5_1-SRR1033912_C18.5_3"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033904_C18.5_2"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033877_C18.5_2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033863_C18.5_1"
+                                                                },
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033900_C18.5_2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033863_C18.5_1-SRR1033900_C18.5_2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033863_C18.5_1-SRR1033877_C18.5_2-SRR1033900_C18.5_2"
+                                                }
+                                            ],
+                                            "name": "SRR1033863_C18.5_1-SRR1033877_C18.5_2-SRR1033900_C18.5_2-SRR1033904_C18.5_2"
+                                        }
+                                    ],
+                                    "name": "SRR1033863_C18.5_1-SRR1033870_C18.5_1-SRR1033877_C18.5_2-SRR1033900_C18.5_2-SRR1033904_C18.5_2-SRR1033912_C18.5_3"
+                                }
+                            ],
+                            "name": "SRR1033853_C18.5_1-SRR1033855_C18.5_1-SRR1033856_C18.5_1-SRR1033863_C18.5_1-SRR1033870_C18.5_1-SRR1033877_C18.5_2-SRR1033900_C18.5_2-SRR1033904_C18.5_2-SRR1033912_C18.5_3-SRR1033914_C18.5_3-SRR1033915_C18.5_3-SRR1033921_C18.5_3-SRR1033932_C18.5_3"
+                        }
+                    ],
+                    "name": "SRR1033853_C18.5_1-SRR1033855_C18.5_1-SRR1033856_C18.5_1-SRR1033863_C18.5_1-SRR1033870_C18.5_1-SRR1033877_C18.5_2-SRR1033900_C18.5_2-SRR1033904_C18.5_2-SRR1033912_C18.5_3-SRR1033914_C18.5_3-SRR1033915_C18.5_3-SRR1033921_C18.5_3-SRR1033932_C18.5_3-SRR1033981_AT2-SRR1033982_AT2-SRR1033983_AT2-SRR1033984_AT2-SRR1033986_AT2-SRR1033987_AT2-SRR1033988_AT2-SRR1033990_AT2-SRR1033991_AT2-SRR1033992_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033995_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1033998_AT2-SRR1034001_AT2-SRR1034002_AT2-SRR1034004_AT2-SRR1034005_AT2-SRR1034006_AT2-SRR1034007_AT2-SRR1034008_AT2-SRR1034009_AT2-SRR1034010_AT2-SRR1034013_AT2-SRR1034014_AT2-SRR1034017_AT2-SRR1034018_AT2-SRR1034019_AT2-SRR1034020_AT2-SRR1034021_AT2-SRR1034022_AT2-SRR1034024_AT2-SRR1034026_AT2"
+                },
+                {
+                    "children": [
+                        {
+                            "children": [
+                                {
+                                    "children": [],
+                                    "name": "SRR1033868_C18.5_1"
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033903_C18.5_2"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033920_C18.5_3"
+                                                        },
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033913_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033913_C18.5_3-SRR1033920_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033903_C18.5_2-SRR1033913_C18.5_3-SRR1033920_C18.5_3"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033866_C18.5_1"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033858_C18.5_1"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033865_C18.5_1"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033857_C18.5_1"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033925_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033930_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033924_C18.5_3"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033924_C18.5_3-SRR1033930_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033857_C18.5_1-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033857_C18.5_1-SRR1033865_C18.5_1-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033865_C18.5_1-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033865_C18.5_1-SRR1033866_C18.5_1-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                        }
+                                    ],
+                                    "name": "SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033865_C18.5_1-SRR1033866_C18.5_1-SRR1033903_C18.5_2-SRR1033913_C18.5_3-SRR1033920_C18.5_3-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                                }
+                            ],
+                            "name": "SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033865_C18.5_1-SRR1033866_C18.5_1-SRR1033868_C18.5_1-SRR1033903_C18.5_2-SRR1033913_C18.5_3-SRR1033920_C18.5_3-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033930_C18.5_3"
+                        },
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033910_C18.5_3"
+                                                        },
+                                                        {
+                                                            "children": [],
+                                                            "name": "SRR1033933_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033910_C18.5_3-SRR1033933_C18.5_3"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033894_C18.5_2"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033878_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033878_C18.5_2-SRR1033894_C18.5_2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033926_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033902_C18.5_2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033902_C18.5_2-SRR1033926_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033916_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033928_C18.5_3"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033916_C18.5_3-SRR1033928_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033902_C18.5_2-SRR1033916_C18.5_3-SRR1033926_C18.5_3-SRR1033928_C18.5_3"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033927_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033880_C18.5_2"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033859_C18.5_1"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033859_C18.5_1-SRR1033880_C18.5_2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033859_C18.5_1-SRR1033880_C18.5_2-SRR1033927_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033860_C18.5_1"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033907_C18.5_2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033860_C18.5_1-SRR1033907_C18.5_2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033880_C18.5_2-SRR1033907_C18.5_2-SRR1033927_C18.5_3"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033880_C18.5_2-SRR1033902_C18.5_2-SRR1033907_C18.5_2-SRR1033916_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033878_C18.5_2-SRR1033880_C18.5_2-SRR1033894_C18.5_2-SRR1033902_C18.5_2-SRR1033907_C18.5_2-SRR1033916_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033862_C18.5_1"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033871_C18.5_1"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033862_C18.5_1-SRR1033871_C18.5_1"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033922_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033919_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033872_C18.5_1"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033872_C18.5_1-SRR1033919_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033872_C18.5_1-SRR1033919_C18.5_3-SRR1033922_C18.5_3"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033862_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033919_C18.5_3-SRR1033922_C18.5_3"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033867_C18.5_1"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033897_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033867_C18.5_1-SRR1033897_C18.5_2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033862_C18.5_1-SRR1033867_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033897_C18.5_2-SRR1033919_C18.5_3-SRR1033922_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033867_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033878_C18.5_2-SRR1033880_C18.5_2-SRR1033894_C18.5_2-SRR1033897_C18.5_2-SRR1033902_C18.5_2-SRR1033907_C18.5_2-SRR1033916_C18.5_3-SRR1033919_C18.5_3-SRR1033922_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033867_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033878_C18.5_2-SRR1033880_C18.5_2-SRR1033894_C18.5_2-SRR1033897_C18.5_2-SRR1033902_C18.5_2-SRR1033907_C18.5_2-SRR1033910_C18.5_3-SRR1033916_C18.5_3-SRR1033919_C18.5_3-SRR1033922_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3-SRR1033933_C18.5_3"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033899_C18.5_2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033888_C18.5_2"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033882_C18.5_2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033875_C18.5_2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033875_C18.5_2-SRR1033882_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033875_C18.5_2-SRR1033882_C18.5_2-SRR1033888_C18.5_2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033875_C18.5_2-SRR1033882_C18.5_2-SRR1033888_C18.5_2-SRR1033899_C18.5_2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033908_C18.5_2"
+                                                                },
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033898_C18.5_2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033898_C18.5_2-SRR1033908_C18.5_2"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033875_C18.5_2-SRR1033882_C18.5_2-SRR1033888_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033908_C18.5_2"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033892_C18.5_2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033905_C18.5_2"
+                                                                        },
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033887_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033887_C18.5_2-SRR1033905_C18.5_2"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033887_C18.5_2-SRR1033892_C18.5_2-SRR1033905_C18.5_2"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033895_C18.5_2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033909_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033895_C18.5_2-SRR1033909_C18.5_3"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033906_C18.5_2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033869_C18.5_1"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033881_C18.5_2"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1033901_C18.5_2"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "children": [
+                                                                                                                {
+                                                                                                                    "children": [],
+                                                                                                                    "name": "SRR1033883_C18.5_2"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "children": [],
+                                                                                                                    "name": "SRR1033891_C18.5_2"
+                                                                                                                }
+                                                                                                            ],
+                                                                                                            "name": "SRR1033883_C18.5_2-SRR1033891_C18.5_2"
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "name": "SRR1033883_C18.5_2-SRR1033891_C18.5_2-SRR1033901_C18.5_2"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033891_C18.5_2-SRR1033901_C18.5_2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033869_C18.5_1-SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033891_C18.5_2-SRR1033901_C18.5_2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033869_C18.5_1-SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033891_C18.5_2-SRR1033901_C18.5_2-SRR1033906_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033869_C18.5_1-SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033891_C18.5_2-SRR1033895_C18.5_2-SRR1033901_C18.5_2-SRR1033906_C18.5_2-SRR1033909_C18.5_3"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033934_C18.5_3"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033885_C18.5_2"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1033890_C18.5_2"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "children": [],
+                                                                                                            "name": "SRR1033876_C18.5_2"
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "name": "SRR1033876_C18.5_2-SRR1033890_C18.5_2"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033876_C18.5_2-SRR1033885_C18.5_2-SRR1033890_C18.5_2"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033876_C18.5_2-SRR1033885_C18.5_2-SRR1033890_C18.5_2-SRR1033934_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "children": [],
+                                                                                            "name": "SRR1033889_C18.5_2"
+                                                                                        },
+                                                                                        {
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033929_C18.5_3"
+                                                                                                },
+                                                                                                {
+                                                                                                    "children": [],
+                                                                                                    "name": "SRR1033893_C18.5_2"
+                                                                                                }
+                                                                                            ],
+                                                                                            "name": "SRR1033893_C18.5_2-SRR1033929_C18.5_3"
+                                                                                        }
+                                                                                    ],
+                                                                                    "name": "SRR1033889_C18.5_2-SRR1033893_C18.5_2-SRR1033929_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033876_C18.5_2-SRR1033885_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033893_C18.5_2-SRR1033929_C18.5_3-SRR1033934_C18.5_3"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033879_C18.5_2"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033896_C18.5_2"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033879_C18.5_2-SRR1033896_C18.5_2"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033876_C18.5_2-SRR1033879_C18.5_2-SRR1033885_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033893_C18.5_2-SRR1033896_C18.5_2-SRR1033929_C18.5_3-SRR1033934_C18.5_3"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033869_C18.5_1-SRR1033876_C18.5_2-SRR1033879_C18.5_2-SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033885_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033893_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033901_C18.5_2-SRR1033906_C18.5_2-SRR1033909_C18.5_3-SRR1033929_C18.5_3-SRR1033934_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033869_C18.5_1-SRR1033876_C18.5_2-SRR1033879_C18.5_2-SRR1033881_C18.5_2-SRR1033883_C18.5_2-SRR1033885_C18.5_2-SRR1033887_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033901_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033909_C18.5_3-SRR1033929_C18.5_3-SRR1033934_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033869_C18.5_1-SRR1033875_C18.5_2-SRR1033876_C18.5_2-SRR1033879_C18.5_2-SRR1033881_C18.5_2-SRR1033882_C18.5_2-SRR1033883_C18.5_2-SRR1033885_C18.5_2-SRR1033887_C18.5_2-SRR1033888_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033901_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033908_C18.5_2-SRR1033909_C18.5_3-SRR1033929_C18.5_3-SRR1033934_C18.5_3"
+                                        }
+                                    ],
+                                    "name": "SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033867_C18.5_1-SRR1033869_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033875_C18.5_2-SRR1033876_C18.5_2-SRR1033878_C18.5_2-SRR1033879_C18.5_2-SRR1033880_C18.5_2-SRR1033881_C18.5_2-SRR1033882_C18.5_2-SRR1033883_C18.5_2-SRR1033885_C18.5_2-SRR1033887_C18.5_2-SRR1033888_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033894_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033897_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033901_C18.5_2-SRR1033902_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033907_C18.5_2-SRR1033908_C18.5_2-SRR1033909_C18.5_3-SRR1033910_C18.5_3-SRR1033916_C18.5_3-SRR1033919_C18.5_3-SRR1033922_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3-SRR1033929_C18.5_3-SRR1033933_C18.5_3-SRR1033934_C18.5_3"
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [],
+                                            "name": "SRR1033999_AT2"
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [],
+                                                    "name": "SRR1033923_C18.5_3"
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033931_C18.5_3"
+                                                                },
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033854_C18.5_1"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033854_C18.5_1-SRR1033931_C18.5_3"
+                                                        },
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "children": [],
+                                                                    "name": "SRR1033886_C18.5_2"
+                                                                },
+                                                                {
+                                                                    "children": [
+                                                                        {
+                                                                            "children": [],
+                                                                            "name": "SRR1033884_C18.5_2"
+                                                                        },
+                                                                        {
+                                                                            "children": [
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033911_C18.5_3"
+                                                                                },
+                                                                                {
+                                                                                    "children": [],
+                                                                                    "name": "SRR1033917_C18.5_3"
+                                                                                }
+                                                                            ],
+                                                                            "name": "SRR1033911_C18.5_3-SRR1033917_C18.5_3"
+                                                                        }
+                                                                    ],
+                                                                    "name": "SRR1033884_C18.5_2-SRR1033911_C18.5_3-SRR1033917_C18.5_3"
+                                                                }
+                                                            ],
+                                                            "name": "SRR1033884_C18.5_2-SRR1033886_C18.5_2-SRR1033911_C18.5_3-SRR1033917_C18.5_3"
+                                                        }
+                                                    ],
+                                                    "name": "SRR1033854_C18.5_1-SRR1033884_C18.5_2-SRR1033886_C18.5_2-SRR1033911_C18.5_3-SRR1033917_C18.5_3-SRR1033931_C18.5_3"
+                                                }
+                                            ],
+                                            "name": "SRR1033854_C18.5_1-SRR1033884_C18.5_2-SRR1033886_C18.5_2-SRR1033911_C18.5_3-SRR1033917_C18.5_3-SRR1033923_C18.5_3-SRR1033931_C18.5_3"
+                                        }
+                                    ],
+                                    "name": "SRR1033854_C18.5_1-SRR1033884_C18.5_2-SRR1033886_C18.5_2-SRR1033911_C18.5_3-SRR1033917_C18.5_3-SRR1033923_C18.5_3-SRR1033931_C18.5_3-SRR1033999_AT2"
+                                }
+                            ],
+                            "name": "SRR1033854_C18.5_1-SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033867_C18.5_1-SRR1033869_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033875_C18.5_2-SRR1033876_C18.5_2-SRR1033878_C18.5_2-SRR1033879_C18.5_2-SRR1033880_C18.5_2-SRR1033881_C18.5_2-SRR1033882_C18.5_2-SRR1033883_C18.5_2-SRR1033884_C18.5_2-SRR1033885_C18.5_2-SRR1033886_C18.5_2-SRR1033887_C18.5_2-SRR1033888_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033894_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033897_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033901_C18.5_2-SRR1033902_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033907_C18.5_2-SRR1033908_C18.5_2-SRR1033909_C18.5_3-SRR1033910_C18.5_3-SRR1033911_C18.5_3-SRR1033916_C18.5_3-SRR1033917_C18.5_3-SRR1033919_C18.5_3-SRR1033922_C18.5_3-SRR1033923_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3-SRR1033929_C18.5_3-SRR1033931_C18.5_3-SRR1033933_C18.5_3-SRR1033934_C18.5_3-SRR1033999_AT2"
+                        }
+                    ],
+                    "name": "SRR1033854_C18.5_1-SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033865_C18.5_1-SRR1033866_C18.5_1-SRR1033867_C18.5_1-SRR1033868_C18.5_1-SRR1033869_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033875_C18.5_2-SRR1033876_C18.5_2-SRR1033878_C18.5_2-SRR1033879_C18.5_2-SRR1033880_C18.5_2-SRR1033881_C18.5_2-SRR1033882_C18.5_2-SRR1033883_C18.5_2-SRR1033884_C18.5_2-SRR1033885_C18.5_2-SRR1033886_C18.5_2-SRR1033887_C18.5_2-SRR1033888_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033894_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033897_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033901_C18.5_2-SRR1033902_C18.5_2-SRR1033903_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033907_C18.5_2-SRR1033908_C18.5_2-SRR1033909_C18.5_3-SRR1033910_C18.5_3-SRR1033911_C18.5_3-SRR1033913_C18.5_3-SRR1033916_C18.5_3-SRR1033917_C18.5_3-SRR1033919_C18.5_3-SRR1033920_C18.5_3-SRR1033922_C18.5_3-SRR1033923_C18.5_3-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3-SRR1033929_C18.5_3-SRR1033930_C18.5_3-SRR1033931_C18.5_3-SRR1033933_C18.5_3-SRR1033934_C18.5_3-SRR1033999_AT2"
+                }
+            ],
+            "name": "SRR1033853_C18.5_1-SRR1033854_C18.5_1-SRR1033855_C18.5_1-SRR1033856_C18.5_1-SRR1033857_C18.5_1-SRR1033858_C18.5_1-SRR1033859_C18.5_1-SRR1033860_C18.5_1-SRR1033862_C18.5_1-SRR1033863_C18.5_1-SRR1033865_C18.5_1-SRR1033866_C18.5_1-SRR1033867_C18.5_1-SRR1033868_C18.5_1-SRR1033869_C18.5_1-SRR1033870_C18.5_1-SRR1033871_C18.5_1-SRR1033872_C18.5_1-SRR1033875_C18.5_2-SRR1033876_C18.5_2-SRR1033877_C18.5_2-SRR1033878_C18.5_2-SRR1033879_C18.5_2-SRR1033880_C18.5_2-SRR1033881_C18.5_2-SRR1033882_C18.5_2-SRR1033883_C18.5_2-SRR1033884_C18.5_2-SRR1033885_C18.5_2-SRR1033886_C18.5_2-SRR1033887_C18.5_2-SRR1033888_C18.5_2-SRR1033889_C18.5_2-SRR1033890_C18.5_2-SRR1033891_C18.5_2-SRR1033892_C18.5_2-SRR1033893_C18.5_2-SRR1033894_C18.5_2-SRR1033895_C18.5_2-SRR1033896_C18.5_2-SRR1033897_C18.5_2-SRR1033898_C18.5_2-SRR1033899_C18.5_2-SRR1033900_C18.5_2-SRR1033901_C18.5_2-SRR1033902_C18.5_2-SRR1033903_C18.5_2-SRR1033904_C18.5_2-SRR1033905_C18.5_2-SRR1033906_C18.5_2-SRR1033907_C18.5_2-SRR1033908_C18.5_2-SRR1033909_C18.5_3-SRR1033910_C18.5_3-SRR1033911_C18.5_3-SRR1033912_C18.5_3-SRR1033913_C18.5_3-SRR1033914_C18.5_3-SRR1033915_C18.5_3-SRR1033916_C18.5_3-SRR1033917_C18.5_3-SRR1033919_C18.5_3-SRR1033920_C18.5_3-SRR1033921_C18.5_3-SRR1033922_C18.5_3-SRR1033923_C18.5_3-SRR1033924_C18.5_3-SRR1033925_C18.5_3-SRR1033926_C18.5_3-SRR1033927_C18.5_3-SRR1033928_C18.5_3-SRR1033929_C18.5_3-SRR1033930_C18.5_3-SRR1033931_C18.5_3-SRR1033932_C18.5_3-SRR1033933_C18.5_3-SRR1033934_C18.5_3-SRR1033981_AT2-SRR1033982_AT2-SRR1033983_AT2-SRR1033984_AT2-SRR1033986_AT2-SRR1033987_AT2-SRR1033988_AT2-SRR1033990_AT2-SRR1033991_AT2-SRR1033992_AT2-SRR1033993_AT2-SRR1033994_AT2-SRR1033995_AT2-SRR1033996_AT2-SRR1033997_AT2-SRR1033998_AT2-SRR1033999_AT2-SRR1034001_AT2-SRR1034002_AT2-SRR1034004_AT2-SRR1034005_AT2-SRR1034006_AT2-SRR1034007_AT2-SRR1034008_AT2-SRR1034009_AT2-SRR1034010_AT2-SRR1034013_AT2-SRR1034014_AT2-SRR1034017_AT2-SRR1034018_AT2-SRR1034019_AT2-SRR1034020_AT2-SRR1034021_AT2-SRR1034022_AT2-SRR1034024_AT2-SRR1034026_AT2"
+        }
+    ],
+    "name": "Root1"
+}
