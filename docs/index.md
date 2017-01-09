@@ -27,7 +27,7 @@ Command Line:
 **1.  "scicast_command_log.txt" - log of command(s)**  
   Records exact command used to generate the output in the folder. Can be copy pasted to re-run and serves as a record of how results were generated.  
   *Example:*  
-  ```bash
+  ```
           2017-01-07 14:11  
           -f /path_to_file/scicast/krasnow_AT2_185_rsem_deseq_counts_norm.txt
           -n vignette -method ward -metric seuclidean -g 200 -depth 100 -z 0
