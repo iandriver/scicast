@@ -63,7 +63,7 @@ Command Line:
 **9. "Group0_kmeans_4_clusters.png" -Heatmap of all samples color coded by kmeans assignment.**..
   For each kmeans cluster number a heatmap will be generated with the samples color coded by kmeans group. The same colors will be used for cluster, heatmap and the best differential fold change gene plot (if significance testing on kmeans is selected).  
   *Example:*  
-  ![kmeans_clusters4](vignette_scicast_analysis/Group0_kmeans_4_clusters.png)  
+  ![kmeans_clusters4](vignette_scicast_analysis/kmeans_label_with_4_clusters_heatmap.png)  
 **10. "kmeans_4_differential_genes_foldchanges.png" -Heatmap of all samples color coded by kmeans assignment.**..
   If significance testing on kmeans is selected, the top genes for each group will be selected by fold change and adjusted pvalue. The output is meant to b used a rough approximation of best markers for each kmeans selected group.  
   *Example:*  
