@@ -309,10 +309,10 @@ def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=1
             if title != '':
                 save_name = '_'.join(title.split(' ')[0:2])
                 #plot_url = py.plot_mpl(cg)
-                cg.savefig(os.path.join(matrix_data.new_filepath, save_name+'_heatmap.pdf'), bbox_inches='tight')
+                cg.savefig(os.path.join(matrix_data.new_filepath, save_name+'_heatmap.'+args.image_format), bbox_inches='tight')
             else:
                 #plot_url = py.plot_mpl(cg)
-                cg.savefig(os.path.join(matrix_data.new_filepath,'Group0_Heatmap_all_cells.pdf'), bbox_inches='tight')
+                cg.savefig(os.path.join(matrix_data.new_filepath,'Group0_Heatmap_all_cells.'+args.image_format), bbox_inches='tight')
             plt.close('all')
         return cell_linkage, df_by_gene[gene_list], col_order
     except FloatingPointError:

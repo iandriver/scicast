@@ -43,6 +43,6 @@ def clust_stability(args, matrix_data, iterations):
     ax1.set_ylabel('Running ratio (new/last)')
     sns.barplot(x, y2, palette="RdBu_r", ax=ax2)
     ax2.set_ylabel('Ratio to 100')
-    plt.savefig(os.path.join(matrix_data.new_filepath,'clustering_stability.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(matrix_data.new_filepath,'clustering_stability.'+args.image_format), bbox_inches='tight')
     plt.close('all')
     return stability_ratio

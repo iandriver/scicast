@@ -162,7 +162,7 @@ def corr_plot(terms_to_search, df_by_gene_corr, args, matrix_data, title ='', so
                 ax.legend(l_labels, loc='upper left', bbox_to_anchor=(0.01, bbox_height), ncol=ncol, prop={'size':10})
             fig = plt.gcf()
             fig.subplots_adjust(bottom=0.08, top=0.95, right=0.98, left=0.03)
-            plt.savefig(os.path.join(path_filename, title+'_corr_with_'+term_to_search+'.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(path_filename, title+'_corr_with_'+term_to_search+'.'+args.image_format), bbox_inches='tight')
             plt.close('all')
         except KeyError:
             if args.verbose:
