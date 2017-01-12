@@ -260,7 +260,8 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
             else:
                 if args.verbose:
                     print(gp[0], 'not present in cell matrix')
-    fig, axs = plt.subplots(1, len(group_name_list), figsize=(23+len(group_name_list),13), sharex=False, sharey=False)
+    plt.rc('font', weight='bold')
+    fig, axs = plt.subplots(1, len(group_name_list), figsize=(42+len(group_name_list),16), sharex=False, sharey=False)
     axs = axs.ravel()
     color_map = {}
     best_gene_df_list = []
@@ -334,7 +335,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 axs[g_index].xaxis.set_ticks_position('none')
                 axs[g_index].yaxis.tick_right()
                 axs[g_index].set_title(gp)
-                axs[g_index].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11+(0.01*len(group_name_list))), ncol=1, prop={'size':15})
+                axs[g_index].legend(loc='upper left', bbox_to_anchor=(0.01, 1.11+(0.01*len(group_name_list))), ncol=1, prop={'size':18})
                 axs[g_index].set_xlabel('adjusted p-value')
                 for xmaj in axs[g_index].xaxis.get_majorticklocs():
                     axs[g_index].axvline(x=xmaj,ls='--', lw = 0.5, color='grey', alpha=0.3)
