@@ -67,6 +67,7 @@ def make_command_log(args,new_filepath):
         command_str+= ' -sig_unique'
     if args.use_TSNE:
         command_str+= ' -use_TSNE'
+    command_str+= ' -image_format '+str(args.image_format)
 
     new_file = new_filepath+'/scicast_command_log.txt'
     with open(new_file, 'a+') as f:

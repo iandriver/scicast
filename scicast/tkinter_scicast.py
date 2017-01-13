@@ -71,11 +71,19 @@ try:
             qgraph_menu_label = tk.Label(self, text="Choose which qgraph networks to generate:")
             qgraph_option_menu = tk.OptionMenu(self, self.qgraph_menu_var, 'gene','cell','both')
 
+            #setup image format selection menu
+            self.image_format_menu_var = tk.StringVar()
+            self.image_format_menu_var.set("pdf")
+            image_format_menu_label = tk.Label(self, text="Select image format for output files:")
+            image_format_option_menu = tk.OptionMenu(self, self.image_format_menu_var, 'tif', 'png', 'jpeg')
+
             #setup z-direction option menu
             self.zdir_menu_var = tk.IntVar()
             self.zdir_menu_var.set(0)
             zdir_menu_label = tk.Label(self, text="Choose z:")
             zdir_option_menu = tk.OptionMenu(self, self.zdir_menu_var, 1,'None')
+
+
 
             self.flags = ["Don't Run Heatmaps","Don't Run Correlation", "Verbose", "Test Significance by Groups (User Defined)", "Test Significance by Unbiased Clusters", "Exclude Cells Not in User Cell Groups", "Add Ellipse", "Add Cell Names to PCA", "Display Only Unique Signifcant Genes", "Run Significance Test for kmeans clusters", "Input Matrix is already log2", "use t-SNE (for kmeans clustering)"]
             self.variables = []
@@ -151,6 +159,9 @@ try:
             qgraph_menu_label.grid(row=15, column=4, columnspan=1, sticky='w')
             qgraph_option_menu.grid(row=16, column=4, columnspan=1, sticky='w')
 
+            image_format_menu_label.grid(row=17, column=4, columnspan=1, sticky='e')
+            image_format_option_menu.grid(row=18, column=4, columnspan=1, sticky='e')
+
             zdir_menu_label.grid(row=17, column=4, columnspan=1, sticky='w')
             zdir_option_menu.grid(row=18, column=4, columnspan=1, sticky='w')
 
@@ -208,6 +219,7 @@ try:
             asset_gene_path = self.gene_path.get()
             asset_zdir = self.zdir_menu_var.get()
             asset_qgraph = self.qgraph_menu_var.get()
+            asset_image_format = self.image_format_menu_var.get()
             asset_kmeans_cluster_range = self.kmeans_cluster_range.get()
             asset_exclude_gene_path = self.exclude_gene_path.get()
             asset_color_cells = self.color_cells.get()
@@ -227,6 +239,7 @@ try:
             all_options_dict['gene_file'] = asset_gene_path
             all_options_dict['zdir'] = asset_zdir
             all_options_dict['qgraph'] = asset_qgraph
+            all_options_dict['image_format'] = asset_image_format
             all_options_dict['kmeans_cluster_range'] = asset_kmeans_cluster_range
             all_options_dict['exclude_genes'] = asset_exclude_gene_path
             all_options_dict['color_cells'] = asset_color_cells
@@ -307,6 +320,12 @@ except ImportError:
             qgraph_menu_label = tk.Label(self, text="Choose which qgraph networks to generate:")
             qgraph_option_menu = tk.OptionMenu(self, self.qgraph_menu_var, 'gene','cell','both')
 
+            #setup image format selection menu
+            self.image_format_menu_var = tk.StringVar()
+            self.image_format_menu_var.set("pdf")
+            image_format_menu_label = tk.Label(self, text="Select image format for output files:")
+            image_format_menu = tk.OptionMenu(self, self.image_format_menu_var, 'tif', 'png', 'jpeg')
+
             #setup z-direction option menu
             self.zdir_menu_var = tk.IntVar()
             self.zdir_menu_var.set(0)
@@ -387,6 +406,9 @@ except ImportError:
             qgraph_menu_label.grid(row=15, column=4, columnspan=1, sticky='w')
             qgraph_option_menu.grid(row=16, column=4, columnspan=1, sticky='w')
 
+            image_format_menu_label.grid(row=17, column=5, columnspan=1, sticky='w')
+            image_format_option_menu.grid(row=18, column=5, columnspan=1, sticky='w')
+
             zdir_menu_label.grid(row=17, column=4, columnspan=1, sticky='w')
             zdir_option_menu.grid(row=18, column=4, columnspan=1, sticky='w')
 
@@ -444,6 +466,7 @@ except ImportError:
             asset_gene_path = self.gene_path.get()
             asset_zdir = self.zdir_menu_var.get()
             asset_qgraph = self.qgraph_menu_var.get()
+            asset_image_format = self.image_format_menu_var.get()
             asset_kmeans_cluster_range = self.kmeans_cluster_range.get()
             asset_exclude_gene_path = self.exclude_gene_path.get()
             asset_color_cells = self.color_cells.get()
@@ -463,6 +486,7 @@ except ImportError:
             all_options_dict['gene_file'] = asset_gene_path
             all_options_dict['zdir'] = asset_zdir
             all_options_dict['qgraph'] = asset_qgraph
+            all_options_dict['image_format'] = asset_image_format
             all_options_dict['kmeans_cluster_range'] = asset_kmeans_cluster_range
             all_options_dict['exclude_genes'] = asset_exclude_gene_path
             all_options_dict['color_cells'] = asset_color_cells

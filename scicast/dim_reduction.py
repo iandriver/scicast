@@ -192,9 +192,9 @@ def plot_PCA(args, matrix_data, title = '', gene_subcluster_matrix=False):
 
         if title != '':
             save_name = '_'.join(title.split(' ')[0:2])
-            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_skpca.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_skpca.'+args.image_format), bbox_inches='tight')
         else:
-            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_skpca.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_skpca.'+args.image_format), bbox_inches='tight')
         plt.close('all')
         return top_pca_list
     else:
@@ -339,17 +339,17 @@ def plot_SVD(args, matrix_data, gene_subcluster_matrix=False, title = ''):
                 ax_gene.annotate(label, (x+0.1, y+0.1))
         if title != '':
             save_name = '_'.join(title.split(' ')[0:2])
-            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_TruncatedSVD.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_TruncatedSVD.'+args.image_format), bbox_inches='tight')
             #plot_url = py.plot_mpl(fig)
         else:
             #plot_url = py.plot_mpl(fig)
-            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_TruncatedSVD.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_TruncatedSVD.'+args.image_format), bbox_inches='tight')
         plt.close('all')
         return top_pca_list
     else:
         return []
 
-#create cell and gene TSNE scatter plots (one pdf)
+#create cell and gene TSNE scatter plots (one file for both)
 def plot_TSNE(args, matrix_data, title= ''):
     sns.set(context= 'poster', font_scale = 1.2)
     sns.set_palette("RdBu_r", 10, 1)
@@ -479,15 +479,15 @@ def plot_TSNE(args, matrix_data, title= ''):
 
         if title != '':
             save_name = '_'.join(title.split(' ')[0:2])
-            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_TSNE.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,save_name+'_TSNE.'+args.image_format), bbox_inches='tight')
         else:
-            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_TSNE.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(matrix_data.new_filepath,'Group0_TSNE.'+args.image_format), bbox_inches='tight')
         plt.close('all')
         return top_pca_list
     else:
         return []
 
-#create cell and gene TSNE scatter plots (one pdf)
+#create kmeans cluster and silhouette_score plot
 def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     sns.set(context= 'poster', font_scale = 1.2)
     from sklearn.metrics import silhouette_samples, silhouette_score
@@ -625,7 +625,7 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
                       "with n_clusters = %d" % n_clusters),
                      fontsize=14, fontweight='bold')
 
-        plt.savefig(os.path.join(path_filename,'Group0_kmeans_'+str(n_clusters)+'_clusters.pdf'), bbox_inches='tight')
+        plt.savefig(os.path.join(path_filename,'Group0_kmeans_'+str(n_clusters)+'_clusters.'+args.image_format), bbox_inches='tight')
         plt.close('all')
 
         #use colors to make label map compatable with heatmap

@@ -343,8 +343,8 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 plt.subplots_adjust(left=.08, wspace=.3)
     best_gene_df = pd.concat(best_gene_df_list)
     if from_kmeans == '':
-        plt.savefig(os.path.join(path_filename,'differential_genes_foldchanges.pdf'), bbox_inches='tight')
+        plt.savefig(os.path.join(path_filename,'differential_genes_foldchanges.'+args.image_format), bbox_inches='tight')
         best_gene_df.to_csv(os.path.join(path_filename,'Best_Gene_list.txt'), sep = '\t')
     else:
-        plt.savefig(os.path.join(path_filename,from_kmeans+'_differential_genes_foldchanges.pdf'), bbox_inches='tight')
+        plt.savefig(os.path.join(path_filename,from_kmeans+'_differential_genes_foldchanges.'+args.image_format), bbox_inches='tight')
         best_gene_df.to_csv(os.path.join(path_filename,from_kmeans+'_Best_Gene_list.txt'), sep = '\t')

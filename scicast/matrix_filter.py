@@ -300,12 +300,12 @@ class Matrix_filter(object):
             sns.stripplot(x=filtered_log2.columns.values, y=filtered_log2.mean(axis=0), size=4, jitter=True, edgecolor="gray", ax=ax1)
             xtickNames = plt.setp(ax1, xticklabels=xticks)
             plt.setp(xtickNames, rotation=90, fontsize=9)
-            plt.savefig(os.path.join(self.new_filepath, 'top_log2_genes_plot.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(self.new_filepath, 'top_log2_genes_plot.'+args.image_format), bbox_inches='tight')
             plt.clf()
             fig2, ax2 = plt.subplots(figsize=(12,10))
             sns.distplot(filtered_log2.mean(), color='r', label='After filtering', ax=ax2)
             sns.distplot(self.log2_df_cell.mean(), color='b', hist=False, label='Before filtering', ax=ax2)
-            plt.savefig(os.path.join(self.new_filepath, 'distribution_log2_genes_plot.pdf'), bbox_inches='tight')
+            plt.savefig(os.path.join(self.new_filepath, 'distribution_log2_genes_plot.'+args.image_format), bbox_inches='tight')
 
             self.log2_df_cell = filtered_log2
             if isinstance(self.short_gene_matrix_cell, pd.DataFrame):

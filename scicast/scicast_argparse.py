@@ -189,6 +189,11 @@ def get_parser():
                         default=False,
                         action='store_true',
                         help="Use t-SNE dimensions for k-means clustering rather than SVD.")
+    parser.add_argument("-image_format",
+                        dest="image_format",
+                        default="pdf",
+                        help="Specify image format for output (pdf,png,tiff,etc.)")
+
 
     args = parser.parse_args()
 
@@ -214,6 +219,7 @@ def get_parser():
     all_options_dict['test_clust_stability'] = args.test_clust_stability
     all_options_dict['genes_corr'] = args.genes_corr
     all_options_dict['annotate_gene_subset'] = args.annotate_gene_subset
+    all_options_dict['image_format'] = args.image_format
     for var, flag in zip(yes_or_no_answers, yes_or_no_options):
         all_options_dict[flag] = var
     try:
