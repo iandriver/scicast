@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.8.22'
+VERSION = '0.8.23'
 
 try:
     from setuptools import setup
@@ -47,6 +47,10 @@ def check_dependencies():
         import scipy
     except ImportError:
         install_requires.append('scipy')
+    try:
+        import sklearn
+    except ImportError:
+        install_requires.append('scikit-learn')
     try:
         import matplotlib
     except ImportError:
