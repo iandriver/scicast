@@ -20,12 +20,12 @@ def group_gene_expression(args, matrix_data, threshold_of_expression = 1, from_k
 
     if alt_color_dict:
         color_dict_cell = alt_color_dict
-        cell_groups_df = pd.read_csv(open(kmeans_groups_file,'rU'), sep=None, engine='python')
+        cell_groups_df = pd.read_table(open(kmeans_groups_file,'rU'), sep='\s+', engine='python')
         group_name_list = [str(gp) for gp in list(set(cell_groups_df['GroupID']))]
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
-        cell_groups_df = pd.read_csv(open(matrix_data.cell_list_filepath,'rU'), sep=None, engine='python')
+        cell_groups_df = pd.read_table(open(matrix_data.cell_list_filepath,'rU'), sep='\s+', engine='python')
         group_name_list = [str(gp) for gp in list(set(cell_groups_df['GroupID']))]
 
 
@@ -87,13 +87,13 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
 
     if alt_color_dict:
         color_dict_cell = alt_color_dict
-        cell_groups_df = pd.read_csv(open(kmeans_groups_file,'rU'), sep=None, engine='python')
+        cell_groups_df = pd.read_table(open(kmeans_groups_file,'rU'), sep='\s+', engine='python')
         primary_group_name = 'GroupID'
         group_name_list = [str(gp) for gp in list(set(cell_groups_df[primary_group_name]))]
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
-        cell_groups_df = pd.read_csv(open(matrix_data.cell_list_filepath,'rU'), sep=None, engine='python')
+        cell_groups_df = pd.read_table(open(matrix_data.cell_list_filepath,'rU'), sep='\s+', engine='python')
         group_name_list = matrix_data.cell_group_names
         primary_group_name = group_name_list[0]
         group_name_list = [str(gp) for gp in list(set(cell_groups_df[primary_group_name]))]

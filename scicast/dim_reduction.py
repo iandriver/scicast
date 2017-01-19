@@ -494,7 +494,7 @@ def plot_kmeans(args, matrix_data, kmeans_range, title=''):
     try:
         from .heatmaps import clust_heatmap
         from .significance_testing import multi_group_sig
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from heatmaps import clust_heatmap
         from significance_testing import multi_group_sig
     import matplotlib.cm as cm

@@ -78,7 +78,7 @@ def main():
     #check for -gui flag
     try:
         from .scicast_argparse import check_gui_parser
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from scicast_argparse import check_gui_parser
     try:
         gui = check_gui_parser()
@@ -88,7 +88,7 @@ def main():
     if run_gui:
         try:
             from .tkinter_scicast import Window
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from tkinter_scicast import Window
         scicast_window = Window()
         scicast_window.mainloop()
@@ -106,7 +106,7 @@ def main():
     else:
         try:
             from .scicast_argparse import get_parser
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from scicast_argparse import get_parser
         args = get_parser()
 
@@ -170,7 +170,7 @@ def main():
     #process matrix data into matrix class object matrix_data
     try:
         from .matrix_filter import Matrix_filter
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from matrix_filter import Matrix_filter
     matrix_data = Matrix_filter(cell_df=df_by_cell1 , args=args, cell_list_filepath=cell_file, gene_list_filepath=gene_file)
 
@@ -181,7 +181,7 @@ def main():
     if  stability_iteration_num != 0:
         try:
             from .stability_test import clust_stability
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from stability_test import clust_stability
         clust_stability(args, matrix_data, stability_iteration_num)
 
@@ -201,7 +201,7 @@ def main():
         try:
             from .dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
             from .heatmaps import clust_heatmap,make_tree_json,make_subclusters
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from dim_reduction import plot_kmeans,plot_SVD,plot_TSNE,return_top_pca_gene
             from heatmaps import clust_heatmap,make_tree_json,make_subclusters
         plot_SVD(args, matrix_data, title='all_cells')
@@ -224,7 +224,7 @@ def main():
         try:
             from .correlation import corr_plot
             from .dim_reduction import return_top_pca_gene
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from correlation import corr_plot
             from dim_reduction import return_top_pca_gene
         top_pca_gene_df, top_pca = return_top_pca_gene(args, matrix_data.log2_df_cell)
@@ -235,20 +235,20 @@ def main():
     if args.qgraph_plot == 'both':
         try:
             from .R_qgraph import run_qgraph
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     elif args.qgraph_plot == 'gene':
         try:
             from .R_qgraph import run_qgraph
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='gene')
     elif args.qgraph_plot == 'cell':
         try:
             from .R_qgraph import run_qgraph
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from R_qgraph import run_qgraph
         run_qgraph(args, matrix_data, gene_or_cell='cell')
     if args.all_sig:
@@ -264,7 +264,7 @@ def main():
     if args.group_sig_test and args.cell_list_filename:
         try:
             from .significance_testing import multi_group_sig
-        except (SystemError, ValueError):
+        except (SystemError, ValueError, ImportError):
             from significance_testing import multi_group_sig
         multi_group_sig(args, matrix_data)
 

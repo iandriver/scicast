@@ -224,7 +224,7 @@ def get_parser():
         all_options_dict[flag] = var
     try:
         from .sci_load import Sci_load
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from sci_load import Sci_load
     scil = Sci_load()
     opts_all = scil.load_options(all_options_dict = all_options_dict)

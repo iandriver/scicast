@@ -39,7 +39,7 @@ class Matrix_filter(object):
         self.cell_color_list = [color for color in self.cell_color_list if color not in colors_to_remove]
 
         if args.exclude_genes:
-            excluded_genes_df = pd.read_csv(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
+            excluded_genes_df = pd.read_table(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
             try:
                 self.exclude_list = [g1 for g1 in excluded_genes_df['GeneID'].tolist() if g1 in self.gene_names]
                 not_in_mat = [g1 for g1 in excluded_genes_df['GeneID'].tolist() if g1 not in self.gene_names]
@@ -72,7 +72,7 @@ class Matrix_filter(object):
         #if user input color and or marker values are provided generate color_dict
         if args.color_cells:
             self.color_dict_cells= {}
-            cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
+            cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
             self.cell_group_names = cell_groups_df.columns.tolist()[1:]
             color_list1 = args.color_cells.split(' ')
             for i, c in enumerate(color_list1):
@@ -85,7 +85,7 @@ class Matrix_filter(object):
         elif self.cell_list_filepath:
             self.color_dict_cells= {}
             self.cell_group_set = {}
-            cell_groups_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
+            cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
             self.cell_group_names = cell_groups_df.columns.tolist()[1:]
             cell_group_num = len(self.cell_group_names)
             color_marker_start = 0
@@ -123,7 +123,7 @@ class Matrix_filter(object):
                     self.color_dict_genes[c_pair[0]] = [c_pair[1],c_pair[2]]
         elif self.gene_list_filepath:
             self.color_dict_genes= {}
-            gene_groups_df = pd.read_csv(open(self.gene_list_filepath,'rU'), sep=None, engine='python')
+            gene_groups_df = pd.read_table(open(self.gene_list_filepath,'rU'), sep='\s+', engine='python')
 
             gene_group_set = list(set(gene_groups_df['GroupID'].tolist()))
             for i, group in enumerate(gene_group_set):
@@ -162,7 +162,7 @@ class Matrix_filter(object):
         from itertools import compress
         #if gene_list_or_file is string, treat as a path to a file
         if isinstance(gene_list_or_file,str):
-            gene_df = pd.read_csv(open(gene_list_or_file,'rU'), sep=None, engine='python')
+            gene_df = pd.read_table(open(gene_list_or_file,'rU'), sep='\s+', engine='python')
             #look for GeneID header otherwise exit and print error
             try:
                 self.short_gene_list = list(set(gene_df['GeneID'].tolist()))
@@ -179,7 +179,8 @@ class Matrix_filter(object):
                 else:
                     self.gene_group_list = gene_df['GroupID'].tolist()
             except KeyError:
-                sys.exit("Error: Please provide Gene list file with 'GroupID' as header.")
+                "No 'GroupID' was found, gene groups will be blank."
+                self.gene_group_list = ["" for x in self.short_gene_list]
             try:
                 self.short_gene_matrix_cell = self.threshold_genes(self.data_by_cell.loc[self.short_gene_list,:])
 
@@ -210,7 +211,7 @@ class Matrix_filter(object):
             sys.exit("Error: gene list must be filepath or a list.")
 
     def make_new_matrix_cell(self):
-        cell_df = pd.read_csv(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
+        cell_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
         cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
         cell_list_old = self.data_by_cell.columns.tolist()
         overlap = [c for c in cell_list_new if c in cell_list_old]
@@ -321,7 +322,7 @@ class Matrix_filter(object):
     '''
     def cell_color_map(self, args):
         if self.cell_list_filepath:
-            cell_groups_df = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), self.cell_list_filepath),'rU'), sep=None, engine='python')
+            cell_groups_df = pd.read_table(open(os.path.join(os.path.dirname(args.filepath), self.cell_list_filepath),'rU'), sep='\s+', engine='python')
             cell_list_1 = list(set(self.cell_list))
             self.cell_label_map = {}
             for cell1 in cell_list_1:
@@ -352,7 +353,7 @@ class Matrix_filter(object):
     def gene_color_map(self, args):
 
         if self.gene_list_filepath:
-            gene_df1 = pd.read_csv(open(os.path.join(os.path.dirname(args.filepath), self.gene_list_filepath),'rU'), sep=None, engine='python')
+            gene_df1 = pd.read_table(open(os.path.join(os.path.dirname(args.filepath), self.gene_list_filepath),'rU'), sep='\s+', engine='python')
             if self.exclude_list != []:
                 gene_df = gene_df1.ix[~gene_df1['GeneID'].isin(self.exclude_list)]
             else:

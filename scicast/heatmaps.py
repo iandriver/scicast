@@ -143,7 +143,7 @@ def find_twobytwo(cc, args, matrix_data):
 def clust_heatmap(args, matrix_data, title= '', matrix_subset = None, fontsize=18, stablity_plot_num = 0, kmeans_color_map= {}, plot=True):
     try:
         from .dim_reduction import return_top_pca_gene
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from dim_reduction import return_top_pca_gene
     if isinstance(matrix_subset,pd.DataFrame):
         cell_list = matrix_subset.index.tolist()
@@ -326,7 +326,7 @@ def make_subclusters(args, cc, matrix_data):
     '''
     try:
         from .dim_reduction import return_top_pca_gene, plot_SVD
-    except (SystemError, ValueError):
+    except (SystemError, ValueError, ImportError):
         from dim_reduction import return_top_pca_gene, plot_SVD
 
     #initial cell group is parent
@@ -380,7 +380,7 @@ def make_subclusters(args, cc, matrix_data):
                 if not args.no_corr:
                     try:
                         from .correlation import corr_plot
-                    except (SystemError, ValueError):
+                    except (SystemError, ValueError, ImportError):
                         from correlation import corr_plot
                     top_genes_search = top_pca[0:50]
                     corr_plot(top_genes_search, full_gene_subset, args, matrix_data, title = current_title)
