@@ -12,6 +12,8 @@ Requires
 
 - [scipy](http://www.scipy.org/)
 
+- [scikit-learn](http://scikit-learn.org/)
+
 - [matplotlib](http://matplotlib.org/)
 
 - [pandas >= 0.19.0](http://pandas.pydata.org/)
