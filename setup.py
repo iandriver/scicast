@@ -25,7 +25,7 @@ MAINTAINER_EMAIL = 'ian.driver@ucsf.edu'
 URL = 'https://github.com/iandriver/scicast'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/iandriver/scicast'
-VERSION = '0.8.23'
+VERSION = '0.8.24'
 
 try:
     from setuptools import setup
@@ -99,8 +99,8 @@ if __name__ == "__main__":
         classifiers=[
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: 2.7',
-                     'Programming Language :: Python :: 3.3',
                      'Programming Language :: Python :: 3.5',
+                     'Programming Language :: Python :: 3.6',
                      'License :: OSI Approved :: MIT License',
                      'Topic :: Scientific/Engineering :: Visualization',
                      'Topic :: Scientific/Engineering :: Bio-Informatics',
