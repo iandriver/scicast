@@ -47,13 +47,13 @@ List of files output:
   *Example:*  
   ![log2_dist](vignette_scicast_analysis/distribution_log2_genes_plot.png)  
 **4. "log2_matrix_after_filtering.txt" and "count_matrix_after_filtering.txt" - sample-gene matrix files after filtering.**  
-  log2 matrix and non-log2 matrix of samples and genes after filter.  
+  log2 matrix and non-log2 matrix of samples and genes after filter. These are useful as reference (the exact dataset used in the analysis).  
 **5. "all_cells_TruncatedSVD.png" -PCA plot PC1 vs PC2 of cells and gene component loading.**  
-  scicast uses single variable decomposition (SVD) to plot the PCA of both samples/cells and the gene loadings.  
+  scicast uses single variable decomposition (SVD) to plot the PCA of both samples/cells and the gene loadings. Cell labels can be added with -annotate_cell_pca flag or checking the annotate cell pca box in the GUI. The labeled genes in the gene loading PCA can be restricted by providing a list of gene labels to the -annotate_gene_subset flag or in the GUI.  
   *Example:*  
   ![PCA(SVD)](vignette_scicast_analysis/all_cells_TruncatedSVD.png)  
 **6. "all_cells_TSNE.png" -TSNE diminsional reduction cell and gene loading plots.**  
-  scicast will also run TSNE, if the data variability extends past PC2 (very different cell types, mitosis, death, etc.) TSNE will yeild better results than PCA(SVD). In this example TSNE does a poor job. SVD(PCA) is used for kmeans clustering in later steps.  
+  scicast will also run TSNE, if the data variability extends past PC2 (very different cell types, mitosis, death, etc.) TSNE will yeild better results than PCA(SVD). In this example TSNE does a poor job. SVD(PCA) is used for kmeans clustering in later steps.   
   *Example:*  
   ![TSNE](vignette_scicast_analysis/all_cells_TSNE.png)  
 **7. "Group0_kmeans_4_clusters.png" -silhouette plot and kmeans clusters for 4 groups.**  
@@ -61,7 +61,7 @@ List of files output:
   *Example:*  
   ![kmeans_clusters4](vignette_scicast_analysis/Group0_kmeans_4_clusters.png)  
 **8. "kmeans_4_group_pairwise_significance_files" -All of the pairwise significance tests and each group vs all other samples.**  
-  If significance testing on kmeans is selected, the output of each significance test will be in a folder for each kmeans group. Can be useful for detailed interrogation of cluster groups. Gene lists can be manually filtered in excel or program of choice. \*Note: Significance testing is time consuming.  
+  If significance testing on kmeans is selected, the output of each significance test will be in a folder for each kmeans group. Can be useful for detailed interrogation of cluster groups. Gene lists can be manually filtered in excel or program of choice. \*Note: Significance testing is time consuming (several minutes depending on the dataset size).  
   *Example:*  
   ![sigtest_example](scicast_pvalues_kmeans_example.png)  
 **9. "Group0_kmeans_4_clusters.png" -Heatmap of all samples color coded by kmeans assignment.**  
@@ -69,6 +69,6 @@ List of files output:
   *Example:*  
   ![kmeans_clusters4](vignette_scicast_analysis/kmeans_label_with_4_clusters_heatmap.png)  
 **10. "kmeans_4_differential_genes_foldchanges.png" -Heatmap of all samples color coded by kmeans assignment.**  
-  If significance testing on kmeans is selected, the top genes for each group will be selected by fold change and adjusted pvalue. The output is meant to b used a rough approximation of best markers for each kmeans selected group.  
+  If significance testing on kmeans is selected, the top genes for each group will be selected by fold change and adjusted pvalue. The output is meant to be used a rough approximation of best markers for each kmeans selected group.  
   *Example:*  
   ![kmeans_clusters4](vignette_scicast_analysis/kmeans_4_differential_genes_foldchanges.png)  
