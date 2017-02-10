@@ -8,6 +8,14 @@ Requires
 --------
 - Python 2.7 or 3.4+ (preferred)
 
+- tkinter
+        ```
+        conda install tk
+        ```
+        or
+        ```
+        brew install python --with-brewed-tk
+        ```
 - [numpy](http://www.numpy.org/)
 
 - [scipy](http://www.scipy.org/)
