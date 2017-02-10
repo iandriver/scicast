@@ -251,7 +251,7 @@ try:
             self.destroy()
 except ImportError:
     import Tkinter as tk
-    import tkFileDialog.askopenfilename as askopenfilename
+    import tkFileDialog
 
     class Window(tk.Frame):
         def __init__(self):
@@ -434,23 +434,23 @@ except ImportError:
 
 
         def browse(self):
-            file_path= askopenfilename(**self.file_opt)
+            file_path= tkFileDialog.askopenfilename(**self.file_opt)
             if file_path:
                 self.path.set(file_path)
         def browse_cellp(self):
-            file_path= askopenfilename(**self.file_opt)
+            file_path= tkFileDialog.askopenfilename(**self.file_opt)
             if file_path:
                 self.cell_path.set(file_path)
         def browse_genep(self):
-            file_path= askopenfilename(**self.file_opt)
+            file_path= tkFileDialog.askopenfilename(**self.file_opt)
             if file_path:
                 self.gene_path.set(file_path)
         def browse_excludeg(self):
-            file_path= askopenfilename(**self.file_opt)
+            file_path= tkFileDialog.askopenfilename(**self.file_opt)
             if file_path:
                 self.exclude_gene_path.set(file_path)
         def browse_annotateg(self):
-            file_path= askopenfilename(**self.file_opt)
+            file_path= tkFileDialog.askopenfilename(**self.file_opt)
             if file_path:
                 self.annotate_gene_subset.set(file_path)
 
