@@ -256,7 +256,7 @@ except ImportError:
     class Window(tk.Frame):
         def __init__(self):
             tk.Frame.__init__(self)
-            self.title("scicast")
+            #self.title("scicast")
             self.path = tk.StringVar()
             self.cell_path = tk.StringVar()
             self.gene_path = tk.StringVar()
@@ -324,7 +324,7 @@ except ImportError:
             self.image_format_menu_var = tk.StringVar()
             self.image_format_menu_var.set("pdf")
             image_format_menu_label = tk.Label(self, text="Select image format for output files:")
-            image_format_menu = tk.OptionMenu(self, self.image_format_menu_var, 'tif', 'png', 'jpeg')
+            image_format_option_menu = tk.OptionMenu(self, self.image_format_menu_var, 'tif', 'png', 'jpeg')
 
             #setup z-direction option menu
             self.zdir_menu_var = tk.IntVar()
