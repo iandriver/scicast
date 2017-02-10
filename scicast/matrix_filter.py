@@ -104,7 +104,7 @@ class Matrix_filter(object):
                     if g != 'None':
                         self.color_dict_cells[g] =[c,m]
                     else:
-                        self.color_dict_cells[g] =['white',m]
+                        self.color_dict_cells[g] =['black',m]
                 color_marker_start = group_member_num
 
 
@@ -165,25 +165,35 @@ class Matrix_filter(object):
             gene_df = pd.read_table(open(gene_list_or_file,'rU'), sep='\s+', engine='python')
             #look for GeneID header otherwise exit and print error
             try:
-                self.short_gene_list = list(set(gene_df['GeneID'].tolist()))
+                #check to make sure gene list genes are in the matrix
+                self.short_gene_list = [x for x in list(set(gene_df['GeneID'].tolist())) if x in self.gene_names]
+                absent_genes = [x for x in list(set(gene_df['GeneID'].tolist())) if x not in self.gene_names]
+                if absent_genes != []:
+                    #format absent gene list for printing and print it
+                    unicode_line = str(absent_genes).translate({ord(c): None for c in '[]\''})
+                    print("Some genes you provided are not present: "+str(unicode_line))
+                #if exclude list exists remove those genes from gene list
                 if self.exclude_list:
-
                     self.short_gene_list = [g for g in self.short_gene_list if g not in self.exclude_list and g in self.gene_list]
-
+            #Error out if the file provided does not have 'GeneID' header
             except KeyError:
                 sys.exit("Error: Please provide Gene list file with 'GeneID' as header.")
+
+            #attempt to create GroupID if provided will work without it
             try:
                 if self.exclude_list:
                     mask = [True if g not in self.exclude_list and g in self.gene_list else False for g in self.short_gene_list]
                     self.gene_group_list = list(compress(gene_df['GroupID'].tolist(), mask))
                 else:
                     self.gene_group_list = gene_df['GroupID'].tolist()
+            #if no GroupIDs are provided inform user and create empty list
             except KeyError:
                 "No 'GroupID' was found, gene groups will be blank."
                 self.gene_group_list = ["" for x in self.short_gene_list]
+            #filter new matrix to remove all zero entries if any have been created
             try:
                 self.short_gene_matrix_cell = self.threshold_genes(self.data_by_cell.loc[self.short_gene_list,:])
-
+            #if any genes not in matrix are still present handle the error and inform the user
             except KeyError as error_gene:
                 cause1 = error_gene.args[0].strip(' not in index')
                 cause = [error_v.strip('\n\' ') for error_v in cause1.strip('[]').split(' ')]
