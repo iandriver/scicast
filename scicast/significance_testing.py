@@ -93,10 +93,13 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
 
     else:
         color_dict_cell = matrix_data.color_dict_cells
-        cell_groups_df = pd.read_table(open(matrix_data.cell_list_filepath,'rU'), sep='\s+', engine='python')
+        cell_groups_df = matrix_data.cell_groups_df
         group_name_list = matrix_data.cell_group_names
         primary_group_name = group_name_list[0]
         group_name_list = [str(gp) for gp in list(set(cell_groups_df[primary_group_name]))]
+    if len(list(set(group_name_list))) ==1:
+        print("MultiGroupSig Error: only one group exists")
+        return(None)
     plot_pvalue = False
     from rpy2.robjects.packages import importr
     from rpy2.robjects.vectors import FloatVector
@@ -309,8 +312,10 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 best_gene_df_list.append(final_gp_df)
 
                 color_map["Significance vs. "+vs_name] = color_dict_cell[vs_name][0]
-
-            final_plot_df = pd.concat(plot_vs_df_list)
+            try:
+                final_plot_df = pd.concat(plot_vs_df_list)
+            except ValueError:
+                break
             if args.sig_unique:
                 final_plot_df = pd.concat(plot_vs_df_list).sort_values(by='adjusted_pvalue', inplace=True)
                 final_plot_df.drop_duplicates('GeneID', inplace=True)
