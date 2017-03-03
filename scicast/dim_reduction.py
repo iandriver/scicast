@@ -225,10 +225,10 @@ def plot_SVD(args, matrix_data, gene_subcluster_matrix=False, title = ''):
         df_by_gene = matrix_data.log2_df_cell.transpose()
     gene_pca = TruncatedSVD(n_components=3)
     np_by_gene = np.asarray(df_by_gene)
-
+    gene_list = df_by_gene.columns.tolist()
     by_gene_trans = gene_pca.fit_transform(np_by_gene)
-
-    Pc_df = pd.DataFrame(gene_pca.components_.T, columns=['PC-1', 'PC-2', 'PC-3'], index=gene_list)
+    pca_t = gene_pca.components_.T
+    Pc_df = pd.DataFrame(pca_t, columns=['PC-1', 'PC-2', 'PC-3'], index=df_by_gene.columns.tolist())
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len_gene_list)
     top_pca_list = Pc_sort_df.index.tolist()
@@ -370,7 +370,7 @@ def plot_TSNE(args, matrix_data, title= ''):
     np_by_gene = np.asarray(df_by_gene)
 
     by_gene_trans = gene_pca.fit_transform(np_by_gene)
-    Pc_df = pd.DataFrame(gene_pca.components_.T, columns=['PC-1', 'PC-2', 'PC-3'], index=gene_list)
+    Pc_df = pd.DataFrame(gene_pca.components_.T, columns=['PC-1', 'PC-2', 'PC-3'], index=df_by_gene.columns.tolist())
     pca_rank_df = Pc_df.abs().sum(axis=1)
     Pc_sort_df = pca_rank_df.nlargest(len_gene_list)
     top_pca_list = Pc_sort_df.index.tolist()
