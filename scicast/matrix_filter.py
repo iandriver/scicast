@@ -34,7 +34,7 @@ class Matrix_filter(object):
         self.markers = ['o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd','o', 'v','D','*','x','h', 's','p','8','^','>','<', 'd']
         from matplotlib import colors
         all_color_list = list(colors.cnames.keys())
-        self.cell_color_list = ['b', 'm', 'r', 'c', 'g','y','k']+all_color_list
+        self.cell_color_list = ['r', 'g', 'b', 'orange', 'purple','m','y','k']+all_color_list
         colors_to_remove = ['gray', 'white', 'oldlace', 'silver', 'lightgrey', 'grey', 'linen', 'snow', 'dimgray', 'slategray', 'dimgrey', 'lightslategrey', 'antiquewhite', 'beige']
         self.cell_color_list = [color for color in self.cell_color_list if color not in colors_to_remove]
 
@@ -51,6 +51,13 @@ class Matrix_filter(object):
                 print(str(not_in_mat)+' already filtered from matrix.')
         else:
             self.exclude_list = []
+
+        if self.cell_list_filepath:
+            self.cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
+            self.cell_group_names = self.cell_groups_df.columns.tolist()[1:]
+            if self.cell_group_names == []:
+                self.cell_groups_df['GroupID'] = pd.Series(['None' for x in range(len(self.cell_groups_df['SampleID']))])
+                self.cell_group_names =['GroupID']
 
         #if cells are to be excluded filter them out and generate log2 matrix otherwise just generate log2_matrix
         if args.limit_cells and self.cell_list_filepath:
@@ -72,8 +79,6 @@ class Matrix_filter(object):
         #if user input color and or marker values are provided generate color_dict
         if args.color_cells:
             self.color_dict_cells= {}
-            cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
-            self.cell_group_names = cell_groups_df.columns.tolist()[1:]
             color_list1 = args.color_cells.split(' ')
             for i, c in enumerate(color_list1):
                 c_pair = c.split(',')
@@ -85,13 +90,13 @@ class Matrix_filter(object):
         elif self.cell_list_filepath:
             self.color_dict_cells= {}
             self.cell_group_set = {}
-            cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
-            self.cell_group_names = cell_groups_df.columns.tolist()[1:]
+
             cell_group_num = len(self.cell_group_names)
+
             color_marker_start = 0
             for group_name in self.cell_group_names:
                 group_name = str(group_name)
-                self.cell_group_set[group_name] = [str(x) for x in list(set(cell_groups_df[group_name].tolist()))]
+                self.cell_group_set[group_name] = [str(x) for x in list(set(self.cell_groups_df[group_name].tolist()))]
                 group_member_num = len(self.cell_group_set[group_name])+color_marker_start
                 for i, group in enumerate(self.cell_group_set[group_name]):
                     try:
@@ -221,8 +226,8 @@ class Matrix_filter(object):
             sys.exit("Error: gene list must be filepath or a list.")
 
     def make_new_matrix_cell(self):
-        cell_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
-        cell_list_new = list(set([cell.strip('\n') for cell in cell_df['SampleID'].tolist()]))
+
+        cell_list_new = list(set([cell.strip('\n') for cell in self.cell_groups_df['SampleID'].tolist()]))
         cell_list_old = self.data_by_cell.columns.tolist()
         overlap = [c for c in cell_list_new if c in cell_list_old]
         not_in_matrix = [c for c in cell_list_new if c not in cell_list_old]
@@ -332,7 +337,6 @@ class Matrix_filter(object):
     '''
     def cell_color_map(self, args):
         if self.cell_list_filepath:
-            cell_groups_df = pd.read_table(open(os.path.join(os.path.dirname(args.filepath), self.cell_list_filepath),'rU'), sep='\s+', engine='python')
             cell_list_1 = list(set(self.cell_list))
             self.cell_label_map = {}
             for cell1 in cell_list_1:
@@ -342,7 +346,7 @@ class Matrix_filter(object):
                 cells_seen = []
 
 
-                for cell, group in list(set(zip(cell_groups_df['SampleID'].tolist(), cell_groups_df[group_name].tolist()))):
+                for cell, group in list(set(zip(self.cell_groups_df['SampleID'].tolist(), self.cell_groups_df[group_name].tolist()))):
                     if cell not in cells_seen:
                         try:
                             if math.isnan(float(group)):
