@@ -51,7 +51,7 @@ try:
             #define file extensions
             self.file_opt = options = {}
             options['defaultextension'] = '.txt'
-            options['filetypes'] = [('all files', '.*'), ('text files', '.txt'),('csv files', '.csv'), ('cufflinks counts', '.count_table'), ('cufflinks fpkm', 'fpkm_table')]
+            options['filetypes'] = [('all files', '.*'), ('text files', '.txt'),('csv files', '.csv'), ('cufflinks counts', '.count_table'), ('cufflinks fpkm', 'fpkm_table') ('gene matrix', '.matrix')]
 
             #setup metric menu options
             self.metric_menu_var = tk.StringVar()
