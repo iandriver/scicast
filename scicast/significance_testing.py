@@ -11,6 +11,7 @@ import matplotlib.patches as patches
 import warnings
 import numpy as np
 from collections import Counter
+import statsmodels.stats.multitest as smm
 
 
 
@@ -101,9 +102,9 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
         print("MultiGroupSig Error: only one group exists")
         return(None)
     plot_pvalue = False
-    from rpy2.robjects.packages import importr
-    from rpy2.robjects.vectors import FloatVector
-    stats = importr('stats')
+    #from rpy2.robjects.packages import importr
+    #from rpy2.robjects.vectors import FloatVector
+    #stats = importr('stats')
 
     group_pairs = list(set(itertools.combinations(group_name_list,2)))
     gene_list = full_by_cell_df.index.tolist()
@@ -156,7 +157,7 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 sig_vs_all_gene_list.sort(key=lambda tup: tup[1])
                 pvalues_all = np.asarray([p[1] for p in sig_vs_all_gene_list], dtype=float)
 
-                p_adjust_all = np.asarray(stats.p_adjust(FloatVector(pvalues_all), method = 'BH'), dtype=float)
+                p_adjust_all = np.asarray(smm.multipletests(pvalues_all, alpha=0.05, method='fdr_bh', is_sorted=False, returnsorted=False)[1])
                 gene_index_all = [ge[0] for ge in sig_vs_all_gene_list]
                 mean_log2_exp_list_all = []
                 sig_1_2_list_all = []
@@ -180,7 +181,8 @@ def multi_group_sig(args, matrix_data, sig_to_plot = 20, from_kmeans='', alt_col
                 sig_df_vs_other.to_csv(os.path.join(multi_sig_filename,'sig_'+str(gp[0])+'_VS_all_other_pvalues.txt'), sep = '\t')
                 gp_vs_all_seen.append(gp[0])
             pvalues = [p[1] for p in sig_gene_list]
-            p_adjust = stats.p_adjust(FloatVector(pvalues), method = 'BH')
+            #p_adjust = stats.p_adjust(FloatVector(pvalues), method = 'BH')
+            p_adjust = np.asarray(smm.multipletests(pvalues, alpha=0.05, method='fdr_bh', is_sorted=False, returnsorted=False)[1])
             gene_index = [ge[0] for ge in sig_gene_list]
 
             mean_log2_exp_list = []
