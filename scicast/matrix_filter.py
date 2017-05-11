@@ -12,9 +12,6 @@ import collections
 
 
 
-
-
-
 #Takes raw matrix data and returns matrix object
 class Matrix_filter(object):
 
@@ -39,7 +36,7 @@ class Matrix_filter(object):
         self.cell_color_list = [color for color in self.cell_color_list if color not in colors_to_remove]
 
         if args.exclude_genes:
-            excluded_genes_df = pd.read_table(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep='\t', header=0, index_col=False)
+            excluded_genes_df = pd.read_table(os.path.join(os.path.dirname(args.filepath),args.exclude_genes), sep=None, engine='python')
             try:
                 self.exclude_list = [g1 for g1 in excluded_genes_df['GeneID'].tolist() if g1 in self.gene_names]
                 not_in_mat = [g1 for g1 in excluded_genes_df['GeneID'].tolist() if g1 not in self.gene_names]
@@ -53,8 +50,9 @@ class Matrix_filter(object):
             self.exclude_list = []
 
         if self.cell_list_filepath:
-            self.cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep='\s+', engine='python')
+            self.cell_groups_df = pd.read_table(open(self.cell_list_filepath,'rU'), sep=None, engine='python')
             self.cell_group_names = self.cell_groups_df.columns.tolist()[1:]
+            #print(self.cell_groups_df,self.cell_group_names)
             if self.cell_group_names == []:
                 self.cell_groups_df['GroupID'] = pd.Series(['None' for x in range(len(self.cell_groups_df['SampleID']))])
                 self.cell_group_names =['GroupID']
