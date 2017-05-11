@@ -234,8 +234,8 @@ def plot_SVD(args, matrix_data, gene_subcluster_matrix=False, title = ''):
     top_pca_list = Pc_sort_df.index.tolist()
 
     top_by_gene = df_by_gene[top_pca_list[0:num_genes]]
-    gene_top = TruncatedSVD(n_components=2)
-    cell_pca = TruncatedSVD(n_components=2)
+    gene_top = TruncatedSVD(n_components=3)
+    cell_pca = TruncatedSVD(n_components=3)
     top_by_cell = top_by_gene.transpose()
     np_top_gene = np.asarray(top_by_cell)
     np_top_cell = np.asarray(top_by_gene)
@@ -379,8 +379,8 @@ def plot_TSNE(args, matrix_data, title= ''):
     gene_top = TSNE(n_components=2, init='pca', random_state=0)
     cell_pca = TSNE(n_components=2, init='pca', random_state=0)
     top_by_cell = top_by_gene.transpose()
-    np_top_gene = np.asarray(top_by_cell)
-    np_top_cell = np.asarray(top_by_gene)
+    np_top_gene = np.asarray(top_by_gene)
+    np_top_cell = np.asarray(top_by_cell)
     top_cell_trans = cell_pca.fit_transform(np_top_cell)
     top_gene_trans = gene_top.fit_transform(np_top_gene)
     if not np.isnan(top_cell_trans).any():
